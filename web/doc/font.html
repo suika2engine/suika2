@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="ja-JP">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+
+  <title>Suika2 | フォントの変更方法</title>
+  <meta name="Description" content="Suika2でフォントを変更する方法を解説しています。">
+  <meta name="theme-color" content="#eb8334">
+
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="/css/bootstrap.css">
+  <link rel="stylesheet" href="/css/adjustments.css">
+  <script src="/js/bootstrap.bundle.min.js"></script>
+
+	<!-- INSERT-GTAG-HERE -->
+</head>
+<body>
+
+<!-- BEGIN-HEADER -->
+<nav class="navbar navbar-expand-lg bg-dark nav-block" data-bs-theme="dark">
+	<div class="container">
+		<a class="navbar-brand d-none d-md-block" href="/"><img height="100" src="/img/icons/suika.png" alt="suika2"></a>
+		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse" id="navbarSupportedContent">
+			<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+				<li class="nav-item"><a class="nav-link" href="/">ホーム</a></li>
+				<li class="nav-item dropdown" aria-current="page">
+					<a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+						ダウンロード
+					</a>
+					<ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
+						<li><a class="dropdown-item" href="https://suika2.com/dl/">アプリ</a></li>
+						<li><a class="dropdown-item" href="https://suika2.com/dl/material/">素材</a></li>
+					</ul>
+				</li>
+				<li class="nav-item dropdown" aria-current="page">
+					<a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+						ドキュメント
+					</a>
+					<ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
+						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%83%89%E3%82%AD%E3%83%A5%E3%83%A1%E3%83%B3%E3%83%88">ドキュメントトップ</a></li>
+						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%83%81%E3%83%A5%E3%83%BC%E3%83%88%E3%83%AA%E3%82%A2%E3%83%AB">初級者向け: 最初のチュートリアル</a></li>
+						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%82%BF%E3%82%A4%E3%83%88%E3%83%AB%E7%94%BB%E9%9D%A2%E3%81%AE%E4%BD%9C%E3%82%8A%E6%96%B9">中級者向け: GUIのチュートリアル</a></li>
+						<li><a class="dropdown-item" href="https://suika2.com/wiki/?WMS%E3%81%AE%E4%BD%BF%E3%81%84%E6%96%B9">上級者向け: WMSのチュートリアル</a></li>
+						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89%E3%83%AA%E3%83%95%E3%82%A1%E3%83%AC%E3%83%B3%E3%82%B9">全開発者向け: コマンド一覧</a></li>
+						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%82%B3%E3%83%B3%E3%83%95%E3%82%A3%E3%82%B0%E4%B8%80%E8%A6%A7">全開発者向け: コンフィグ一覧</a></li>
+						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%82%88%E3%81%8F%E3%81%82%E3%82%8B%E8%B3%AA%E5%95%8F">よくある質問</a></li>
+						<li><a class="dropdown-item" href="https://suika2.com/wiki/?cmd=search">ドキュメントを検索...</a></li>
+					</ul>
+				</li>
+				<li class="nav-item dropdown" aria-current="page">
+					<a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+						開発
+					</a>
+					<ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
+						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%83%90%E3%82%B0%E5%A0%B1%E5%91%8A%E3%81%AE%E4%B8%80%E8%A6%A7">バグ報告の一覧</a></li>
+						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E6%A9%9F%E8%83%BD%E8%A6%81%E6%9C%9B%E3%81%AE%E4%B8%80%E8%A6%A7">機能要望の一覧</a></li>
+					</ul>
+				</li>
+				<li class="nav-item"><a class="nav-link" href="/works/">利用作品</a></li>
+				<li class="nav-item"><a class="nav-link" href="/en/">English</a></li>
+				<li class="nav-item dropdown d-block d-md-none">
+					<a class="btn btn-outline-success rounded-0 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-moon"></i></a>
+					<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bd-theme-text">
+						<li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">Light</button></li>
+						<li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">Dark</button></li>
+						<li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="auto" aria-pressed="true">Auto</button></li>
+					</ul>
+				</li>
+			</ul>
+			<li class="nav-item dropdown d-none d-md-block">
+				<a class="btn btn-outline-success rounded-0 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-moon"></i></a>
+				<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bd-theme-text">
+					<li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">Light</button></li>
+					<li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">Dark</button></li>
+					<li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="auto" aria-pressed="true">Auto</button></li>
+				</ul>
+			</li>
+		</div>
+	</div>
+</nav>
+<!-- END-HEADER -->
+
+<!-- Slideshow -->
+<div>
+	<div id="carousel1" class="carousel slide" data-bs-ride="carousel">
+		<div class="carousel-inner">
+			<div class="carousel-item active">
+				<img src="/img/pixfont/complete.png">
+			</div>
+		</div>
+		<button class="carousel-control-prev" type="button" data-bs-target="#carousel1" data-bs-slide="prev">
+			<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+			<span class="visually-hidden">Previous</span>
+		</button>
+		<button class="carousel-control-next" type="button" data-bs-target="#carousel1" data-bs-slide="next">
+			<span class="carousel-control-next-icon" aria-hidden="true"></span>
+			<span class="visually-hidden">Next</span>
+		</button>
+	</div>
+</div>
+
+<!-- Title Strip-->
+<div class="block">
+	<div class="container">
+		<div class="row">
+			<div class="col-md">
+				<h1>フォントの変更方法</h1>
+				<p>
+					Suika2でフォントを変更する方法を解説しています。<br>
+					ピクセルフォント「マルミーニャ」題材にしています。
+				</p>
+				<p>
+					<a href="/dl/sample/maruminya.zip">このページの手順で完成したゲームのZIPをダウンロード</a>
+				</p>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- BEGIN-CONTENT -->
+<div class="container">
+  <div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12">
+<!-- ----------- -->
+
+<h2>フォントのダウンロード</h2>
+<p>
+	ここでは <a href="https://twitter.com/hicchicc">患者長ひっく</a> 様の制作された「マルミーニャ」フォントを利用します。
+</p>
+<ul>
+	<p>フォント制作者を支援したい場合、<a href="https://booth.pm/ja/items/4927023">こちらから支援版を購入できます</a></p>
+	<p>無料版は <a href="https://hicchicc.github.io/00ff/" target="_blank">こちらのサイトにあります</a></p>
+	<p>ダウンロードしてください</p>
+	<p>PCのダウンロードフォルダを開くと、下記のようなファイルがありますので、確認してください</p>
+</ul>
+<p>
+	<img src="/img/pixfont/pixfont-00.png" style="border: 2px sopd black;">
+</p>
+
+<!-- --------------- -->
+
+<h2>ゲームフォルダへの配置</h2>
+<p>
+	ゲームフォルダ内にfontフォルダがあるのを確認します。
+</>
+<p>
+	<img src="/img/pixfont/pixfont-01.png" style="border: 2px sopd black;">
+</p>
+<>
+	fontフォルダの内容を確認します。
+</p>
+<p>
+  <img src="/img/pixfont/pixfont-02.png" style="border: 2px sopd black;">
+</p>
+<p>
+	さきほどダウンロードした <code>x12y12pxMaruMinya.ttf</code> ファイルを、このfontフォルダにコピーします。
+	結果はこうなります。
+</p>
+<p>
+	<img src="/img/pixfont/pixfont-03.png" style="border: 2px sopd black;">
+</p>
+<p>
+  この段階で、次のファイルは削除可能です: <code>PCENSE</code>, <code>VL-PGothic-Regular.ttf</code>, <code>yasashisa.ttf</code>
+</p>
+
+<h2>セーブデータの削除</h2>
+<p>
+	ゲームフォルダに戻って、savフォルダがあれば、削除してください。
+</p>
+<p>
+	<img src="/img/pixfont/pixfont-04.png" style="border: 2px sopd black;">
+</p>
+<p>
+	理由は、前回実行したときのフォント名がセーブデータに残っているからです。lh
+</p>
+<p>
+	一度もSuika2を起動していない場合、savフォルダは作成されていないので、削除は必要ありません。
+</p>
+
+<h2>コンフィグの書き換え</h2>
+<p>
+	ゲームフォルダにconfフォルダがあることを確認します。
+</p>
+<p>
+	<img src="/img/pixfont/pixfont-05.png" style="border: 2px sopd black;">
+</p>
+<p>
+	このフォルダを開いて、config.txtというファイルがあることを確認してください。
+</p>
+<p>
+	<img src="/img/pixfont/pixfont-06.png" style="border: 2px sopd black;">
+</p>
+<p>
+	config.txtをダブルクリックして開きます。
+</p>
+<p>
+	<img src="/img/pixfont/pixfont-07.png" width="50%" style="border: 2px sopd black;">
+</p>
+<p>
+	<code>font.file=yasashisa.ttf</code> の部分を <code>font.file=x12y12pxMaruMinya.ttf</code> に書き換えます。
+</p>
+<p>
+	<img src="/img/pixfont/pixfont-08.png" style="border: 2px sopd black;">
+</p>
+<p>
+	config.txtファイルを保存します。
+</p>
+<p>
+	<img src="/img/pixfont/pixfont-09.png" style="border: 2px sopd black;">
+</p>
+
+<h2>Suika2の起動</h2>
+<p>
+	ゲームフォルダに戻って、
+	<code>suika.exe</code>
+	があることを確認します。
+	（環境によっては <code>suika</code> と表示され、<code>.exe</code> は省略されます。）
+</p>
+<p>
+	<img src="/img/pixfont/pixfont-10.png" style="border: 2px sopd black;">
+</p>
+<p>
+	<code>suika.exe</code> をダブルクリックして起動します。
+</p>
+<p>
+	ゲームを進めると、ピクセルフォントが表示されていることがわかります。
+</p>
+<p>
+	<img src="/img/pixfont/pixfont-11.png" width="100%" style="border: 2px sopd black;">
+</p>
+
+<h2>コンフィグ画面からフォント選択の機能を削除</h2>
+<p>
+	このままだと、ゲームのコンフィグ画面で下記のようなフォント選択機能が残っています。
+</p>
+<p>
+	<img src="/img/pixfont/pixfont-12.png" style="border: 2px sopd black;">
+</p>
+<p>
+	この状態でフォント選択を行うと、
+	<code>VL-PGothic-Regular.ttf</code> や <code>yasashisa.ttf</code> が選択されてしまいます。
+</p>
+<p>
+	フォント選択機能を無効にするには、下記の手順を実施してください。
+</p>
+<p>
+	まず、ゲームフォルダに <code>gui</code> フォルダがあることを確認します。
+</p>
+<p>
+	<img src="/img/pixfont/pixfont-13.png" style="border: 2px sopd black;">
+</p>
+<p>
+	<code>gui</code> フォルダを開いて、 <code>system.txt</code> というファイルがあることを確認してください。
+</p>
+<p>
+	<img src="/img/pixfont/pixfont-14.png" style="border: 2px sopd black;">
+</p>
+<p>
+	<code>system.txt</code> をダブルクリックして開いてください。
+</p>
+<p>
+	<img src="/img/pixfont/pixfont-15.png" style="border: 2px sopd black;">
+</p>
+<p>
+	下にスクロールしていくと、
+	<code># フォント選択ボタン1</code> と <code># フォント選択ボタン2</code> がみつかります。
+</p>
+<p>
+	<img src="/img/pixfont/pixfont-16.png" style="border: 2px sopd black;">
+</p>
+<p>
+	この部分を削除してください。
+</p>
+<p>
+	<img src="/img/pixfont/pixfont-17.png" width="50%" style="border: 2px sopd black;">
+</p>
+<p>
+	<code>system.txt</code> を保存してください。
+</p>
+<p>
+	<img src="/img/pixfont/pixfont-18.png" style="border: 2px sopd black;">
+</p>
+
+<h2>再びSuika2の起動</h2>
+<p>
+	ゲームフォルダに戻ってください。
+</p>
+<p>
+	<code>sav</code> フォルダがあれば削除してください。
+</p>
+<p>
+	<code>suika.exe</code> をダブルクリックして起動します。
+</p>
+<p>
+	タイトル画面でCONFIGを選ぶと、
+	下記の画面が出ますが、
+	FONT1もFONT2も実際にはボタンとしてクリックできなくなっています。
+</p>
+<p>
+	<img src="/img/pixfont/pixfont-19.png" width="100%" style="border: 2px sopd black;">
+</p>
+
+<h2>コンフィグ画面からFONT1とFONT2のボタンを完全削除</h2>
+<p>
+	ゲームフォルダに戻り、 <code>cg</code> フォルダを開きます。
+</p>
+<p>
+	<code>config-idle.png</code> ファイルを開くと、これがコンフィグ画面の画像であることがわかります。
+</p>
+<p>
+	<img src="/img/pixfont/pixfont-20.png" style="border: 2px sopd black;">
+</p>
+<p>
+	ここではAdobe Photoshop 2023を使って、AIでフォントの項目を削除してみます。
+</p>
+<p>
+	<img src="/img/pixfont/pixfont-21.png" width="100%" style="border: 2px sopd black;">
+</p>
+<p>
+	結果は下記のようになりました。 (<a href="/img/pixfont/config-idle.png">こちらからダウンロードできます</a>)
+</p>
+<p>
+	<img src="/img/pixfont/pixfont-22.png" width="100%" style="border: 2px sopd black;">
+</p>
+
+<h2>最終確認: Suika2の起動</h2>
+<p>
+	ゲームフォルダに戻ってください。
+</p>
+<p>
+	<code>sav</code> フォルダがあれば削除してください。
+</p>
+<p>
+	<code>suika.exe</code> をダブルクリックして起動します。
+</p>
+<p>
+	タイトル画面でCONFIGを選ぶと、下記の画面が出て、フォント選択がなくなっています。
+</p>
+<p>
+	<img src="/img/pixfont/pixfont-23.png" width="100%" style="border: 2px sopd black;">
+</p>
+
+<h2>まとめ</h2>
+<p>
+	Suika2でフォントを変更する方法についてまとめました。
+</p>
+<p>
+	このページでは例として患者長ひっく様の「マルミーニャ」フォントを利用しました。
+</p>
+
+<h2>補足</h2>
+<ul>
+  <li>ダウンロードするフォントを変更すれば、他のフォントでも同じことができます</li>
+	<li>ピクセルフォントである必要はなく、ライセンス上問題なければ何でも使えます</li>
+	<li>ここでは「マルミーニャ」を題材に使わせていただきました (ライセンスの都合と、単に私の好みです)</li>
+	<li>Suika2で使えるフォントの形式は、TrueTypeフォントとOpenTypeフォントで、ファイル名の末尾が <code>.ttf</code> か <code>.ttc</code> か <code>.otf</code> のファイルです</li>
+  <li>使えるはずのフォントがエラーなどで使えないときは、ご連絡いただければSuika2を修正いたします</li>
+	<li>色付きのUnicode絵文字には現状では対応しておりませんが、ご要望があれば対応します</li>
+  <li>フォントを利用するときは、くれぐれもそのフォントのライセンスを遵守してください(特に商用フォント)</li>
+  <li>ゲームのREADMEの中などに、そのフォントを使用したことと、フォント作者のクレジットを入れてください</li>
+</ul>
+
+<!-- ----------- -->
+    </div>
+  </div>
+</div>
+<!-- END-CONTENT -->
+
+<!-- BEGIN-FOOTER -->
+<footer id="footer" class="container-fluid nav-block bg-dark" data-bs-theme="dark">
+	<div class="container">
+		<div class="row">
+			<div class="col-lg-6 col-md-12 mb-4 mb-md-0">
+				<h5>ノベルアプリ開発ツール Suika2</h5>
+				<p>Suika2はノベルアプリ(スマートフォンのノベルゲーム)を制作するためのツールです。</p>
+			</div>
+			<div class="col-lg-6 col-md-12 mb-4 mb-md-0">
+				<h5>リンク</h5>
+				<ul class="list-unstyled mb-0">
+					<li><a href="https://github.com/ktabata/suika2">GitHub</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div class="text-center mt-5 ">
+		Copyright &copy; 2001-2024, Keiichi Tabata. All rights reserved.
+	</div>
+</footer>
+<script src="/js/darkmode.js"></script>
+<!-- END-FOOTER -->
+
+</body>
+</html>

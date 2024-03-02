@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<title>Suika2 | Visual Novel Game Engine Script Generator</title>
+	<meta name="description" content="Suika2 is a visual novel game engine.">
+	<meta name="theme-color" content="#eb8334">
+
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+	<link rel="stylesheet" href="/css/bootstrap.css">
+	<link rel="stylesheet" href="/css/adjustments.css">
+	<script src="/js/bootstrap.bundle.min.js"></script>
+	
+	<script>
+		function onChangeCommand() {
+				var command = document.getElementById("command").value;
+
+				var message = document.getElementById("window-message");
+				var serif = document.getElementById("window-serif");
+				var background = document.getElementById("window-background");
+				var character = document.getElementById("window-character");
+				var bgmstart = document.getElementById("window-bgmstart");
+				var bgmstop = document.getElementById("window-bgmstop");
+				var select3 = document.getElementById("window-select3");
+				var select2 = document.getElementById("window-select2");
+				var flagset = document.getElementById("window-flagset");
+				var flagbranch = document.getElementById("window-flagbranch");
+
+				message.style.display = "none";
+				serif.style.display = "none";
+				background.style.display = "none";
+				character.style.display = "none";
+				bgmstart.style.display = "none";
+				bgmstop.style.display = "none";
+				select3.style.display = "none";
+				select2.style.display = "none";
+				flagset.style.display = "none";
+				flagbranch.style.display = "none";
+
+				if(command == "message") {
+						message.style.display = "block";
+				} else if(command == "serif") {
+						serif.style.display = "block";
+				} else if(command == "background") {
+						background.style.display = "block";
+				} else if(command == "character") {
+						character.style.display = "block";
+				} else if(command == "bgmstart") {
+						bgmstart.style.display = "block";
+				} else if(command == "bgmstop") {
+						bgmstop.style.display = "block";
+				} else if(command == "select3") {
+						select3.style.display = "block";
+				} else if(command == "select2") {
+						select2.style.display = "block";
+				} else if(command == "flagset") {
+						flagset.style.display = "block";
+				} else if(command == "flagbranch") {
+						flagbranch.style.display = "block";
+				}
+
+				return 0;
+		}
+
+		function onGenerateCommand() {
+				var command = document.getElementById("command").value;
+				if(command == "message") {
+						return generateMessage();
+				} else if(command == "serif") {
+						return generateSerif();
+				} else if(command == "background") {
+						return generateBackground();
+				} else if(command == "character") {
+						return generateCharacter();
+				} else if(command == "bgmstart") {
+						return generateBgmStart();
+				} else if(command == "bgmstop") {
+						return generateBgmStop();
+				} else if(command == "select3") {
+						return generateSelect3();
+				} else if(command == "select2") {
+						return generateSelect2();
+				} else if(command == "flagset") {
+						return generateFlagSet();
+				} else if(command == "flagbranch") {
+						return generateFlagBranch();
+				}
+				return 0;
+		}
+
+		function generateMessage() {
+				var text = document.getElementById("message-text").value;
+
+				if(text == "") {
+						alert("Sentence is empty.");
+						return 1;
+				}
+
+				text = text.replaceAll("\n", "\\n");
+
+				document.getElementById("result-script").value = text;
+				return 0;
+		}
+
+		function generateSerif() {
+				var name = document.getElementById("serif-name").value;
+				var text = document.getElementById("serif-text").value;
+				var voice = document.getElementById("serif-voice").value;
+
+				if(name == "") {
+						alert("Name is empty.");
+						return 1;
+				}
+				if(text == "") {
+						alert("Sentence is empty.");
+						return 1;
+				}
+
+				text = text.replaceAll("\n", "\\n");
+
+				var result = "";
+				if(voice == "") {
+						result = "*" + name + "*" + text;
+				} else {
+						result = "*" + name + "*" + voice + "*" + text;
+				}
+				document.getElementById("result-script").value = result;
+				return 0;
+		}
+
+		function generateBackground() {
+				var file = document.getElementById("background-file").value;
+				var time = document.getElementById("background-time").value;
+				var effect = document.getElementById("background-effect").value;
+
+				if(file == "") {
+						alert("File name is empty.");
+						return 1;
+				}
+				if(time == "") {
+						alert("Time is empty.");
+						return 1;
+				}
+
+				var result = "@bg " + file + " " + time + " " + effect;
+				document.getElementById("result-script").value = result;
+				return 0;
+		}
+
+		function generateCharacter() {
+				var file = document.getElementById("character-file").value;
+				var pos = document.getElementById("character-position").value;
+				var time = document.getElementById("character-time").value;
+				var effect = document.getElementById("character-effect").value;
+
+				if(file == "") {
+						file = "none";
+				}
+				if(time == "") {
+						alert("Time is empty.");
+						return 1;
+				}
+
+				var result = "@ch " + pos + " " + file + " " + time + " " + effect;
+				document.getElementById("result-script").value = result;
+				return 0;
+		}
+
+		function generateBgmStart() {
+				var file = document.getElementById("bgmstart-file").value;
+
+				if(file == "") {
+						alert("File name is empty.");
+						return 1;
+				}
+
+				var result = "@bgm " + file;
+				document.getElementById("result-script").value = result;
+				return 0;
+		}
+
+		function generateBgmStop() {
+				var time = document.getElementById("bgmstop-time").value;
+
+				if(time == "") {
+						alert("Time is empty.");
+						return 1;
+				}
+
+				var result =
+						"@vol bgm 0.0 " + time + "\n" +
+						"@wait " + time + "\n" +
+						"@bgm stop\n" +
+						"@vol bgm 1.0 0.0";
+				document.getElementById("result-script").value = result;
+				return 0;
+		}
+
+		function generateSelect3() {
+				var opt1 = document.getElementById("select3-opt1").value;
+				var opt2 = document.getElementById("select3-opt2").value;
+				var opt3 = document.getElementById("select3-opt3").value;
+
+				if(opt1 == "" || opt2 == "" || opt3 == "") {
+						alert("Options are empty.");
+						return 1;
+				}
+
+				var opt1_label = opt1.replaceAll(" ", "_");
+				var opt2_label = opt2.replaceAll(" ", "_");
+				var opt3_label = opt3.replaceAll(" ", "_");
+
+				var result =
+						"@choose " + "LABEL_" + opt1_label + " \"" + opt1 + "\" LABEL_" + opt2_label + " \"" + opt2 + "\" LABEL_" + opt3_label + " \"" + opt3 + "\"\n" +
+						":LABEL_" + opt1_label + "\n" +
+						"Write story for the first option here.\n" +
+						"...\n" +
+						"@goto END_" + opt1_label + "_" + opt2_label + "_" + opt3_label + "\n" +
+						":LABEL_" + opt2_label + "\n" +
+						"Write story for the second option here.\n" +
+						"...\n" +
+						"@goto END_" + opt1_label + "_" + opt2_label + "_" + opt3_label + "\n" +
+						":LABEL_" + opt3_label + "\n" +
+						"Write story for the third option here.\n" +
+						"...\n" +
+						":END_" + opt1_label + "_" + opt2_label + "_" + opt3_label + "\n" +
+						"Stories join here.";
+				document.getElementById("result-script").value = result;
+				return 0;
+		}
+
+		function generateSelect2() {
+				var opt1 = document.getElementById("select2-opt1").value;
+				var opt2 = document.getElementById("select2-opt2").value;
+
+				if(opt1 == "" || opt2 == "") {
+						alert("Options are empty.");
+						return 1;
+				}
+
+				var opt1_label = opt1.replaceAll(" ", "_");
+				var opt2_label = opt2.replaceAll(" ", "_");
+
+				var result =
+						"@choose " + "LABEL_" + opt1_label + " \"" + opt1 + "\" LABEL_" + opt2_label + " \"" + opt2 + "\"\n" +
+						":LABEL_" + opt1_label + "\n" +
+						"Write story for the first option here.\n" +
+						"...\n" +
+						"@goto END_" + opt1_label + "_" + opt2_label + "\n" +
+						":LABEL_" + opt2_label + "\n" +
+						"Write story for the second option here.\n" +
+						"...\n" +
+						":END_" + opt1_label + "_" + opt2_label + "\n" +
+						"Stories join here.";
+				document.getElementById("result-script").value = result;
+				return 0;
+		}
+
+		function generateFlagSet() {
+				var index = document.getElementById("flagset-index").value;
+
+				if(index == "") {
+						alert("Flag index is empty.");
+						return 1;
+				}
+				index = parseInt(index);
+				if(index < 0 || index >= 10000) {
+						alert("Flag index is out of range.");
+						return 1;
+				}
+
+				var result = "@set $" + index + " = 1";
+				document.getElementById("result-script").value = result;
+				return 0;
+		}
+
+		function generateFlagBranch() {
+				var index = document.getElementById("flagbranch-index").value;
+				var name = document.getElementById("flagbranch-name").value;
+
+				if(index == "") {
+						alert("Flag index is empty.");
+						return 1;
+				}
+				index = parseInt(index);
+				if(index < 0 || index >= 10000) {
+						alert("Flag index is out of range.");
+						return 1;
+				}
+				if(name == "") {
+						alert("Event name is empty.");
+						return 1;
+				}
+				name = name.replaceAll(" ", "_");
+
+				var result =
+						"@if $" + index + " == 1 " + name + "\n" +
+						"Flag is not set. Write story when event not happens.\n" +
+						"\n" +
+						"@goto " + name + "_END\n" +
+						":" + name + "\n" +
+						"Flag is set. Write story when event happens.\n" +
+						"\n" +
+						":" + name + "_END\n" +
+						"\n" +
+						"Stories join here.";
+				document.getElementById("result-script").value = result;
+				return 0;
+		}
+	</script>
+
+	<!-- INSERT-GTAG-HERE -->
+</head>
+<body>
+
+<!-- BEGIN-EN-HEADER -->
+<nav class="navbar navbar-expand-lg bg-dark nav-block" data-bs-theme="dark">
+	<div class="container">
+		<a class="navbar-brand d-none d-md-block" href="/en/"><img height="100" src="/img/icons/suika.png" alt="suika2"></a>
+		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item"><a class="nav-link" aria-current="page" href="/en/">Home</a></li>
+        <li class="nav-item"><a class="nav-link" aria-current="page" href="/en/dl/">Downloads</a></li>
+				<li class="nav-item dropdown" aria-current="page">
+					<a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+						Document
+					</a>
+					<ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
+						<li><a class="dropdown-item" href="/en/doc/">Index</a></li>
+						<li><a class="dropdown-item" href="/en/wiki/?Tutorial">Tutorial</a></li>
+						<li><a class="dropdown-item" href="/en/wiki/?Command+Reference">Command Reference</a></li>
+						<li><a class="dropdown-item" href="/en/doc/title.html">Title Creation</a></li>
+						<li><a class="dropdown-item" href="/en/doc/font.html">Font Change</a></li>
+						<li><a class="dropdown-item" href="/en/doc/wms.html">WMS Usage</a></li>
+						<li><a class="dropdown-item" href="/en/doc/faq.html">FAQ</a></li>
+						<li><a class="dropdown-item" href="/en/wiki/">Wiki Top</a></li>
+						<li><a class="dropdown-item" href="/en/wiki/?cmd=search">Search</a></li>
+					</ul>
+				</li>
+        <li class="nav-item"><a class="nav-link" href="/en/works/">Works</a></li>
+        <li class="nav-item"><a class="nav-link" href="/">Japanese</a></li>
+        <li class="nav-item dropdown d-block d-md-none">
+          <a class="btn btn-outline-success rounded-0 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-moon"></i></a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bd-theme-text">
+            <li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">Light</button></li>
+            <li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">Dark</button></li>
+            <li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="auto" aria-pressed="true">Auto</button></li>
+          </ul>
+        </li>
+      </ul>
+      <li class="nav-item dropdown d-none d-md-block">
+        <a class="btn btn-outline-success rounded-0 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-moon"></i></a>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bd-theme-text">
+          <li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">Light</button></li>
+          <li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">Dark</button></li>
+          <li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="auto" aria-pressed="true">Auto</button></li>
+        </ul>
+      </li>
+		</div>
+	</div>
+</nav>
+<!-- END-EN-HEADER -->
+
+<!-- Title Strip-->
+<div class="block">
+	<div class="container">
+		<div class="row">
+			<div class="col-md">
+				<h1>Script Generator for Suika2</h1>
+				<p>This page generates scripts. Note that the text you input will not be sent to anywhere.</p>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- BEGIN-CONTENT -->
+<div class="container">
+	<div class="row">
+		<div class="col-xs-12 col-sm-12 col-md-12">
+<!-- -------------- -->
+
+<h1 class="spacer">Script Generator</h1>
+
+<h2>What's This?</h2>
+<p>
+	If you are a beginner creator, it's ok, this page assists you to write script.<br>
+	Please fill a form and click "Generate Script", then script will be automatically generated.<br>
+	The information you filled will not be send to server.
+</p>
+
+<h2>Go Ahead!</h2>
+
+<!-- コマンド選択 -->
+<div class="mb-3">
+	<label class="form-label">Which do you input?</label>
+	<select id="command" class="form-select bg-dark" aria-label="Default select example" onchange="onChangeCommand();">
+		<option value="message" selected>Text</option>
+		<option value="serif">Text with Character Name</option>
+		<option value="background">Changing Background</option>
+		<option value="character">Changing Character</option>
+		<option value="bgmstart">Playing BGM</option>
+		<option value="bgmstop">Stopping BGM</option>
+    <option value="select3">Showing Three Options</option>
+    <option value="select2">Showing Two Options</option>
+		<option value="flagset">Setting Flag</option>
+		<option value="flagbranch">Branching by Flag</option>
+	</select>
+</div>
+
+
+
+<!-- メッセージ -->
+<div id="window-message" class="mb-3">
+	<label class="form-label">Text</label>
+	<textarea class="form-control bg-dark" id="message-text" row="3">To be, or not to be, that is the question:
+Whether 'tis nobler in the mind to suffer
+The slings and arrows of outrageous fortune,</textarea>
+</div>
+
+<!-- セリフ -->
+<div id="window-serif" class="mb-3" style="display: none;">
+	<label class="form-label">Character Name</label>
+	<input type="text" class="form-control bg-dark" id="serif-name" value="Midori">
+
+	<label class="form-label">Voice File Name (Unnecessary)</label>
+	<input type="text" class="form-control bg-dark" id="serif-voice" value="">
+
+	<label class="form-label">Text</label>
+	<textarea class="form-control bg-dark" id="serif-text" row="3">Hello, thank you for using Suika2!</textarea>
+</div>
+
+<!-- 背景 -->
+<div id="window-background" class="mb-3" style="display: none;">
+	<label class="form-label">Background File Name</label>
+	<input type="text" class="form-control bg-dark" id="background-file" value="bg001.png">
+
+	<label class="form-label">Fading Time</label>
+	<input type="text" class="form-control bg-dark" id="background-time" value="1.0">
+
+	<label class="form-label">Effect Type</label>
+	<select class="form-select bg-dark" aria-label="Default select example" id="background-effect">
+		<option value="normal">fade/dissolve (alpha blending)</option>
+		<option value="mask">dissolve from radiating points</option>
+		<option value="curtain-right">right curtain</option>
+		<option value="curtain-left">left curtain</option>
+		<option value="curtain-up">up curtain</option>
+		<option value="curtain-down">down curtain</option>
+		<option value="slide-right">right slide</option>
+		<option value="slide-left">left slide</option>
+		<option value="slide-up">up slide</option>
+		<option value="slide-down">down slide</option>
+		<option value="shutter-right">right shutter</option>
+		<option value="shutter-left">left shutter</option>
+		<option value="shutter-up">up shutter</option>
+		<option value="shutter-down">down shutter</option>
+		<option value="clockwise">clockwise wipe</option>
+		<option value="counterclockwise">counterclockwise wipe</option>
+		<option value="clockwise20">clockwise wipe (20 degrees stepped)</option>
+		<option value="counterclockwise20">counterclockwise wipe (20 degrees stepped)</option>
+		<option value="clockwise30">clockwise wipe (30 degrees stepped)</option>
+		<option value="counterclockwise30">counterclockwise (30 degrees stepped)</option>
+		<option value="eye-open">open eyes</option>
+		<option value="eye-close">close eyes</option>
+		<option value="eye-open-v">open eyes (vertical)</option>
+		<option value="eye-close-v">close eyes (vertical)</option>
+		<option value="slit-open">open slit</option>
+		<option value="slit-close">close slit</option>
+		<option value="slit-open-v">open slit (vertical)</option>
+		<option value="slit-close-v">close slit (vertical)</option>
+	</select>
+</div>
+
+<!-- キャラクタ -->
+<div id="window-character" class="mb-3" style="display: none;">
+	<label class="form-label">Character File Name (empty to vanish character)</label>
+	<input type="text" class="form-control bg-dark" id="character-file" value="ch001.png">
+
+	<label class="form-label">Character Position</label>
+	<select class="form-select bg-dark" aria-label="Default select example" id="character-position">
+		<option value="center">center (front)</option>
+		<option value="right">right</option>
+		<option value="left">left</option>
+		<option value="back">center (back)</option>
+	</select>
+
+	<label class="form-label">Fading Time</label>
+	<input type="text" class="form-control bg-dark" id="character-time" value="1.0">
+
+	<label class="form-label">Effect Type</label>
+	<select class="form-select bg-dark" aria-label="Default select example" id="character-effect">
+		<option value="normal">fade/dissolve (alpha blending)</option>
+		<option value="mask">dissolve from radiating points</option>
+		<option value="curtain-right">right curtain</option>
+		<option value="curtain-left">left curtain</option>
+		<option value="curtain-up">up curtain</option>
+		<option value="curtain-down">down curtain</option>
+		<option value="slide-right">right slide</option>
+		<option value="slide-left">left slide</option>
+		<option value="slide-up">up slide</option>
+		<option value="slide-down">down slide</option>
+		<option value="shutter-right">right shutter</option>
+		<option value="shutter-left">left shutter</option>
+		<option value="shutter-up">up shutter</option>
+		<option value="shutter-down">down shutter</option>
+		<option value="clockwise">clockwise wipe</option>
+		<option value="counterclockwise">counterclockwise wipe</option>
+		<option value="clockwise20">clockwise wipe (20 degrees stepped)</option>
+		<option value="counterclockwise20">counterclockwise wipe (20 degrees stepped)</option>
+		<option value="clockwise30">clockwise wipe (30 degrees stepped)</option>
+		<option value="counterclockwise30">counterclockwise (30 degrees stepped)</option>
+		<option value="eye-open">open eyes</option>
+		<option value="eye-close">close eyes</option>
+		<option value="eye-open-v">open eyes (vertical)</option>
+		<option value="eye-close-v">close eyes (vertical)</option>
+		<option value="slit-open">open slit</option>
+		<option value="slit-close">close slit</option>
+		<option value="slit-open-v">open slit (vertical)</option>
+		<option value="slit-close-v">close slit (vertical)</option>
+	</select>
+</div>
+
+<!-- BGMの開始 -->
+<div id="window-bgmstart" class="mb-3" style="display: none;">
+	<label class="form-label">BGM File Name</label>
+	<input type="text" class="form-control bg-dark" id="bgmstart-file" value="bgm001.ogg">
+</div>
+
+<!-- BGMの停止 -->
+<div id="window-bgmstop" class="mb-3" style="display: none;">
+	<label class="form-label">Fading Time</label>
+	<input type="text" class="form-control bg-dark" id="bgmstop-time" value="2.0">
+</div>
+
+<!-- ３つの選択肢の表示 -->
+<div id="window-select3" class="mb-3" style="display: none;">
+	<label class="form-label">First Option</label>
+	<input type="text" class="form-control bg-dark" id="select3-opt1" value="Go to school">
+
+	<label class="form-label">Second Option</label>
+	<input type="text" class="form-control bg-dark" id="select3-opt2" value="Go to park">
+
+	<label class="form-label">Third Option</label>
+	<input type="text" class="form-control bg-dark" id="select3-opt3" value="Go to beach">
+</div>
+
+<!-- ２つの選択肢の表示 -->
+<div id="window-select2" class="mb-3" style="display: none;">
+	<label class="form-label">First Option</label>
+	<input type="text" class="form-control bg-dark" id="select2-opt1" value="Go to mountain">
+
+	<label class="form-label">Second Option</label>
+	<input type="text" class="form-control bg-dark" id="select2-opt2" value="Go to beach">
+</div>
+
+<!-- フラグを立てる -->
+<div id="window-flagset" class="mb-3" style="display: none;">
+	<label class="form-label">Flag Index (0-9999)</label>
+	<input type="text" class="form-control bg-dark" id="flagset-index" value="0">
+</div>
+
+<!-- フラグで分岐 -->
+<div id="window-flagbranch" class="mb-3" style="display: none;">
+	<label class="form-label">Flag Index (0-9999)</label>
+	<input type="text" class="form-control bg-dark" id="flagbranch-index" value="0">
+
+	<label class="form-label">Even Name (event will happen if flag is set)</label>
+	<input type="text" class="form-control bg-dark" id="flagbranch-name" value="Encounter Midori">
+</div>
+
+
+
+<!-- 送信ボタン -->
+<div class="mb-3">
+	<button type="submit" class="btn btn-primary mb-3" onclick="onGenerateCommand();">Generate Script</button>
+</div>
+
+<!-- 結果のスクリプト -->
+<div id="window-result"  class="mb-3">
+	<label class="form-label">Script</label>
+	<textarea id="result-script" class="form-control bg-dark" id="serif-text" rows="10">Script will be shown here.</textarea>
+</div>
+
+
+<!-- ----------- -->
+		</div>
+	</div>
+</div>
+<!-- END-CONTENT -->
+
+<!-- BEGIN-EN-FOOTER -->
+<footer id="footer" class="container-fluid nav-block bg-dark" data-bs-theme="dark">
+  <div class="container">
+		<div class="row">
+			<div class="col-lg-6 col-md-12 mb-4 mb-md-0">
+				<h5>Suika2 Visual Novel Game Engine</h5>
+				<p>An open-source, cross-platform visual novel development suite.</p>
+			</div>
+			<div class="col-lg-6 col-md-12 mb-4 mb-md-0">
+				<h5>Links</h5>
+				<ul class="list-unstyled mb-0">
+					<li><a href="https://github.com/ktabata/suika2">GitHub</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div class="text-center mt-5 ">
+		Copyright &copy; 2001-2024, Keiichi Tabata. All rights reserved.
+	</div>
+</footer>
+<script src="/css/darkmode.js"></script>
+<!-- END-EN-FOOTER -->
+
+</body>
+</html>

@@ -1,0 +1,176 @@
+b strong {
+    font-weight: 700;
+}
+
+/* Colours */
+:root {
+    --bs-nav-footer-color: rgba(255,255,255,0.55);
+    --bs-gutter-x: 1.5rem;
+    --bs-gutter-y: 0;
+}
+
+[data-bs-theme=light] { --image-brightness: 100%; }
+[data-bs-theme=dark] { --image-brightness: 75%; }
+
+/* Blocks */
+
+.block {
+    background-color: var(--bs-tertiary-bg);
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+}
+
+.block>h1 {
+    display: block;
+    margin-top: 0rem!important;
+    margin-bottom: 0rem!important;
+    padding-top: 0rem!important;
+    padding-bottom: 0rem!important;
+}
+
+.spacer {
+    margin-top: 5rem!important;
+}
+
+.table-of-contents {
+    width: 100%;
+}
+
+table, th, td {
+    border: 1px solid black;
+}
+
+/* Text */
+
+h2 { margin-top: 2rem!important; }
+
+.col-md>h2 { margin-top: 0rem!important; }
+
+.hoverable {
+    transition: all 0.25s ease-in-out;
+    cursor: default;
+}
+
+.hoverable:hover { box-shadow: 0 .5rem 1rem rgba(0, 0, 0, 0.15); }
+
+pre {
+    border: 1px solid #495057 !important;
+    padding: 1rem !important;
+}
+
+.clean-list {
+    list-style-type: none;
+    margin-left: 0!important;
+}
+
+.alert > p {
+    margin: 0!important;
+    padding: 0!important;
+}
+
+/* Navigation and Footer */
+
+.nav-block {
+    margin-top: 0!important;
+    padding-top: 3rem !important;
+    padding-bottom: 3rem !important;
+    padding-left: 3rem !important;
+    padding-right: 3rem !important;
+}
+
+#footer { margin-top: 10rem !important; color: var(--bs-nav-footer-color); }
+#footer h5 { color: #FFF; }
+
+
+/*
+ * game start hover from https://blog.raizzenet.com/mouse-hover-caption-effects-in-css/
+ */
+
+.game {
+    overflow: hidden;
+    position: relative;
+}
+
+.game .caption {
+    font-size:130%;
+    text-align: center;
+    padding-top:80px;
+    color:#fff;
+}
+
+.game .game-mask {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    background-color: rgba(0,0,0,0.4);
+    -webkit-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+}
+
+.game:hover .game-mask {
+    opacity: 1;
+}
+
+
+/* List Styles (Fron luxion.css) */
+
+ul.checkmark, ul.star, ul.freesoft { list-style-type: none; }
+
+ul.checkmark li:before {
+    content: '✅ ';
+    margin-left: 0aem;
+    line-height: 2.3em;
+    margin-top: 1.0em;
+}
+ul.star li:before {
+    content: '🌟 ';
+    margin-left: 0em;
+    margin-top: 1.0em;
+    line-height: 2.3em;
+}
+ul.freesoft li:before {
+    content: '🚩 ';
+    margin-left: 0aem;
+    line-height: 2.3em;
+    margin-top: 1.0em;
+}
+
+.alert { padding: 2rem; }
+
+/* Image */
+img { filter: brightness(var(--image-brightness)); }
+
+/*
+ * game start hover from https://blog.raizzenet.com/mouse-hover-caption-effects-in-css/
+ */
+
+.game {
+  overflow: hidden;
+  position: relative;
+}
+
+.game .caption {
+  font-size:130%;
+  text-align: center;
+  padding-top:80px;
+  color:#fff;
+}
+
+.game .game-mask {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  background-color: rgba(0,0,0,0.4);
+  -webkit-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+}
+
+.game:hover .game-mask {
+  opacity: 1;
+}

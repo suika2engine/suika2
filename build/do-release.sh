@@ -189,7 +189,7 @@ echo "Upload completed."
 echo ""
 echo "Updating the Web site."
 SAVE_DIR=`pwd`
-cd ../doc/web && \
+cd ../web && \
     ./templates.sh && \
     ./version.sh && \
     ftp-upload.sh index.html && \

@@ -1,5 +1,5 @@
 <!-- Big Banner -->
-<img src="https://github.com/suika2engine/suika2/raw/master/doc/img/main_repo.png" width="100%">
+<img src="https://github.com/suika2engine/suika2/raw/master/doc/img/banner.png" width="100%">
 
 ## What is Suika2?
 

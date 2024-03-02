@@ -1,7 +1,0 @@
-:MACRO_BRAND_LOGO
-@skip disable
-@ch c luxion.png 0.5
-@wait 1.0
-@ch c none 1.0
-@skip enable
-@return
