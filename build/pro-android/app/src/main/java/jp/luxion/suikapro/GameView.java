@@ -145,7 +145,7 @@ public class GameView extends GLSurfaceView implements View.OnTouchListener, Ren
                 MainActivity.instance.nativeOnTouchMove(x, y);
                 break;
             case MotionEvent.ACTION_UP:
-                MainActivity.instance.nativeOnTouchOneUp(x, y, MainActivity.instance.touchCount);
+                MainActivity.instance.nativeOnTouchEnd(x, y, MainActivity.instance.touchCount);
                 break;
             }
         }
