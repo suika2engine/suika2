@@ -1,5 +1,5 @@
 <!-- Big Banner -->
-<img src="https://github.com/suika2engine/suika2/raw/master/doc/banner.png" width="100%">
+<img src="https://github.com/suika2engine/suika2/raw/master/.doc/banner.png" width="100%">
 
 ## What is Suika2?
 
@@ -101,7 +101,7 @@ We are always open to suggestions and ideas.
 
 ## Live Web Demo
 
-<a href="https://suika2.com/run/sample/"><img src="https://github.com/suika2engine/suika2/raw/master/doc/screenshot.jpg"></a>
+<a href="https://suika2.com/run/sample/"><img src="https://github.com/suika2engine/suika2/raw/master/.doc/screenshot.jpg"></a>
 
 ## Documentation
 
@@ -119,15 +119,16 @@ If you would like to port Suika2 to a new target platform, you only need to writ
 
 Suika2 does not depend on SDKs or frameworks such as Unity, Godot, Python, or SDL2, this is thanks to the extensive design of HAL, our compatibility layer's API.
 
-## CI/CD (Continuous Integration and Continuous Deployment)
+## CI/CD Pipiline
 
-* We do CI for build sanity checks on every push to the repository.
-* We currently don't have a way to do CD on the cloud due to a lack of signing capability.
-* However, the author has a release script and releases are fully automated on his MacBook Pro.
+* We do CI for build sanity checks on every push to the repository using GitHub Actions.
+* We currently don't have a way to do CD on the cloud due to a lack of code signing capability.
+* However, the author has a release script and thus releases are fully automated on his MacBook Pro.
 
 ## Trivia
 
 Did you know that...
+
 * Midori wears a watermelon themed tie and pair of hair ribbons to stand out in her uniform?
 * "Suika" means "watermelon" in Japanese?
 * Suika2 is the successor to "Suika Studio" and the author is a pioneer in the field of GUI editors for visual novel creation?
@@ -140,4 +141,4 @@ Here's where you raise your banner!
 
 **Come forward**, those who resonate with our vision and are of like mind.
 
-Venite et videbitis.
+VENITE ET VIDEBITIS
