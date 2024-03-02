@@ -376,6 +376,7 @@ BOOL D3DResizeWindow(int nOffsetX, int nOffsetY, float scale)
 		d3dpp.BackBufferCount = 1;
 		d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
 		d3dpp.Windowed = TRUE;
+		d3dpp.hDeviceWindow = hMainWnd;
 		pD3DDevice->Reset(&d3dpp);
 	}
 

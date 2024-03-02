@@ -1915,21 +1915,16 @@ static void process_button_render_activatable(int index)
 		if (b->type == TYPE_FULLSCREEN || b->type == TYPE_WINDOW)
 			return;
 
-	/* ポイントされているとき、hover画像を描画する */
-	if (index == pointed_index && !is_fading_in && !is_fading_out) {
+	if (b->rt.is_active) {
+		/* アクティブなとき、active画像を描画する */
+		render_image_normal(b->x, b->y, b->width, b->height, active_image, b->x, b->y, b->width, b->height, cur_alpha);
+	} else if (pointed_index == index && !is_fading_in && !is_fading_out) {
+		/* ポイントされているとき、hover画像を描画する */
 		render_image_normal(b->x, b->y, b->width, b->height, hover_image, b->x, b->y, b->width, b->height, cur_alpha);
-		return;
-	}
-
-	if (is_v2) {
-		if (!b->rt.is_active)
-			render_image_normal(b->x, b->y, b->width, b->height, idle_image, b->x, b->y, b->width, b->height, cur_alpha);
-		else
-			render_image_normal(b->x, b->y, b->width, b->height, active_image, b->x, b->y, b->width, b->height, cur_alpha);
 	} else {
-		/* コンフィグが選択されていればactive画像を描画する */
-		if (b->rt.is_active)
-			render_image_normal(b->x, b->y, b->width, b->height, active_image, b->x, b->y, b->width, b->height, cur_alpha);
+		/* それ以外のとき、GUIv2ならidle画像を描画する */
+		if (is_v2)
+			render_image_normal(b->x, b->y, b->width, b->height, idle_image, b->x, b->y, b->width, b->height, cur_alpha);
 	}
 }
 

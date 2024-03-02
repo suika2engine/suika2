@@ -616,8 +616,11 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 		{
 			if (!conf_window_fullscreen_disable)
 			{
-				SendMessage(hWndMain, WM_SYSCOMMAND,
-							(WPARAM)SC_MAXIMIZE, (LPARAM)0);
+				if (!bFullScreen)
+					bNeedFullScreen = TRUE;
+				else
+					bNeedWindowed = TRUE;
+				SendMessage(hWndMain, WM_SIZE, 0, 0);
 			}
 			return 0;
 		}
@@ -966,6 +969,7 @@ static void OnSize(void)
 		MONITORINFOEX minfo;
 
 		bNeedFullScreen = FALSE;
+		bNeedWindowed = FALSE;
 		bFullScreen = TRUE;
 
 		monitor = MonitorFromWindow(hWndMain, MONITOR_DEFAULTTONEAREST);
@@ -987,9 +991,12 @@ static void OnSize(void)
 	else if (bNeedWindowed)
 	{
 		bNeedWindowed = FALSE;
+		bNeedFullScreen = FALSE;
 		bFullScreen = FALSE;
+
 		if (hMenu != NULL)
 			SetMenu(hWndMain, hMenu);
+
 		SetWindowLong(hWndMain, GWL_STYLE, (LONG)dwStyle);
 		SetWindowLong(hWndMain, GWL_EXSTYLE, 0);
 		SetWindowPos(hWndMain, NULL, 0, 0, 0, 0,

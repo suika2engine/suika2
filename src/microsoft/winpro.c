@@ -1769,6 +1769,23 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 		PostQuitMessage(0);
 		return 0;
 	case WM_SYSKEYDOWN:
+		/* Alt + Enter */
+		if(wParam == VK_RETURN && (HIWORD(lParam) & KF_ALTDOWN))
+		{
+			if (!bFullScreen)
+			{
+				bNeedFullScreen = TRUE;
+				bNeedWindowed = FALSE;
+			}
+			else
+			{
+				bNeedWindowed = TRUE;
+				bNeedFullScreen = FALSE;
+			}
+			SendMessage(hWndMain, WM_SIZE, 0, 0);
+			return 0;
+		}
+
 		/* Alt + F4 */
 		if(wParam == VK_F4)
 		{
@@ -2310,6 +2327,7 @@ static void OnSize(void)
 		MONITORINFOEX minfo;
 
 		bNeedFullScreen = FALSE;
+		bNeedWindowed = FALSE;
 		bFullScreen = TRUE;
 
 		monitor = MonitorFromWindow(hWndMain, MONITOR_DEFAULTTONEAREST);
@@ -2333,9 +2351,12 @@ static void OnSize(void)
 	else if (bNeedWindowed)
 	{
 		bNeedWindowed = FALSE;
+		bNeedFullScreen = FALSE;
 		bFullScreen = FALSE;
+
 		if (hMenu != NULL)
 			SetMenu(hWndMain, hMenu);
+
 		SetWindowLong(hWndMain, GWL_STYLE, (LONG)dwStyle);
 		SetWindowLong(hWndMain, GWL_EXSTYLE, (LONG)dwExStyle);
 		MoveWindow(hWndMain, rcWindow.left, rcWindow.top, rcWindow.right - rcWindow.left, rcWindow.bottom - rcWindow.top, TRUE);
@@ -2793,6 +2814,7 @@ void enter_full_screen_mode(void)
 	if (!bFullScreen)
 	{
 		bNeedFullScreen = TRUE;
+		bNeedWindowed = FALSE;
 		SendMessage(hWndMain, WM_SIZE, 0, 0);
 	}
 }
@@ -2805,6 +2827,7 @@ void leave_full_screen_mode(void)
 	if (bFullScreen)
 	{
 		bNeedWindowed = TRUE;
+		bNeedFullScreen = FALSE;
 		SendMessage(hWndMain, WM_SIZE, 0, 0);
 	}
 }
