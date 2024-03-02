@@ -1,25 +1,27 @@
 suika2.com
 ==========
-HTML, css, JavaScript and images for `suika2.com`
+The contents of the `suika2.com` Web site excluding the downloads and the Wiki.
 
+## Applying the header/footer templates
 
-
-## Applying the templates for headers and footers
-
-* Edit the Japanese header at `inc/header.html`
-* Edit the English header at `inc/header_en.html`
-* Edit the Japanese footer at `inc/footer.html`
-* Edit the English footer at `inc/footer_en.html`
-* Run `./update-templates.sh`
+* Edit the Japanese header in `web/inc/header.html`
+* Edit the Japanese footer in `web/inc/footer.html`
+* Edit the English header in `web/inc/header_en.html`
+* Edit the English footer in`web/inc/footer_en.html`
+* Run `./web/templates.sh`
 
 ## Applying the release version number
 
-* Edit `doc/readme-jp.html`
-* Edit `doc/readme-en.html`
-* Run `./update-version.sh`
+* Edit `ChangeLog`
+* Run `./we/version.sh`
 
 ## Upload
 
-Run `./upload.sh`.
+* Run `./web/upload.sh`.
 
-You need `ftp-upload.sh` script for your machine.
+You need a script named `ftp-upload.sh` in your path, e.g.,:
+```
+#!/bin/sh
+
+scp $1 SSH_SERVER:/path/to/html/$2
+```
