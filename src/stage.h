@@ -2,7 +2,7 @@
 
 /*
  * Suika2
- * Copyright (C) 2001-2023, Keiichi Tabata. All rights reserved.
+ * Copyright (C) 2001-2024, Keiichi Tabata. All rights reserved.
  */
 
 /*
@@ -20,11 +20,7 @@
  *  - 2023-09-14 テキスト・エフェクトレイヤを追加、描画処理を整理
  *  - 2023-10-10 エフェクトレイヤを移動/追加
  *  - 2023-12-16 スケーリング対応
- */
-
-/*
- * draw_*(): draw image(s) to an image. (CPU memory to CPU memory)
- * render_*(): draw image(s) to the screen. (VRAM to VRAM)
+ *  - 2024-03-03 目パチ/口パクレイヤの追加
  */
 
 #ifndef SUIKA_STAGE_H

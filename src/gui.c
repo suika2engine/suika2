@@ -2306,10 +2306,10 @@ static void draw_save_button(int button_index)
 
 	/* イメージをクリアする */
 	clear_image_color(b->rt.img,
-			  make_pixel_ex(0,
-					(uint32_t)b->clear_r,
-					(uint32_t)b->clear_g,
-					(uint32_t)b->clear_b));
+			  make_pixel(0,
+				     (uint32_t)b->clear_r,
+				     (uint32_t)b->clear_g,
+				     (uint32_t)b->clear_b));
 
 	/* サムネイルを描画する */
 	thumb = get_save_thumbnail(save_index);
@@ -2389,14 +2389,14 @@ static int draw_save_text_item(int button_index, int x, int y,
 		conf_font_size / 5;
 
 	/* 色を決定する */
-	color = make_pixel_ex(0xff,
-			      (uint32_t)conf_font_color_r,
-			      (uint32_t)conf_font_color_g,
-			      (uint32_t)conf_font_color_b);
-	outline_color = make_pixel_ex(0xff,
-				      (uint32_t)conf_font_outline_color_r,
-				      (uint32_t)conf_font_outline_color_g,
-				      (uint32_t)conf_font_outline_color_b);
+	color = make_pixel(0xff,
+			   (uint32_t)conf_font_color_r,
+			   (uint32_t)conf_font_color_g,
+			   (uint32_t)conf_font_color_b);
+	outline_color = make_pixel(0xff,
+				   (uint32_t)conf_font_outline_color_r,
+				   (uint32_t)conf_font_outline_color_g,
+				   (uint32_t)conf_font_outline_color_b);
 
 	/* 描画する */
 	construct_draw_msg_context(
@@ -2638,10 +2638,10 @@ static void draw_history_button(int index)
 
 	/* イメージをクリアする */
 	clear_image_color(b->rt.img,
-			  make_pixel_ex(0,
-					(uint32_t)b->clear_r,
-					(uint32_t)b->clear_g,
-					(uint32_t)b->clear_b));
+			  make_pixel(0,
+				     (uint32_t)b->clear_r,
+				     (uint32_t)b->clear_g,
+				     (uint32_t)b->clear_b));
 
 	/* メッセージを描画する */
 	if (b->rt.history_offset != -1)
@@ -2686,38 +2686,38 @@ static void draw_history_text_item(int button_index)
 		 * string head as an escape sequece.
 		 */
 		ignore_color = false;
-		color = make_pixel_ex(0xff,
-				      (pixel_t)conf_font_color_r,
-				      (pixel_t)conf_font_color_g,
-				      (pixel_t)conf_font_color_b);
-		outline_color = make_pixel_ex(0xff,
-					      (pixel_t)conf_font_outline_color_r,
-					      (pixel_t)conf_font_outline_color_g,
-					      (pixel_t)conf_font_outline_color_b);
+		color = make_pixel(0xff,
+				   (pixel_t)conf_font_color_r,
+				   (pixel_t)conf_font_color_g,
+				   (pixel_t)conf_font_color_b);
+		outline_color = make_pixel(0xff,
+					   (pixel_t)conf_font_outline_color_r,
+					   (pixel_t)conf_font_outline_color_g,
+					   (pixel_t)conf_font_outline_color_b);
 		break;
 	case 1:
 		/* Use font.color */
 		ignore_color = true;
-		color = make_pixel_ex(0xff,
-				      (pixel_t)conf_font_color_r,
-				      (pixel_t)conf_font_color_g,
-				      (pixel_t)conf_font_color_b);
-		outline_color = make_pixel_ex(0xff,
-					      (pixel_t)conf_font_outline_color_r,
-					      (pixel_t)conf_font_outline_color_g,
-					      (pixel_t)conf_font_outline_color_b);
+		color = make_pixel(0xff,
+				   (pixel_t)conf_font_color_r,
+				   (pixel_t)conf_font_color_g,
+				   (pixel_t)conf_font_color_b);
+		outline_color = make_pixel(0xff,
+					   (pixel_t)conf_font_outline_color_r,
+					   (pixel_t)conf_font_outline_color_g,
+					   (pixel_t)conf_font_outline_color_b);
 		break;
 	case 2:
 		/* Use gui.history.font.color */
 		ignore_color = true;
-		color = make_pixel_ex(0xff,
-				      (pixel_t)conf_gui_history_font_color_r,
-				      (pixel_t)conf_gui_history_font_color_g,
-				      (pixel_t)conf_gui_history_font_color_b);
-		outline_color = make_pixel_ex(0xff,
-					      (pixel_t)conf_gui_history_font_outline_color_r,
-					      (pixel_t)conf_gui_history_font_outline_color_g,
-					      (pixel_t)conf_gui_history_font_outline_color_b);
+		color = make_pixel(0xff,
+				   (pixel_t)conf_gui_history_font_color_r,
+				   (pixel_t)conf_gui_history_font_color_g,
+				   (pixel_t)conf_gui_history_font_color_b);
+		outline_color = make_pixel(0xff,
+					   (pixel_t)conf_gui_history_font_outline_color_r,
+					   (pixel_t)conf_gui_history_font_outline_color_g,
+					   (pixel_t)conf_gui_history_font_outline_color_b);
 		break;
 	default:
 		/* A strage value, but ignore for now. */
@@ -2957,17 +2957,17 @@ static void reset_preview_button(int index)
 
 	b = &button[index];
 
-	clear_image_color(b->rt.img, make_pixel_ex(0, 0, 0, 0));
+	clear_image_color(b->rt.img, make_pixel(0, 0, 0, 0));
 	notify_image_update(b->rt.img);
 
-	color = make_pixel_ex(0xff,
-			      (pixel_t)conf_font_color_r,
-			      (pixel_t)conf_font_color_g,
-			      (pixel_t)conf_font_color_b);
-	outline_color = make_pixel_ex(0xff,
-				      (pixel_t)conf_font_outline_color_r,
-				      (pixel_t)conf_font_outline_color_g,
-				      (pixel_t)conf_font_outline_color_b);
+	color = make_pixel(0xff,
+			   (pixel_t)conf_font_color_r,
+			   (pixel_t)conf_font_color_g,
+			   (pixel_t)conf_font_color_b);
+	outline_color = make_pixel(0xff,
+				   (pixel_t)conf_font_outline_color_r,
+				   (pixel_t)conf_font_outline_color_g,
+				   (pixel_t)conf_font_outline_color_b);
 
 	/* ペン位置を計算する */
 	if (!conf_gui_preview_tategaki) {
@@ -3149,7 +3149,7 @@ static bool init_namevar_buttons(void)
 		if (button[i].rt.img == NULL)
 			return false;
 
-		clear_image_color(button[i].rt.img, make_pixel_ex(0, 0, 0, 0));
+		clear_image_color(button[i].rt.img, make_pixel(0, 0, 0, 0));
 		notify_image_update(button[i].rt.img);
 	}
 
@@ -3169,7 +3169,7 @@ static void draw_namevar_buttons(void)
 /* 名前変数のボタンを描画する */
 static void draw_namevar_button(int index)
 {
-	clear_image_color(button[index].rt.img, make_pixel_ex(0, 0, 0, 0));
+	clear_image_color(button[index].rt.img, make_pixel(0, 0, 0, 0));
 	draw_name(index);
 }
 
@@ -3185,14 +3185,14 @@ static void draw_name(int index)
 	b = &button[index];
 
 	/* 色を取得する */
-	color = make_pixel_ex(0xff,
-			      (pixel_t)conf_font_color_r,
-			      (pixel_t)conf_font_color_g,
-			      (pixel_t)conf_font_color_b);
-	outline_color = make_pixel_ex(0xff,
-				      (pixel_t)conf_font_outline_color_r,
-				      (pixel_t)conf_font_outline_color_g,
-				      (pixel_t)conf_font_outline_color_b);
+	color = make_pixel(0xff,
+			   (pixel_t)conf_font_color_r,
+			   (pixel_t)conf_font_color_g,
+			   (pixel_t)conf_font_color_b);
+	outline_color = make_pixel(0xff,
+				   (pixel_t)conf_font_outline_color_r,
+				   (pixel_t)conf_font_outline_color_g,
+				   (pixel_t)conf_font_outline_color_b);
 
 	/* 描画する文字列を取得する */
 	name = get_name_variable(b->namevar);

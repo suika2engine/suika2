@@ -2,10 +2,12 @@
 
 /*
  * Suika2
- * Copyright (C) 2001-2021, Keiichi Tabata. All rights reserved.
+ * Copyright (C) 2001-2024, Keiichi Tabata. All rights reserved.
  */
 
 /*
+ * Image Manipulation
+ *
  * [Changes]
  *  2001-10-03 作成 [KImage@VNStudio]
  *  2002-03-10 アルファブレンド対応 [VNImage@西瓜Studio]
@@ -17,6 +19,7 @@
  *  2016-08-05 Android NDK対応
  *  2021-06-10 マスクつき描画対応
  *  2023-12-08 リファクタリング
+ *  2024-03-03 リファクラリング
  */
 
 #ifndef SUIKA_IMAGE_H
@@ -48,61 +51,25 @@ struct image {
 };
 
 /*
- * Direct3D, Metal の場合は RGBA形式
+ * ピクセル値の操作
  */
+
 #if defined(SUIKA_TARGET_WIN32) || defined(SUIKA_TARGET_MACOS) || defined(SUIKA_TARGET_IOS)
-
-/* ピクセル値を合成する */
-static INLINE pixel_t make_pixel(uint32_t a, uint32_t r, uint32_t g, uint32_t b)
-{
-	return (((pixel_t)a) << 24) | (((pixel_t)r) << 16) | (((pixel_t)g) << 8) | ((pixel_t)b);
-}
-
-/* ピクセル値を合成する */
-static INLINE pixel_t make_pixel_ex(uint32_t a, uint32_t r, uint32_t g, uint32_t b)
-{
-	return (((pixel_t)a) << 24) | (((pixel_t)r) << 16) | (((pixel_t)g) << 8) | ((pixel_t)b);
-}
-
-/* ピクセル値のアルファチャンネルを取得する */
-static INLINE uint32_t get_pixel_a(pixel_t p)
-{
-	return (p >> 24) & 0xff;
-}
-
-/* ピクセル値の赤チャンネルを取得する */
-static INLINE uint32_t get_pixel_r(pixel_t p)
-{
-	return (p >> 16) & 0xff;
-}
-
-/* ピクセル値の緑チャンネルを取得する */
-static INLINE uint32_t get_pixel_g(pixel_t p)
-{
-	return (p >> 8) & 0xff;
-}
-
-/* ピクセル値の青チャンネルを取得する */
-static INLINE uint32_t get_pixel_b(pixel_t p)
-{
-	return p & 0xff;
-}
-
-/*
- * OpenGLの場合はBGRA形式
- */
+/* Direct3D, Metalの場合はRGBA形式 */
+#define ORDER_RGBA
 #else
+/* OpenGLの場合はBGRA形式 */
+#define ORDER_BGRA
+#endif
 
 /* ピクセル値を合成する */
 static INLINE pixel_t make_pixel(uint32_t a, uint32_t r, uint32_t g, uint32_t b)
 {
+#ifdef ORDER_RGBA
+	return (((pixel_t)a) << 24) | (((pixel_t)r) << 16) | (((pixel_t)g) << 8) | ((pixel_t)b);
+#else
 	return (((pixel_t)a) << 24) | (((pixel_t)b) << 16) | (((pixel_t)g) << 8) | ((pixel_t)r);
-}
-
-/* ピクセル値を合成する */
-static INLINE pixel_t make_pixel_ex(uint32_t a, uint32_t r, uint32_t g, uint32_t b)
-{
-	return (((pixel_t)a) << 24) | (((pixel_t)b) << 16) | (((pixel_t)g) << 8) | ((pixel_t)r);
+#endif
 }
 
 /* ピクセル値のアルファチャンネルを取得する */
@@ -114,22 +81,35 @@ static INLINE uint32_t get_pixel_a(pixel_t p)
 /* ピクセル値の赤チャンネルを取得する */
 static INLINE uint32_t get_pixel_r(pixel_t p)
 {
+#ifdef ORDER_RGBA
+	return (p >> 16) & 0xff;
+#else
 	return p & 0xff;
+#endif
 }
 
 /* ピクセル値の緑チャンネルを取得する */
 static INLINE uint32_t get_pixel_g(pixel_t p)
 {
+#ifdef ORDER_RGBA
 	return (p >> 8) & 0xff;
+#else
+	return (p >> 8) & 0xff;
+#endif
 }
 
 /* ピクセル値の青チャンネルを取得する */
 static INLINE uint32_t get_pixel_b(pixel_t p)
 {
+#ifdef ORDER_RGBA
+	return p & 0xff;
+#else
 	return (p >> 16) & 0xff;
+#endif
 }
 
-#endif
+#undef ORDER_RGBA
+#undef ORDER_BGRA
 
 /* イメージを作成する */
 struct image *create_image(int w, int h);
@@ -140,14 +120,11 @@ struct image *create_image_from_file(const char *dir, const char *file);
 /* 文字列で色を指定してイメージを作成する */
 struct image *create_image_from_color_string(int w, int h, const char *color);
 
-/* バッキングイメージを作成する */
+/* Bitmap/Pixmapによるバッキングイメージを作成する */
 struct image *create_image_with_pixels(int w, int h, pixel_t *pixels);
 
 /* イメージを削除する */
 void destroy_image(struct image *img);
-
-/* イメージのテクスチャが更新されたことを記録する */
-void set_image_updated(struct image *img);
 
 /* イメージを黒色でクリアする */
 void clear_image_black(struct image *img);
@@ -201,13 +178,13 @@ void draw_image_dim(struct image *dst_image,
 		    int src_top,
 		    int alpha);
 
-/* イメージをルール付きで描画する */
+/* イメージをルール付き(1-bit)で描画する */
 void draw_image_rule(struct image *dst_image,
 		     struct image *src_image,
 		     struct image *rule_image,
 		     int threshold);
 
-/* イメージをルール付き(メルト)で描画する */
+/* イメージをルール付き(8-bit)で描画する */
 void draw_image_melt(struct image *dst_image,
 		     struct image *src_image,
 		     struct image *rule_image,
