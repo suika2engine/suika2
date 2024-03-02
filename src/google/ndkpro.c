@@ -76,6 +76,14 @@ static int new_line;
 static bool state_video;
 
 /*
+ * Touch status.
+ */
+static int touch_start_x;
+static int touch_start_y;
+static int touch_last_y;
+static bool is_continuous_swipe_enabled;
+
+/*
  * Forward declarations
  */
 
@@ -887,6 +895,11 @@ const char *get_system_locale(void)
 void speak_text(const char *text)
 {
 	UNUSED_PARAMETER(text);
+}
+
+void set_continuous_swipe_enabled(bool is_enabled)
+{
+	is_continuous_swipe_enabled = is_enabled;
 }
 
 /*
