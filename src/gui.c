@@ -704,6 +704,96 @@ static bool set_button_key_value(const int index, const char *key,
 			log_memory();
 			return false;
 		}
+	} else if (strcmp("msg-en", key) == 0) {
+		if (conf_locale == LOCALE_EN) {
+			free(b->msg);
+			b->msg = strdup(val);
+			if (b->msg == NULL) {
+				log_memory();
+				return false;
+			}
+		}
+	} else if (strcmp("msg-fr", key) == 0) {
+		if (conf_locale == LOCALE_FR) {
+			free(b->msg);
+			b->msg = strdup(val);
+			if (b->msg == NULL) {
+				log_memory();
+				return false;
+			}
+		}
+	} else if (strcmp("msg-de", key) == 0) {
+		if (conf_locale == LOCALE_DE) {
+			free(b->msg);
+			b->msg = strdup(val);
+			if (b->msg == NULL) {
+				log_memory();
+				return false;
+			}
+		}
+	} else if (strcmp("msg-es", key) == 0) {
+		if (conf_locale == LOCALE_ES) {
+			free(b->msg);
+			b->msg = strdup(val);
+			if (b->msg == NULL) {
+				log_memory();
+				return false;
+			}
+		}
+	} else if (strcmp("msg-it", key) == 0) {
+		if (conf_locale == LOCALE_IT) {
+			free(b->msg);
+			b->msg = strdup(val);
+			if (b->msg == NULL) {
+				log_memory();
+				return false;
+			}
+		}
+	} else if (strcmp("msg-el", key) == 0) {
+		if (conf_locale == LOCALE_EL) {
+			free(b->msg);
+			b->msg = strdup(val);
+			if (b->msg == NULL) {
+				log_memory();
+				return false;
+			}
+		}
+	} else if (strcmp("msg-ru", key) == 0) {
+		if (conf_locale == LOCALE_RU) {
+			free(b->msg);
+			b->msg = strdup(val);
+			if (b->msg == NULL) {
+				log_memory();
+				return false;
+			}
+		}
+	} else if (strcmp("msg-zh", key) == 0) {
+		if (conf_locale == LOCALE_ZH) {
+			free(b->msg);
+			b->msg = strdup(val);
+			if (b->msg == NULL) {
+				log_memory();
+				return false;
+			}
+		}
+	} else if (strcmp("msg-tw", key) == 0) {
+		if (conf_locale == LOCALE_TW) {
+			free(b->msg);
+			b->msg = strdup(val);
+			if (b->msg == NULL) {
+				log_memory();
+				return false;
+			}
+		}
+	} else if (strcmp("msg-ja", key) == 0) {
+		if (conf_locale == LOCALE_JA) {
+			free(b->msg);
+			b->msg = strdup(val);
+			if (b->msg == NULL) {
+				log_memory();
+				return false;
+			}
+		}
 	} else if (strcmp("clickse", key) == 0) {
 		b->clickse = strdup(val);
 		if (b->clickse == NULL) {

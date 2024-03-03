@@ -85,7 +85,18 @@ PREVIEW {
     type: preview;
 
     # 表示するメッセージ
-    msg: "これはメッセージのプレビューです。スピードはよろしいですか？";
+    #  - 最初のmsg:は非対応言語のときに表示される
+    #  - その他のmsg-*:は、GUI表示時点の言語が適用される
+    msg: "This is a preview. Is the message speed OK for you?";
+    msg-en: "This is a preview. Is the message speed OK for you?";
+    msg-de: "Dies ist eine Vorschau. Ist die Geschwindigkeit der Nachricht für Sie in Ordnung?";
+    msg-es: "Esto es una vista previa. ¿Le parece bien la velocidad del mensaje?";
+    msg-it: "Questa è un'anteprima. La velocità del messaggio va bene per voi?";
+    msg-el: "Αυτή είναι μια προεπισκόπηση. Η ταχύτητα του μηνύματος είναι εντάξει για εσάς;";
+    msg-ru: "Это предварительный просмотр. Скорость передачи сообщений вас устраивает?";
+    msg-zh: "这是预览。您觉得信息速度可以吗？";
+    msg-tw: "這是預覽。您覺得資訊速度可以嗎？";
+    msg-ja: "これはメッセージのプレビューです。スピードはよろしいですか？";
 
     # 座標とサイズ
     x: 442;

@@ -853,7 +853,8 @@ bool load_eye_image_if_exists(int chpos, const char *fname)
 
 	/* 目パチのアニメを開始する */
 	frame_count = get_layer_image(chpos_to_eye_layer(chpos))->width / get_layer_image(chpos_to_layer(chpos))->width;
-	base_time = conf_character_eyeblink_interval + conf_character_eyeblink_interval * 0.3f * (2.0f * (float)rand() / (float)RAND_MAX - 1.0f);
+	base_time = conf_character_eyeblink_interval + conf_character_eyeblink_interval * 0.3f 
+											       * (2.0f * (float)rand() / (float)RAND_MAX - 1.0f);
 	clear_anime_sequence(layer);
 	new_anime_sequence(layer);
 	add_anime_sequence_property_f("start",	0);
