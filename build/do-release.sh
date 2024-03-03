@@ -128,7 +128,7 @@ cd ..
 echo "Building web-test.exe"
 cd ../tools/web-test
 make
-cd ..
+cd ../../build
 
 #
 # Make an installer for Windows.
