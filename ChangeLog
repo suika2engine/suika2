@@ -5,13 +5,18 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/16.64 2024/3/4
+  <ul>
+    <li>自動の目パチ対応 (キャラファイル名_eye.pngというファイルを用意するだけ) (Thanks to Mirin-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
+
 <li>Suika2/16.63 2024/3/3
   <ul>
     <li>engine-wasm: Webで全画面に対応 (Thanks to Ronron-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
-
 <li>Suika2/16.62 2024/3/3
   <ul>
     <li>pro-windows: マルチモニタでの編集パネルのボタンサイズを修正 (Thanks to Ronron-san!)</li>
@@ -1573,13 +1578,18 @@ This file is referred by some automatic release scripts.
 Release History (English)
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/16.64 2024/3/4
+  <ul>
+    <li>Added an automatic eye blinking (such as chara01_eye.png) (Thanks to Mirin-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
+
 <li>Suika2/16.63 2024/3/3
   <ul>
     <li>engine-wasm: Added a support for full screen on the Web (Thanks to Ronron-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
-
 <li>Suika2/16.62 2024/3/3
   <ul>
     <li>pro-windows: fixed th size of editor panel controls (Thanks to Ronron-san!)</li>
