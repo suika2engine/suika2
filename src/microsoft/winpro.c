@@ -2369,6 +2369,8 @@ static void OnSize(void)
 
 	/* Update the screen offset and scale. */
 	Layout(rc.right - rc.left, rc.bottom - rc.top);
+
+	RichEdit_SetFont();
 }
 
 /* スクリーンのオフセットとスケールを計算する */
@@ -2466,23 +2468,11 @@ static void Layout(int nClientWidth, int nClientHeight)
 /* WM_DPICHANGED */
 VOID OnDpiChanged(HWND hWnd, UINT nDpi, LPRECT lpRect)
 {
-	RECT rcClient;
-
 	UNUSED_PARAMETER(nDpi);
+	UNUSED_PARAMETER(lpRect);
 
 	if (hWnd == hWndMain)
-	{
-		SetWindowPos(hWnd,
-					   NULL,
-					   lpRect->left,
-					   lpRect->top,
-					   lpRect->right - lpRect->left,
-					   lpRect->bottom - lpRect->top,
-					   SWP_NOZORDER | SWP_NOACTIVATE);
-		GetClientRect(hWndMain, &rcClient);
-		Layout(rcClient.right, rcClient.bottom);
-		RichEdit_SetFont();
-	}
+		SendMessage(hWndMain, WM_SIZE, 0, 0);
 }
 
 /*
