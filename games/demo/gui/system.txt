@@ -93,7 +93,7 @@ PREVIEW {
     msg-es: "Esto es una vista previa. ¿Le parece bien la velocidad del mensaje?";
     msg-it: "Questa è un'anteprima. La velocità del messaggio va bene per voi?";
     msg-el: "Αυτή είναι μια προεπισκόπηση. Η ταχύτητα του μηνύματος είναι εντάξει για εσάς;";
-    msg-ru: "Это предварительный просмотр. Скорость передачи сообщений вас устраивает?";
+    msg-ru: "Тестовое сообщение. Комфортна ли для вас данная скорость?";
     msg-zh: "这是预览。您觉得信息速度可以吗？";
     msg-tw: "這是預覽。您覺得資訊速度可以嗎？";
     msg-ja: "これはメッセージのプレビューです。スピードはよろしいですか？";
