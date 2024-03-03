@@ -89,6 +89,7 @@ static char szMessage[CONV_MESSAGE_SIZE];
 /* Windowsオブジェクト */
 static HWND hWndMain;
 static HMENU hMenu;
+static HICON hCursor;
 
 /* WaitForNextFrame()の時間管理用 */
 static DWORD dwStartTime;
@@ -140,6 +141,7 @@ static BOOL bDShowSkippable;
 static void SIGSEGV_Handler(int n);
 static BOOL InitApp(HINSTANCE hInstance, int nCmdShow);
 static void CleanupApp(void);
+static VOID InitCursor(void);
 static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow);
 static VOID InitMenu(void);
 static void GameLoop(void);
@@ -245,6 +247,9 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 	if (!init_conf())
 		return FALSE;
 
+	/* カーソルを初期化する */
+	InitCursor();
+	
 	/* ウィンドウを作成する */
 	if (!InitWindow(hInstance, nCmdShow))
 		return FALSE;
@@ -299,6 +304,35 @@ static void CleanupApp(void)
 		fclose(pLogFile);
 }
 
+/* Initialize the cursor. */
+static VOID InitCursor(void)
+{
+	ICONINFO ii;
+	struct image *pImg;
+
+	hCursor = LoadCursor(NULL, IDC_ARROW);
+
+	if (conf_cursor == NULL)
+		return;
+
+	pImg = create_image_from_file(CG_DIR, conf_cursor);
+	if (pImg == NULL)
+		return;
+
+	ii.hbmColor = CreateBitmap(pImg->width, pImg->height, 1, 32, pImg->pixels);
+	if (ii.hbmColor != NULL)
+	{
+		ii.hbmMask = CreateBitmap(pImg->width, pImg->height, 1, 1, 0);
+		if (ii.hbmMask != NULL)
+		{
+			hCursor = CreateIconIndirect(&ii);
+			DeleteObject(ii.hbmMask);
+		}
+		DeleteObject(ii.hbmColor);
+	}
+	destroy_image(pImg);
+}
+
 /* ウィンドウを作成する */
 static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 {
@@ -318,7 +352,7 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	wcex.lpfnWndProc    = WndProc;
 	wcex.hInstance      = hInstance;
 	wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON));
-	wcex.hCursor        = LoadCursor(NULL, IDC_ARROW);
+	wcex.hCursor        = hCursor;
 	wcex.hbrBackground  = (HBRUSH)GetStockObject(conf_window_white ? WHITE_BRUSH : BLACK_BRUSH);
 	wcex.lpszClassName  = wszWindowClassMain;
 	wcex.hIconSm		= LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON));

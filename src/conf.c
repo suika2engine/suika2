@@ -383,6 +383,12 @@ int conf_stage_ch_margin_left;
 int conf_stage_ch_margin_right;
 
 /*
+ * カーソル
+ */
+
+char *conf_cursor;
+
+/*
  * キラキラエフェクトの設定
  */
 
@@ -402,7 +408,6 @@ char *conf_var_name[VAR_SIZE];
 
 /* 最後にセーブ/ロードしたページ */
 int conf_gui_save_last_page;
-
 
 /*
  * アクセシビリティ
@@ -1527,6 +1532,7 @@ static struct rule {
 	{"var.name10097", 's', &conf_var_name[10097], OPTIONAL, NOSAVE},
 	{"var.name10098", 's', &conf_var_name[10098], OPTIONAL, NOSAVE},
 	{"var.name10099", 's', &conf_var_name[10099], OPTIONAL, NOSAVE},
+	{"cursor", 's', &conf_cursor, OPTIONAL, NOSAVE},
 	{"kirakira.on", 'i', &conf_kirakira_on, OPTIONAL, SAVE},
 	{"kirakira.frame", 'f', &conf_kirakira_frame, OPTIONAL, SAVE},
 	{"kirakira.file1", 's', &conf_kirakira_file[0], OPTIONAL, SAVE},

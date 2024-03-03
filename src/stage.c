@@ -1195,13 +1195,6 @@ void set_layer_image(int layer, struct image *img)
  */
 void set_layer_frame(int layer, int frame)
 {
-	assert(layer == LAYER_CHB_EYE ||
-	       layer == LAYER_CHL_EYE ||
-	       layer == LAYER_CHLC_EYE ||
-	       layer == LAYER_CHR_EYE ||
-	       layer == LAYER_CHRC_EYE ||
-	       layer == LAYER_CHC_EYE);
-
 	layer_frame[layer] = frame;
 }
 

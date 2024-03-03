@@ -405,6 +405,12 @@ extern int conf_stage_ch_margin_left;
 extern int conf_stage_ch_margin_right;
 
 /*
+ * カーソル
+ */
+
+extern char *conf_cursor;
+
+/*
  * キラキラエフェクトの設定
  */
 

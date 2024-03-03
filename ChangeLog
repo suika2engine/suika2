@@ -5,13 +5,18 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/16.67 2024/3/4
+  <ul>
+    <li>カスタムカーソルの対応 (Thanks to Mirin-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
+
 <li>Suika2/16.66 2024/3/4
   <ul>
     <li>メッセージプレビューの翻訳対応 (Thanks to Mirin-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
-
 <li>Suika2/16.65 2024/3/4
   <ul>
     <li>目パチの複数フレーム対応 (Thanks to Mirin-san!)</li>
@@ -1589,13 +1594,18 @@ This file is referred by some automatic release scripts.
 Release History (English)
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/16.67 2024/3/4
+  <ul>
+    <li>Added a support for a custom cursor (Thanks to Mirin-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
+
 <li>Suika2/16.66 2024/3/4
   <ul>
     <li>Added a support for multilingualization of the message speed preview text (Thanks to Mirin-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
-
 <li>Suika2/16.65 2024/3/4
   <ul>
     <li>Added a support for multiple eye blink frames (Thanks to Mirin-san!)</li>
