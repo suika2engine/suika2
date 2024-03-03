@@ -43,7 +43,6 @@ This file is referred by some automatic release scripts.
     <li>pro-windows: マルチモニタでの編集パネルのサイズを修正 (Thanks to Ronron-san!)</li>
   </ul>
 </li>
-
 <li>Suika2/16.60 2024/3/3
   <ul>
     <li>マルチモニタでのフルスクリーンのバグを修正 (Thanks to Ronron-san!)</li>
