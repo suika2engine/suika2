@@ -301,8 +301,8 @@ struct image *get_layer_image(int layer);
 /* Sets a layer image for a load.*/
 void set_layer_image(int layer, struct image *img);
 
-/* Sets a layer framing. */
-void set_layer_framing(int layer, int frame);
+/* Sets a layer frame for eye blinking and lip synchronizing. */
+void set_layer_frame(int layer, int frame);
 
 /* Clear basic layers. */
 void clear_stage_basic(void);

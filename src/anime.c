@@ -496,6 +496,7 @@ static bool update_layer_params(int layer)
 		set_layer_scale(layer, scale_x, scale_y);
 		set_layer_rotate(layer, rotate * (3.14159265f / 180.0f));
 		set_layer_blend(layer, s->blend);
+		set_layer_frame(layer, s->frame);
 		break;
 	}
 
@@ -682,6 +683,8 @@ static bool on_key_value(const char *key, const char *val)
 			log_memory();
 			return false;
 		}
+	} else if (strcmp(key, "frame") == 0) {
+		s->frame = atoi(val);
 	} else {
 		log_anime_unknown_key(key);
 		return false;
@@ -802,7 +805,8 @@ bool load_eye_image_if_exists(int chpos, const char *fname)
 {
 	char eye_fname[1024], ext[128], *dot;
 	struct image *eye_img;
-	int layer, x, y;
+	float base_time;
+	int layer, x, y, frame_count, i;
 
 	/* まず目のレイヤを無効にする */
 	layer = chpos_to_eye_layer(chpos);
@@ -848,31 +852,29 @@ bool load_eye_image_if_exists(int chpos, const char *fname)
 	set_layer_scale(layer, 1.0f, 1.0f);
 
 	/* 目パチのアニメを開始する */
+	frame_count = get_layer_image(chpos_to_eye_layer(chpos))->width / get_layer_image(chpos_to_layer(chpos))->width;
+	base_time = conf_character_eyeblink_interval + conf_character_eyeblink_interval * 0.3f * (2.0f * (float)rand() / (float)RAND_MAX - 1.0f);
 	clear_anime_sequence(layer);
 	new_anime_sequence(layer);
 	add_anime_sequence_property_f("start",	0);
-	add_anime_sequence_property_f("end",	1.0f);
+	add_anime_sequence_property_f("end",	base_time);
 	add_anime_sequence_property_i("from-x",	x);
 	add_anime_sequence_property_i("from-y",	y);
 	add_anime_sequence_property_i("to-x",	x);
 	add_anime_sequence_property_i("to-y",	y);
-	new_anime_sequence(layer);
-	add_anime_sequence_property_f("start",	1.0f);
-	add_anime_sequence_property_f("end",	1.1f);
-	add_anime_sequence_property_i("from-x",	x);
-	add_anime_sequence_property_i("from-y",	y);
-	add_anime_sequence_property_i("from-a",	255);
-	add_anime_sequence_property_i("to-x",	x);
-	add_anime_sequence_property_i("to-y",	y);
-	add_anime_sequence_property_i("to-a",	255);
-	new_anime_sequence(layer);
-	add_anime_sequence_property_f("start",	1.1f);
-	add_anime_sequence_property_f("end",	3.0f);
-	add_anime_sequence_property_i("from-x",	x);
-	add_anime_sequence_property_i("from-y",	y);
-	add_anime_sequence_property_i("to-x",	x);
-	add_anime_sequence_property_i("to-y",	y);
-	add_anime_sequence_property_i("loop",	0);
+	for (i = 0; i < frame_count; i++) {
+		new_anime_sequence(layer);
+		add_anime_sequence_property_f("start",	base_time + (conf_character_eyeblink_frame * (float)i));
+		add_anime_sequence_property_f("end",	base_time + (conf_character_eyeblink_frame * (float)(i + 1)));
+		add_anime_sequence_property_i("from-x",	x);
+		add_anime_sequence_property_i("from-y",	y);
+		add_anime_sequence_property_i("from-a",	255);
+		add_anime_sequence_property_i("to-x",	x);
+		add_anime_sequence_property_i("to-y",	y);
+		add_anime_sequence_property_i("to-a",	255);
+		add_anime_sequence_property_i("frame",	i);
+	}
+	add_anime_sequence_property_i("loop", 0);
 
 	/* アニメを開始する */
 	start_layer_anime(layer);

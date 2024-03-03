@@ -19,6 +19,7 @@
 #define SUIKA_CONF_H
 
 #include "types.h"
+#include "vars.h"
 #include "mixer.h"
 
 /*
@@ -389,6 +390,13 @@ extern char *conf_character_name[CHARACTER_MAP_COUNT];
 extern char *conf_character_file[CHARACTER_MAP_COUNT];
 
 /*
+ * 目パチの設定
+ */
+
+extern float conf_character_eyeblink_interval;
+extern float conf_character_eyeblink_frame;
+
+/*
  * ステージのマージン(キャラクタレイヤの位置補正)
  */
 
@@ -412,7 +420,7 @@ extern char *conf_kirakira_file[KIRAKIRA_FRAME_COUNT];
 
 #define NAMED_VAR_COUNT		(100)
 
-extern char *conf_var_name[NAMED_VAR_COUNT];
+extern char *conf_var_name[VAR_SIZE];
 
 /*
  * config.txtには公開されないコンフィグ

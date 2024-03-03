@@ -758,6 +758,16 @@ character.file3=002-
 
 # 以降、character.name32まで続くが、省略可能
 
+##
+## 目パチの設定
+##
+
+# 目パチの時間の目安(秒)
+character.eyeblink.interval=3.0
+
+# 目パチの1コマの時間(秒)
+character.eyeblink.frame=0.1
+
 ###
 ### ステージの設定
 ###
@@ -794,6 +804,24 @@ kirakira.frame=0.333
 #kirakira.file7=kira7.png
 #kirakira.file8=kira8.png
 #kirakira.file9=kira9.png
+
+###
+### 通常の変数の別名 (0..99)
+###
+
+var.name0=未使用
+var.name1=選択肢1を読んだか
+var.name2=選択肢2を読んだか
+var.name3=選択肢3を読んだか
+var.name4=選択肢4を読んだか
+
+###
+### 実績解除用の変数の別名 (10000..10099)
+###
+
+var.name10000=未使用
+var.name10001=選択肢1を読んだか
+var.name10002=選択肢2を読んだか
 
 ###
 ### その他
@@ -898,16 +926,6 @@ language.other=en
 ###
 
 sav.name=/sav-suika
-
-###
-### 変数の別名 (0..99)
-###
-
-var.name0=未使用
-var.name1=選択肢1を読んだか
-var.name2=選択肢2を読んだか
-var.name3=選択肢3を読んだか
-var.name4=選択肢4を読んだか
 
 ###
 ### リリースモード

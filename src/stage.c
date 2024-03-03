@@ -1191,9 +1191,9 @@ void set_layer_image(int layer, struct image *img)
 }
 
 /*
- * Sets a layer framing.
+ * Sets a layer frame for eye blinking and lip synchronizing.
  */
-void set_layer_framing(int layer, int frame)
+void set_layer_frame(int layer, int frame)
 {
 	assert(layer == LAYER_CHB_EYE ||
 	       layer == LAYER_CHL_EYE ||
@@ -4196,6 +4196,9 @@ void show_skipmode_banner(bool show)
 /* レイヤをレンダリングする */
 static void render_layer_image(int layer)
 {
+	struct image *base_img;
+	int src_x, src_width;
+
 	assert(layer >= 0 && layer < STAGE_LAYERS);
 
 	/* 背景イメージは必ずセットされている必要がある */
@@ -4209,6 +4212,20 @@ static void render_layer_image(int layer)
 	/* クリックアニメーションが非表示のときは描画しない */
 	if (layer == LAYER_CLICK && conf_click_disable)
 		return;
+
+	/* 目パチのフレームを計算する */
+	if (layer == LAYER_CHB_EYE || layer == LAYER_CHL_EYE ||
+	    layer == LAYER_CHLC_EYE || layer == LAYER_CHC_EYE ||
+	    layer == LAYER_CHRC_EYE || layer == LAYER_CHR_EYE) {
+		base_img = layer_image[chpos_to_layer(layer_to_chpos(layer))];
+		if (base_img == NULL)
+			return;
+		src_width = base_img->width;
+		src_x = src_width * layer_frame[layer];
+	} else {
+		src_width = layer_image[layer]->width;
+		src_x = 0;
+	}
 
 	/* 3Dの場合 */
 	if (layer_rotate[layer] != 0 ||
@@ -4320,12 +4337,12 @@ static void render_layer_image(int layer)
 	    ch_dim[layer_to_chpos(layer)]) {
 		render_image_dim(layer_x[layer],
 				 layer_y[layer],
-				 (int)((float)layer_image[layer]->width * layer_scale_x[layer]),
+				 (int)((float)src_width * layer_scale_x[layer]),
 				 (int)((float)layer_image[layer]->height * layer_scale_y[layer]),
 				 layer_image[layer],
+				 src_x,
 				 0,
-				 0,
-				 layer_image[layer]->width,
+				 src_width,
 				 layer_image[layer]->height,
 				 layer_alpha[layer]);
 		return;
@@ -4334,12 +4351,12 @@ static void render_layer_image(int layer)
 	/* それ以外の描画の場合 */
 	render_image_normal(layer_x[layer],
 			    layer_y[layer],
-			    (int)((float)layer_image[layer]->width * layer_scale_x[layer]),
+			    (int)((float)src_width * layer_scale_x[layer]),
 			    (int)((float)layer_image[layer]->height * layer_scale_y[layer]),
 			    layer_image[layer],
+			    src_x,
 			    0,
-			    0,
-			    layer_image[layer]->width,
+			    src_width,
 			    layer_image[layer]->height,
 			    layer_alpha[layer]);
 }
