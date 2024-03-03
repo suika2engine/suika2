@@ -217,3 +217,7 @@ discord-release-bot.sh
 git add -u
 git commit -m "$VERSION"
 git tag -a "v2.$VERSION" -m "release"
+git push github master
+gh release create "v2.$VERSION" \
+   "~/iCloud/Sites/suika2.com/dl/suika2-$VERSION.exe" \
+   "~/iCloud/Sites/suika2.com/dl/suika2-$VERSION.dmg"
