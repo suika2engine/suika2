@@ -174,6 +174,49 @@ void cleanup_file(void)
  */
 
 /*
+ * ファイルがあるか調べる
+ */
+bool check_file_exist(const char *dir, const char *file)
+{
+	char entry_name[FILE_NAME_SIZE];
+	FILE *fp;
+	uint64_t i;
+
+#if !defined(SUIKA_TARGET_IOS) || !defined(SUIKA_TARGET_WASM)
+	/* まずファイルシステム上のファイルを開いてみる */
+	char *real_path;
+	real_path = make_valid_path(dir, file);
+	if (real_path == NULL) {
+		log_memory();
+		return NULL;
+	}
+#ifdef SUIKA_TARGET_WIN32
+	_fmode = _O_BINARY;
+	fp = _wfopen(conv_utf8_to_utf16(real_path), L"r");
+#else
+	fp = fopen(real_path, "r");
+#endif
+	if (fp != NULL) {
+		/* ファイルが存在する */
+		fclose(fp);
+		return true;
+	}
+#endif
+
+	/* 次にパッケージ上のファイルエントリを探す */
+	snprintf(entry_name, FILE_NAME_SIZE, "%s/%s", dir, file);
+	for (i = 0; i < entry_count; i++) {
+		if (strcasecmp(entry[i].name, entry_name) == 0){
+			/* ファイルが存在する */
+			return true;
+		}
+	}
+
+	/* ファイルが存在しない */
+	return false;
+}
+
+/*
  * ファイル読み込みストリームを開く
  */
 struct rfile *open_rfile(
@@ -185,14 +228,6 @@ struct rfile *open_rfile(
 	char *real_path;
 	struct rfile *rf;
 	uint64_t i;
-
-#if 0
-	/* ファイル名に半角英数字以外が含まれるかチェックする */
-	if (!check_file_name(file)) {
-		log_file_name(dir, file);
-		return NULL;
-	}
-#endif
 
 	/* rfile構造体のメモリを確保する */
 	rf = malloc(sizeof(struct rfile));
@@ -288,24 +323,6 @@ struct rfile *open_rfile(
 
 	return rf;
 }
-
-#if 0
-/* ファイル名に半角英数字以外が含まれるかチェックする */
-static bool check_file_name(const char *file)
-{
-	const char *c;
-
-	c = file;
-	while (*c) {
-		/* UTF-8文字列に半角英数字以外が含まれる場合 */
-		if (*c & 0x80)
-			return false;
-		c++;
-	}
-
-	return true;
-}
-#endif
 
 /*
  * ファイルのサイズを取得する

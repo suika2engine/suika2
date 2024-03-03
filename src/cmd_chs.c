@@ -279,6 +279,14 @@ static bool init(void)
 		return false;
 	}
 
+	/* 目パチのイメージをロードする */
+	for (i = 0; i < CH_BASIC_LAYERS; i++) {
+		if (stay[i])
+			continue;
+		if (!load_eye_image_if_exists(i, fname[i]))
+			return false;
+	}
+
 	/* 時間計測を開始する */
 	reset_lap_timer(&sw);
 

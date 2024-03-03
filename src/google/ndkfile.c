@@ -66,6 +66,33 @@ void cleanup_file(void)
  */
 
 /*
+ * ファイルがあるか調べる
+ */
+bool check_file_exist(const char *dir, const char *file)
+{
+	char path[PATH_SIZE];
+	struct rfile *rf;
+	jclass cls;
+	jmethodID mid;
+	jobject ret;
+
+	/* パスを生成する */
+	snprintf(path, sizeof(path), "%s/%s", dir, file);
+
+	/* ファイルの内容を取得する */
+	cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suika/MainActivity");
+	mid = (*jni_env)->GetMethodID(jni_env, cls, "bridgeGetFileContent", "(Ljava/lang/String;)[B");
+	ret = (*jni_env)->CallObjectMethod(jni_env, main_activity, mid, (*jni_env)->NewStringUTF(jni_env, path));
+	if (ret == NULL) {
+		/* ファイルが存在する */
+		return true;
+	}
+
+	/* ファイルが存在しない */
+	return false;
+}
+
+/*
  * ファイル読み込みストリームを開く
  */
 struct rfile *open_rfile(const char *dir, const char *file, bool save_data)

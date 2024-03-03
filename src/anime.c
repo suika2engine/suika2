@@ -40,6 +40,7 @@ struct sequence {
 	float center_y;
 	float from_rotate;
 	float to_rotate;
+	int frame;	/* 目パチ用 */
 	int blend;
 	int accel;
 	bool loop;
@@ -789,6 +790,99 @@ const char *get_reg_anime_file_name(int reg_index)
 {
 	return reg_anime_file[reg_index];
 }
+
+/*
+ * 目パチ
+ */
+
+/*
+ * 目パチ画像をロードする
+ */
+bool load_eye_image_if_exists(int chpos, const char *fname)
+{
+	char eye_fname[1024], ext[128], *dot;
+	struct image *eye_img;
+	int layer, x, y;
+
+	/* まず目のレイヤを無効にする */
+	layer = chpos_to_eye_layer(chpos);
+	set_layer_file_name(layer, NULL);
+	set_layer_image(layer, NULL);
+
+	/* キャラがない場合 */
+	if (fname == NULL || strcmp(fname, "none") == 0 || strcmp(fname, U8("消去")) == 0)
+		return true;
+
+	/* 目パチファイル名の文字列"filename_eye.ext"を作る */
+	strcpy(eye_fname, fname);
+	dot = strstr(eye_fname, ".");
+	if (dot != NULL)
+		strcpy(ext, dot);
+	else
+		strcpy(ext, "");
+	strcpy(dot, "_eye");
+	strcat(eye_fname, ext);
+
+	/* ファイルがない場合 */
+	if (!check_file_exist(CH_DIR, eye_fname))
+		return true;
+
+	/* イメージを読み込む */
+	eye_img = create_image_from_file(CH_DIR, eye_fname);
+	if (eye_img == NULL) {
+		log_script_exec_footer();
+		return false;
+	}
+
+	/* キャラの座標を取得する */
+	layer = chpos_to_layer(chpos);
+	x = get_layer_x(layer);
+	y = get_layer_y(layer);
+
+	/* レイヤを設定する */
+	layer = chpos_to_eye_layer(chpos);
+	set_layer_file_name(layer, eye_fname);
+	set_layer_image(layer, eye_img);
+	set_layer_position(layer, x, y);
+	set_layer_alpha(layer, 0);
+	set_layer_scale(layer, 1.0f, 1.0f);
+
+	/* 目パチのアニメを開始する */
+	clear_anime_sequence(layer);
+	new_anime_sequence(layer);
+	add_anime_sequence_property_f("start",	0);
+	add_anime_sequence_property_f("end",	1.0f);
+	add_anime_sequence_property_i("from-x",	x);
+	add_anime_sequence_property_i("from-y",	y);
+	add_anime_sequence_property_i("to-x",	x);
+	add_anime_sequence_property_i("to-y",	y);
+	new_anime_sequence(layer);
+	add_anime_sequence_property_f("start",	1.0f);
+	add_anime_sequence_property_f("end",	1.1f);
+	add_anime_sequence_property_i("from-x",	x);
+	add_anime_sequence_property_i("from-y",	y);
+	add_anime_sequence_property_i("from-a",	255);
+	add_anime_sequence_property_i("to-x",	x);
+	add_anime_sequence_property_i("to-y",	y);
+	add_anime_sequence_property_i("to-a",	255);
+	new_anime_sequence(layer);
+	add_anime_sequence_property_f("start",	1.1f);
+	add_anime_sequence_property_f("end",	3.0f);
+	add_anime_sequence_property_i("from-x",	x);
+	add_anime_sequence_property_i("from-y",	y);
+	add_anime_sequence_property_i("to-x",	x);
+	add_anime_sequence_property_i("to-y",	y);
+	add_anime_sequence_property_i("loop",	0);
+
+	/* アニメを開始する */
+	start_layer_anime(layer);
+
+	return true;
+}
+
+/*
+ * アニメファイルのパース
+ */
 
 /* アニメーションファイルをロードする */
 static bool load_anime_file(const char *file)

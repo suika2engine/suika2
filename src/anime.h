@@ -2,7 +2,15 @@
 
 /*
  * Suika2
- * Copyright (C) 2001-2023, Keiichi Tabata. All rights reserved.
+ * Copyright (C) 2001-2024, Keiichi Tabata. All rights reserved.
+ */
+
+/*
+ * Anime
+ *
+ * [Changes]
+ *  2023-10-XX Created.
+ *  2024-03-03 Added eye anime support.
  */
 
 #ifndef SUIKA_ANIME_H
@@ -14,7 +22,9 @@
 /*
  * Maximum amount of registered anime files.
  */
-#define REG_ANIME_COUNT		(8)
+enum reg_anime_index {
+	REG_ANIME_COUNT = 16,
+};
 
 /*
  * アニメーションの加速
@@ -64,5 +74,8 @@ void unregister_anime(int reg_index);
 
 /* ループアニメファイル名を取得する */
 const char *get_reg_anime_file_name(int reg_index);
+
+/* 目パチ画像をロードする */
+bool load_eye_image_if_exists(int chpos, const char *fname);
 
 #endif

@@ -34,7 +34,7 @@ static void read_callback(png_structp png_ptr, png_bytep buf, png_size_t len);
 /*
  * イメージをファイルから読み込む
  */
-struct image * create_image_from_file_png(const char *dir, const char *file)
+struct image *create_image_from_file_png(const char *dir, const char *file)
 {
 	/* PNGを読み込む */
 	if (!read_png(dir, file))

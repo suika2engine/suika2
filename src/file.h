@@ -79,6 +79,11 @@ bool init_file(void);
 void cleanup_file(void);
 
 /*
+ * ファイルがあるか調べる
+ */
+bool check_file_exist(const char *dir, const char *file);
+
+/*
  * ファイル読み込みストリームを開く
  */
 struct rfile *open_rfile(const char *dir, const char *file, bool save_data);

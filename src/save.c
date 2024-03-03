@@ -604,6 +604,13 @@ static bool serialize_stage(struct wfile *wf)
 		case LAYER_CLICK: continue;
 		case LAYER_AUTO: continue;
 		case LAYER_SKIP: continue;
+		case LAYER_CHB_EYE: continue;
+		case LAYER_CHL_EYE: continue;
+		case LAYER_CHLC_EYE: continue;
+		case LAYER_CHR_EYE: continue;
+		case LAYER_CHRC_EYE: continue;
+		case LAYER_CHC_EYE: continue;
+		case LAYER_CHF_EYE: continue;
 		default: break;
 		}
 
@@ -1051,7 +1058,7 @@ static bool deserialize_stage(struct rfile *rf)
 	char text[4096];
 	struct image *img;
 	const char *fname;
-	int i, x, y, alpha;
+	int i, x, y, alpha, layer;
 
 	for (i = 0; i < STAGE_LAYERS; i++) {
 		/* Exclude the following layers. */
@@ -1061,6 +1068,13 @@ static bool deserialize_stage(struct rfile *rf)
 		case LAYER_CLICK: continue;
 		case LAYER_AUTO: continue;
 		case LAYER_SKIP: continue;
+		case LAYER_CHB_EYE: continue;
+		case LAYER_CHL_EYE: continue;
+		case LAYER_CHLC_EYE: continue;
+		case LAYER_CHR_EYE: continue;
+		case LAYER_CHRC_EYE: continue;
+		case LAYER_CHC_EYE: continue;
+		case LAYER_CHF_EYE: continue;
 		default: break;
 		}
 
@@ -1147,6 +1161,13 @@ static bool deserialize_stage(struct rfile *rf)
 			else
 				set_layer_text(i, NULL);
 		}
+	}
+
+	for (i = 0; i < CH_ALL_LAYERS; i++) {
+		layer = chpos_to_layer(i);
+		fname = get_layer_file_name(layer);
+		if (!load_eye_image_if_exists(i, fname))
+			return false;
 	}
 
 	return true;

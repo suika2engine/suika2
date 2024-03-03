@@ -174,6 +174,9 @@ static float layer_rotate[STAGE_LAYERS];
 /* ファイル名(FI/FOを除く) */
 static char *layer_file_name[STAGE_LAYERS];
 
+/* 目/口のレイヤのフレーム番号 */
+static int layer_frame[STAGE_LAYERS];
+
 /*
  * 発話中のキャラ以外を暗くするためのフラグ
  */
@@ -1188,6 +1191,21 @@ void set_layer_image(int layer, struct image *img)
 }
 
 /*
+ * Sets a layer framing.
+ */
+void set_layer_framing(int layer, int frame)
+{
+	assert(layer == LAYER_CHB_EYE ||
+	       layer == LAYER_CHL_EYE ||
+	       layer == LAYER_CHLC_EYE ||
+	       layer == LAYER_CHR_EYE ||
+	       layer == LAYER_CHRC_EYE ||
+	       layer == LAYER_CHC_EYE);
+
+	layer_frame[layer] = frame;
+}
+
+/*
  * Clear basic layers.
  */
 void clear_stage_basic(void)
@@ -1246,12 +1264,19 @@ void clear_stage(void)
 			break;
 		case LAYER_BG2:		/* fall-thru */
 		case LAYER_CHB:		/* fall-thru */
+		case LAYER_CHB_EYE:	/* fall-thru */
 		case LAYER_CHL:		/* fall-thru */
+		case LAYER_CHL_EYE:	/* fall-thru */
 		case LAYER_CHLC:	/* fall-thru */
+		case LAYER_CHLC_EYE:	/* fall-thru */
 		case LAYER_CHR:		/* fall-thru */
+		case LAYER_CHR_EYE:	/* fall-thru */
 		case LAYER_CHRC:	/* fall-thru */
+		case LAYER_CHRC_EYE:	/* fall-thru */
 		case LAYER_CHC:		/* fall-thru */
+		case LAYER_CHC_EYE:	/* fall-thru */
 		case LAYER_CHF:		/* fall-thru */
+		case LAYER_CHF_EYE:	/* fall-thru */
 		case LAYER_EFFECT1:	/* fall-thru */
 		case LAYER_EFFECT2:	/* fall-thru */
 		case LAYER_EFFECT3:	/* fall-thru */
@@ -1333,28 +1358,66 @@ int chpos_to_layer(int chpos)
 }
 
 /*
+ * Converts a character position to a stage layer index (character eye).
+ */
+int chpos_to_eye_layer(int chpos)
+{
+	switch (chpos) {
+	case CH_BACK:
+		return LAYER_CHB_EYE;
+	case CH_LEFT:
+		return LAYER_CHL_EYE;
+	case CH_LEFT_CENTER:
+		return LAYER_CHLC_EYE;
+	case CH_RIGHT:
+		return LAYER_CHR_EYE;
+	case CH_RIGHT_CENTER:
+		return LAYER_CHRC_EYE;
+	case CH_CENTER:
+		return LAYER_CHC_EYE;
+	case CH_FACE:
+		return LAYER_CHF_EYE;
+	default:
+		assert(0);
+		break;
+	}
+	return -1;
+}
+
+/*
  * Converts a stage layer index to a character position.
  */
 int layer_to_chpos(int layer)
 {
-	assert(layer == LAYER_CHB || layer == LAYER_CHL ||
-	       layer == LAYER_CHR || layer == LAYER_CHC ||
-	       layer == LAYER_CHRC || layer == LAYER_CHLC ||
-	       layer == LAYER_CHF);
+	assert(layer == LAYER_CHB || layer == LAYER_CHB_EYE ||
+	       layer == LAYER_CHL || layer == LAYER_CHL_EYE ||
+	       layer == LAYER_CHR || layer == LAYER_CHR_EYE ||
+	       layer == LAYER_CHC || layer == LAYER_CHC_EYE ||
+	       layer == LAYER_CHRC || layer == LAYER_CHRC_EYE ||
+	       layer == LAYER_CHLC || layer == LAYER_CHLC_EYE ||
+	       layer == LAYER_CHF || layer == LAYER_CHF_EYE);
+
 	switch (layer) {
 	case LAYER_CHB:
+	case LAYER_CHB_EYE:
 		return CH_BACK;
 	case LAYER_CHL:
+	case LAYER_CHL_EYE:
 		return CH_LEFT;
 	case LAYER_CHLC:
+	case LAYER_CHLC_EYE:
 		return CH_LEFT_CENTER;
 	case LAYER_CHR:
+	case LAYER_CHR_EYE:
 		return CH_RIGHT;
 	case LAYER_CHRC:
+	case LAYER_CHRC_EYE:
 		return CH_RIGHT_CENTER;
 	case LAYER_CHC:
+	case LAYER_CHC_EYE:
 		return CH_CENTER;
 	case LAYER_CHF:
+	case LAYER_CHF_EYE:
 		return CH_FACE;
 	default:
 		assert(0);
@@ -1389,11 +1452,17 @@ void render_stage(void)
 	render_layer_image(LAYER_EFFECT7);
 	render_layer_image(LAYER_EFFECT8);
 	render_layer_image(LAYER_CHB);
+	render_layer_image(LAYER_CHB_EYE);
 	render_layer_image(LAYER_CHL);
+	render_layer_image(LAYER_CHL_EYE);
 	render_layer_image(LAYER_CHLC);
+	render_layer_image(LAYER_CHLC_EYE);
 	render_layer_image(LAYER_CHR);
+	render_layer_image(LAYER_CHR_EYE);
 	render_layer_image(LAYER_CHRC);
+	render_layer_image(LAYER_CHRC_EYE);
 	render_layer_image(LAYER_CHC);
+	render_layer_image(LAYER_CHC_EYE);
 	render_layer_image(LAYER_EFFECT1);
 	render_layer_image(LAYER_EFFECT2);
 	render_layer_image(LAYER_EFFECT3);

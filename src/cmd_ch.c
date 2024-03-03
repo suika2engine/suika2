@@ -2,7 +2,7 @@
 
 /*
  * Suika2
- * Copyright (C) 2001-2023, Keiichi Tabata. All rights reserved.
+ * Copyright (C) 2001-2024, Keiichi Tabata. All rights reserved.
  */
 
 /*
@@ -10,6 +10,7 @@
  *  - 2016/06/09 作成
  *  - 2021/06/10 マスクつき描画の対応
  *  - 2023/01/06 日本語の位置名に対応
+ *  - 2024/03/03 目パチに対応
  */
 
 #include "suika.h"
@@ -137,6 +138,10 @@ static bool init(void)
 		log_script_exec_footer();
 		return false;
 	}
+
+	/* 目パチ画像があれば読み込む */
+	if (!load_eye_image_if_exists(chpos, fname))
+		return false;
 
 	/* 繰り返し動作を開始する */
 	start_command_repetition();
