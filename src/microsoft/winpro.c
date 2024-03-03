@@ -2421,36 +2421,21 @@ static void Layout(int nClientWidth, int nClientHeight)
 
 	/* Move the rendering panel. */
 	MoveWindow(hWndRender, 0, 0, nRenderWidth, nClientHeight, TRUE);
-
+	
 	/* Update the screen offset and scale for drawing subsystem. */
 	D3DResizeWindow(nViewportOffsetX, nViewportOffsetY, fMouseScale);
 
-	/* エディタのコントロールをサイズ変更する */
-	MoveWindow(hWndRichEdit,
-			   MulDiv(10, nDpi, 96),
-			   MulDiv(100, nDpi, 96),
-			   MulDiv(420, nDpi, 96),
-			   nClientHeight - MulDiv(180, nDpi, 96),
-			   TRUE);
-
-	/* エディタより下のコントロールのY座標を計算する */
+	/* Change the control sizes. */
+	MoveWindow(hWndBtnResume, MulDiv(10, nDpi, 96), MulDiv(10, nDpi, 96), MulDiv(100, nDpi, 96), MulDiv(40, nDpi, 96), TRUE);
+	MoveWindow(hWndBtnNext, MulDiv(120, nDpi, 96), MulDiv(10, nDpi, 96), MulDiv(100, nDpi, 96), MulDiv(40, nDpi, 96), TRUE);
+	MoveWindow(hWndBtnPause, MulDiv(330, nDpi, 96), MulDiv(10, nDpi, 96), MulDiv(100, nDpi, 96), MulDiv(40, nDpi, 96), TRUE);
+	MoveWindow(hWndBtnMove, MulDiv(220, nDpi, 96), MulDiv(10, nDpi, 96), MulDiv(100, nDpi, 96), MulDiv(40, nDpi, 96), TRUE);
+	MoveWindow(hWndTextboxScript, MulDiv(10, nDpi, 96), MulDiv(60, nDpi, 96), MulDiv(350, nDpi, 96), MulDiv(30, nDpi, 96), TRUE);
+	MoveWindow(hWndBtnSelectScript, MulDiv(370, nDpi, 96), MulDiv(60, nDpi, 96), MulDiv(60, nDpi, 96), MulDiv(30, nDpi, 96), TRUE);
+	MoveWindow(hWndRichEdit,MulDiv(10, nDpi, 96), MulDiv(100, nDpi, 96), MulDiv(420, nDpi, 96), nClientHeight - MulDiv(180, nDpi, 96), TRUE);
 	y = nClientHeight - MulDiv(130, nDpi, 96);
-
-	/* 変数のテキストボックスを移動する */
-	MoveWindow(hWndTextboxVar,
-			   MulDiv(10, nDpi, 96),
-			   y + MulDiv(60, nDpi, 96),
-			   MulDiv(280, nDpi, 96),
-			   MulDiv(60, nDpi, 96),
-			   TRUE);
-
-	/* 変数書き込みのボタンを移動する */
-	MoveWindow(hWndBtnVar,
-			   MulDiv(300, nDpi, 96),
-			   y + MulDiv(70, nDpi, 96),
-			   MulDiv(130, nDpi, 96),
-			   MulDiv(30, nDpi, 96),
-			   TRUE);
+	MoveWindow(hWndTextboxVar, MulDiv(10, nDpi, 96), y + MulDiv(60, nDpi, 96), MulDiv(280, nDpi, 96), MulDiv(60, nDpi, 96), TRUE);
+	MoveWindow(hWndBtnVar, MulDiv(300, nDpi, 96), y + MulDiv(70, nDpi, 96), MulDiv(130, nDpi, 96), MulDiv(30, nDpi, 96), TRUE);
 
 	/* Move the editor panel. */
 	MoveWindow(hWndEditor, nRenderWidth, 0, nEditorWidth, nClientHeight, TRUE);

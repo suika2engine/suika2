@@ -216,9 +216,7 @@ git add -u
 git commit -m "release: Suika2/$VERSION" || true
 git tag -a "v2.$VERSION" -m "release"
 git push github "v2.$VERSION"
-gh release create "v2.$VERSION" --title "v2.$VERSION" \
-   ~/Sites/suika2.com/dl/suika2-$VERSION.exe \
-   ~/Sites/suika2.com/dl/suika2-$VERSION.dmg
+yes "" | gh release create "v2.$VERSION" --title "v2.$VERSION" ~/Sites/suika2.com/dl/suika2-$VERSION.exe ~/Sites/suika2.com/dl/suika2-$VERSION.dmg
 
 #
 # Finish.
