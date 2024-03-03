@@ -5,6 +5,13 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/16.60 2024/3/3
+  <ul>
+    <li>マルチモニタでのフルスクリーンのバグを修正 (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
+
 <li>Suika2/16.59 2024/3/3
   <ul>
     <li>スキップモード中にマウスホイール入力すると落ちるバグを修正 (Thanks to ubi_2/aramasi0.9-san!)</li>
@@ -12,8 +19,6 @@ This file is referred by some automatic release scripts.
     <li>フルスクリーン化のバグを修正(マルチモニタだとまだ発生の可能性あり) (Thanks to Ronron-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
-
 <li>Suika2/16.58 2024/3/2
   <ul>
     <li>JPEGとWebPが読み込めないバグを修正 (Thanks to Ronron-san!)</li>
@@ -1552,6 +1557,13 @@ This file is referred by some automatic release scripts.
 Release History (English)
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/16.60 2024/3/3
+  <ul>
+    <li>Fixed a bug where full screen mode with multiple monitor fails (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
+
 <li>Suika2/16.59 2024/3/3
   <ul>
     <li>Fixed a bug where a wheel input causes crash on SkipMode (Thanks to ubi_2/aramasi0.9-san!)</li>
@@ -1559,8 +1571,6 @@ Release History (English)
     <li>Fixed a bug of full screen mode (perhaps still crashes with multiple monitor env) (Thanks to Ronron-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
-
 <li>Suika2/16.58 2024/3/2
   <ul>
     <li>Fixed a bug where the engine cannot read JPEG and WebP (Thanks to Ronron-san!)</li>

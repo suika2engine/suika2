@@ -985,7 +985,7 @@ static void OnSize(void)
 		SetWindowPos(hWndMain, NULL, 0, 0, 0, 0,
 					 SWP_NOMOVE | SWP_NOSIZE |
 					 SWP_NOZORDER | SWP_FRAMECHANGED);
-		MoveWindow(hWndMain, 0, 0, rc.right, rc.bottom, TRUE);
+		MoveWindow(hWndMain, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, TRUE);
 		InvalidateRect(hWndMain, NULL, TRUE);
 	}
 	else if (bNeedWindowed)
@@ -1015,7 +1015,7 @@ static void OnSize(void)
 	}
 
 	/* Update the screen offset and scale. */
-	UpdateScreenOffsetAndScale(rc.right, rc.bottom);
+	UpdateScreenOffsetAndScale(rc.right - rc.left, rc.bottom - rc.top);
 }
 
 /* スクリーンのオフセットとスケールを計算する */

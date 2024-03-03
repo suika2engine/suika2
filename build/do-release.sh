@@ -205,8 +205,15 @@ cd "$SAVE_DIR"
 mv engine-macos/suika-mac-nosign.dmg engine-macos/suika-mac.dmg
 
 #
-# Finish.
+# Finish (suika2.com)
 #
 echo "Finished. $VERSION was released!"
 echo "$NOTE_JP"
 discord-release-bot.sh
+
+#
+# Finish (GitHub)
+#
+git add -u
+git commit -m "$VERSION"
+git tag -a "v2.$VERSION" -m "release"

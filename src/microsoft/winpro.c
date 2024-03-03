@@ -238,6 +238,9 @@ static wchar_t wszFontName[128];
 /* The font size for the script view. */
 static int nFontSize = 10;
 
+/* 編集中のファイルのタイムスタンプ */
+static FILETIME ftTimeStamp;
+
 /*
  * Forward Declaration
  */
@@ -461,11 +464,7 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 		if (OpenProjectAtPath(__wargv[1]))
 			StartGame();
 
-#if 0
-	/* Set a timer for a beginner. */
-	if (!bProjectOpened)
-		SetTimer(hWndMain, ID_TIMER_BEGINNER, 5000, OnTimerBeginner);
-#endif
+	SetTimer(hWndMain, ID_TIMER_FORMAT, 1000, OnTimerFormat);
 
 	return TRUE;
 }
@@ -2345,7 +2344,7 @@ static void OnSize(void)
 		SetWindowPos(hWndMain, NULL, 0, 0, 0, 0,
 					 SWP_NOMOVE | SWP_NOSIZE |
 					 SWP_NOZORDER | SWP_FRAMECHANGED);
-		MoveWindow(hWndMain, 0, 0, rc.right, rc.bottom, TRUE);
+		MoveWindow(hWndMain, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, TRUE);
 		InvalidateRect(hWndMain, NULL, TRUE);
 	}
 	else if (bNeedWindowed)
@@ -2369,7 +2368,7 @@ static void OnSize(void)
 	}
 
 	/* Update the screen offset and scale. */
-	Layout(rc.right, rc.bottom);
+	Layout(rc.right - rc.left, rc.bottom - rc.top);
 }
 
 /* スクリーンのオフセットとスケールを計算する */
@@ -3077,10 +3076,20 @@ void on_change_running_state(bool running, bool request_stop)
 void on_load_script(void)
 {
 	const char *script_file;
+	HANDLE hFile;
 
 	/* スクリプトファイル名を設定する */
 	script_file = get_script_file_name();
 	SetWindowText(hWndTextboxScript, conv_utf8_to_utf16(script_file));
+
+	/* タイムスタンプ(スクリプトの最終更新時刻)を取得する */
+	hFile = CreateFile(conv_utf8_to_utf16(get_script_file_name()),
+					   GENERIC_READ, FILE_SHARE_READ, NULL,
+					   OPEN_EXISTING, 0, NULL);
+	if (hFile != INVALID_HANDLE_VALUE)
+		GetFileTime(hFile, NULL, NULL, &ftTimeStamp);
+	else
+		ZeroMemory(&ftTimeStamp, sizeof(ftTimeStamp));
 
 	/* 実行中のスクリプトファイルが変更されたとき、リッチエディットにテキストを設定する */
 	SetFocus(NULL);
@@ -3796,24 +3805,46 @@ static VOID RichEdit_UpdateTheme(void)
 
 static VOID RichEdit_DelayedHighligth(void)
 {
-	if (bHighlightMode)
-	{
-		KillTimer(hWndMain, ID_TIMER_FORMAT);
-		SetTimer(hWndMain, ID_TIMER_FORMAT, 1000, OnTimerFormat);
-	}
 }
 
 static VOID __stdcall OnTimerFormat(HWND hWnd, UINT nID, UINT_PTR uTime, DWORD dwParam)
 {
+	FILETIME ftCurrent;
 	HIMC hImc;
 	DWORD dwConversion, dwSentence;
 	int nCursor;
 	BOOL bRet;
+	HANDLE hFile;
+	uint64_t prev, cur;
 
 	UNUSED_PARAMETER(hWnd);
 	UNUSED_PARAMETER(nID);
 	UNUSED_PARAMETER(uTime);
 	UNUSED_PARAMETER(dwParam);
+
+	/* ファイルが外部エディタで更新されたかチェックする */
+	hFile = CreateFile(conv_utf8_to_utf16(get_script_file_name()),
+					   GENERIC_READ, FILE_SHARE_READ, NULL,
+					   OPEN_EXISTING, 0, NULL);
+	if (hFile != INVALID_HANDLE_VALUE)
+	{
+		GetFileTime(hFile, NULL, NULL, &ftCurrent);
+		CloseHandle(hFile);
+		prev = ((uint64_t)ftTimeStamp.dwLowDateTime) | (((uint64_t)ftTimeStamp.dwHighDateTime) << 32);
+		cur = ((uint64_t)ftCurrent.dwLowDateTime) | (((uint64_t)ftCurrent.dwHighDateTime) << 32);
+		if (cur > prev)
+		{
+			/* 外部のエディタで更新されているのでリロードする */
+			bScriptOpened = TRUE;
+			bExecLineChanged = TRUE;
+			nLineChanged = get_expanded_line_num();
+			return;
+		}
+	}
+
+	/* ハイライトモードでない場合 */
+	if (!bHighlightMode)
+		return;
 
 	/* 選択範囲がある場合は更新せず、1秒後に再び確認する */
 	if (RichEdit_GetSelectedLen() > 0)
@@ -4276,6 +4307,8 @@ static const wchar_t *SelectFile(const char *pszDir)
 /* 上書き保存 */
 static VOID OnSave(void)
 {
+	HANDLE hFile;
+
 	if (!save_script())
 	{
 		MessageBox(hWndMain, bEnglish ?
@@ -4284,6 +4317,15 @@ static VOID OnSave(void)
 				   TITLE,
 				   MB_OK | MB_ICONERROR);
 	}
+
+	/* タイムスタンプ(スクリプトの最終更新時刻)を取得する */
+	hFile = CreateFile(conv_utf8_to_utf16(get_script_file_name()),
+					   GENERIC_READ, FILE_SHARE_READ, NULL,
+					   OPEN_EXISTING, 0, NULL);
+	if (hFile != INVALID_HANDLE_VALUE)
+		GetFileTime(hFile, NULL, NULL, &ftTimeStamp);
+	else
+		ZeroMemory(&ftTimeStamp, sizeof(ftTimeStamp));
 }
 
 /* 続ける */

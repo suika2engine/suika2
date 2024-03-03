@@ -868,7 +868,9 @@ bool load_script(const char *fname)
  */
 const char *get_script_file_name(void)
 {
-	assert(cur_script != NULL);
+	if (cur_script == NULL)
+		return "";
+
 	return cur_script;
 }
 
