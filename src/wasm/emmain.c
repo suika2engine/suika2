@@ -40,6 +40,9 @@ static int touch_last_y;
 /* 連続スワイプが有効か */
 static bool is_continuous_swipe_enabled;
 
+/* 全画面状態 */
+static bool is_full_screen;
+
 /*
  * 前方参照
  */
@@ -919,7 +922,7 @@ void update_window_title(void)
  */
 bool is_full_screen_supported(void)
 {
-	return false;
+	return true;
 }
 
 /*
@@ -927,7 +930,7 @@ bool is_full_screen_supported(void)
  */
 bool is_full_screen_mode(void)
 {
-	return false;
+	return is_full_screen;
 }
 
 /*
@@ -935,7 +938,17 @@ bool is_full_screen_mode(void)
  */
 void enter_full_screen_mode(void)
 {
-	/* stub */
+	is_full_screen = true;
+	EM_ASM({
+		var canvas = document.getElementById('canvas_holder');
+		const method = canvas.requestFullscreen ||
+			       canvas.webkitRequestFullscreen ||
+			       canvas.mozRequestFullScreen ||
+			       canvas.msRequestFullscreen;
+		if (method)
+			method.call(canvas);
+		onResizeWindow();
+	});
 }
 
 /*
@@ -943,7 +956,16 @@ void enter_full_screen_mode(void)
  */
 void leave_full_screen_mode(void)
 {
-	/* stub */
+	is_full_screen = false;
+	EM_ASM({
+		const method = document.exitFullscreen ||
+			       document.webkitExitFullscreen ||
+			       document.mozCancelFullScreen ||
+			       document.msExitFullscreen;
+		if (method)
+			method.call(document);
+		onResizeWindow();
+	});
 }
 
 /*
