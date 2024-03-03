@@ -123,6 +123,14 @@ sign.sh suika-pro.exe
 cd ..
 
 #
+# Build "web-test.exe"
+#
+echo "Building web-test.exe"
+cd ../tools/web-test
+make
+cd ..
+
+#
 # Make an installer for Windows.
 #
 echo "Creating an installer for Windows."
@@ -151,6 +159,7 @@ mkdir -p installer-windows/tools/web
 cp -v engine-wasm/html/index.html installer-windows/tools/web/index.html
 cp -v engine-wasm/html/index.js installer-windows/tools/web/index.js
 cp -v engine-wasm/html/index.wasm installer-windows/tools/web/index.wasm
+cp -v ../tools/web-test/web-test.exe installer-windows/tools/web/web-test.exe
 cp -Rv ../tools/installer installer-windows/tools/installer
 cp -v ../tools/snippets/jp-normal/plaintext.code-snippets installer-windows/plaintext.code-snippets.jp
 cp -v ../tools/snippets/en-normal/plaintext.code-snippets installer-windows/plaintext.code-snippets.en
