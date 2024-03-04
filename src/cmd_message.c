@@ -1247,6 +1247,7 @@ static void init_msgbox(void)
 		conf_font_size,
 		conf_font_ruby_size,
 		!conf_font_outline_remove,
+		2 + conf_font_outline_add,
 		pen_x,
 		pen_y,
 		msgbox_w,
@@ -1429,6 +1430,7 @@ static void blit_namebox(void)
 	struct draw_msg_context context;
 	int font_size, pen_x, pen_y, char_count;
 	int namebox_x, namebox_y, namebox_width, namebox_height;
+	int outline_width;
 	bool use_outline;
 
 	/* フォントサイズを取得する */
@@ -1437,10 +1439,14 @@ static void blit_namebox(void)
 
 	/* ふちどりを行うかを取得する */
 	switch (conf_namebox_font_outline) {
-	case 0: use_outline = !conf_font_outline_remove; break;
-	case 1: use_outline = true; break;
-	case 2: use_outline = false; break;
-	default: use_outline = false; break;
+	case 0: use_outline = !conf_font_outline_remove; outline_width = 0; break;
+	case 1: use_outline = true; outline_width = 2 + conf_font_outline_add; break;
+	case 2: use_outline = false; outline_width = 1; break;
+	case 3: use_outline = true; outline_width = 1; break;
+	case 4: use_outline = true; outline_width = 2; break;
+	case 5: use_outline = true; outline_width = 3; break;
+	case 6: use_outline = true; outline_width = 4; break;
+	default: use_outline = false; outline_width = 4; break;
 	}
 
 	/* 名前ボックスのサイズを取得する */
@@ -1480,6 +1486,7 @@ static void blit_namebox(void)
 		font_size,		/* base_font_size */
 		conf_font_ruby_size,	/* FIXME: namebox.ruby.sizeの導入 */
 		use_outline,
+		outline_width,
 		pen_x,
 		pen_y,
 		namebox_width,
@@ -3042,6 +3049,7 @@ static void blit_dimming(void)
 		conf_font_size,
 		conf_font_ruby_size,
 		!conf_font_outline_remove,
+		2 + conf_font_outline_add,
 		orig_pen_x,
 		orig_pen_y,
 		msgbox_w,

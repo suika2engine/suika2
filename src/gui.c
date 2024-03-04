@@ -2455,6 +2455,7 @@ static int draw_save_text_item(int button_index, int x, int y,
 	pixel_t color, outline_color;
 	int font_size, ruby_size, total_chars;
 	int width;
+	int outline_width;
 	bool use_outline;
 
 	b = &button[button_index];
@@ -2465,10 +2466,14 @@ static int draw_save_text_item(int button_index, int x, int y,
 
 	/* ふちどりを選択する */
 	switch (conf_gui_save_font_outline) {
-	case 0: use_outline = !conf_font_outline_remove; break;
-	case 1: use_outline = true; break;
-	case 2: use_outline = false; break;
-	default: use_outline = false; break;
+	case 0: use_outline = !conf_font_outline_remove; outline_width = 0; break;
+	case 1: use_outline = true; outline_width = 2 + conf_font_outline_add; break;
+	case 2: use_outline = false; outline_width = 1; break;
+	case 3: use_outline = true; outline_width = 1; break;
+	case 4: use_outline = true; outline_width = 2; break;
+	case 5: use_outline = true; outline_width = 3; break;
+	case 6: use_outline = true; outline_width = 4; break;
+	default: use_outline = false; outline_width = 4; break;
 	}
 
 	/* ルビのフォントサイズを求める */
@@ -2498,6 +2503,7 @@ static int draw_save_text_item(int button_index, int x, int y,
 		font_size,
 		ruby_size,
 		use_outline,
+		outline_width,
 		x,
 		y,
 		b->width,
@@ -2749,6 +2755,7 @@ static void draw_history_text_item(int button_index)
 	pixel_t color, outline_color;
 	int font_size, ruby_size, margin_line, total_chars;
 	int pen_x, pen_y;
+	int outline_width;
 	bool use_outline, ignore_color;
 
 	b = &button[button_index];
@@ -2762,10 +2769,14 @@ static void draw_history_text_item(int button_index)
 
 	/* ふちどりを選択する */
 	switch (conf_gui_history_font_outline) {
-	case 0: use_outline = !conf_font_outline_remove; break;
-	case 1: use_outline = true; break;
-	case 2: use_outline = false; break;
-	default: use_outline = false; break;
+	case 0: use_outline = !conf_font_outline_remove; outline_width = 0; break;
+	case 1: use_outline = true; outline_width = 2 + conf_font_outline_add; break;
+	case 2: use_outline = false; outline_width = 1; break;
+	case 3: use_outline = true; outline_width = 1; break;
+	case 4: use_outline = true; outline_width = 2; break;
+	case 5: use_outline = true; outline_width = 3; break;
+	case 6: use_outline = true; outline_width = 4; break;
+	default: use_outline = false; outline_width = 4; break;
 	}
 
 	/* 色を選択する */
@@ -2845,6 +2856,7 @@ static void draw_history_text_item(int button_index)
 		font_size,
 		ruby_size,
 		use_outline,
+		outline_width,
 		pen_x,
 		pen_y,
 		b->width,	/* area_width */
@@ -3077,6 +3089,7 @@ static void reset_preview_button(int index)
 		conf_font_size,
 		conf_font_ruby_size,
 		!conf_font_outline_remove,
+		2 + conf_font_outline_add,
 		pen_x,
 		pen_y,
 		b->width,
@@ -3298,6 +3311,7 @@ static void draw_name(int index)
 		conf_font_size,
 		conf_font_ruby_size,
 		!conf_font_outline_remove,
+		2 + conf_font_outline_add,
 		0,		/* pen_x */
 		0,		/* pen_y */
 		b->width,

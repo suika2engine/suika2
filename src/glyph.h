@@ -65,6 +65,7 @@ bool draw_glyph(struct image *img,
 		int font_size,
 		int base_font_size,
 		bool use_outline,
+		int outline_width,
 		int x,
 		int y,
 		pixel_t color,
@@ -91,6 +92,7 @@ struct draw_msg_context {
 	int base_font_size;
 	int ruby_size;
 	bool use_outline;
+	int outline_width;
 	int pen_x;		/* Updated on a draw. */
 	int pen_y;		/* Updated on a draw. */
 	int area_width;
@@ -140,6 +142,7 @@ void construct_draw_msg_context(
 	int base_font_size,
 	int ruby_size,
 	bool use_outline,
+	int outline_width,
 	int pen_x,
 	int pen_y,
 	int area_width,

@@ -354,7 +354,16 @@ int get_glyph_width(int font_type, int font_size, uint32_t codepoint)
 	w = h = 0;
 
 	/* 幅を求める */
-	draw_glyph(NULL, font_type, font_size, font_size, false, 0, 0, 0, 0,
+	draw_glyph(NULL,
+		   font_type,
+		   font_size,
+		   font_size,
+		   false,
+		   0,
+		   0,
+		   0,
+		   0,
+		   0,
 		   codepoint, &w, &h, false);
 
 	return w;
@@ -370,8 +379,20 @@ int get_glyph_height(int font_type, int font_size, uint32_t codepoint)
 	w = h = 0;
 
 	/* 幅を求める */
-	draw_glyph(NULL, font_type, font_size, font_size, false, 0, 0, 0, 0,
-		   codepoint, &w, &h, false);
+	draw_glyph(NULL,
+		   font_type,
+		   font_size,
+		   font_size,
+		   false,
+		   0,
+		   0,
+		   0,
+		   0,
+		   0,
+		   codepoint,
+		   &w,
+		   &h,
+		   false);
 
 	return h;
 }
@@ -460,6 +481,7 @@ bool draw_glyph(struct image *img,
 		int font_size,
 		int base_font_size,
 		bool use_outline,
+		int outline_width,
 		int x,
 		int y,
 		pixel_t color,
@@ -476,17 +498,24 @@ bool draw_glyph(struct image *img,
 	int descent;
 
 	if (!use_outline) {
-		return draw_glyph_without_outline(img, font_type, font_size,
-						  base_font_size, x, y,
-						  color, codepoint,
-						  ret_w, ret_h, is_dim);
+		return draw_glyph_without_outline(img,
+						  font_type,
+						  font_size,
+						  base_font_size,
+						  x,
+						  y,
+						  color,
+						  codepoint,
+						  ret_w,
+						  ret_h,
+						  is_dim);
 	}
 	font_type = translate_font_type(font_type);
 	apply_font_size(font_type, font_size);
 
 	/* アウトライン(内側)を描画する */
 	FT_Stroker_New(library, &stroker);
-	FT_Stroker_Set(stroker, 2*64, FT_STROKER_LINECAP_ROUND, FT_STROKER_LINEJOIN_ROUND, 0);
+	FT_Stroker_Set(stroker, outline_width * 64, FT_STROKER_LINECAP_ROUND, FT_STROKER_LINEJOIN_ROUND, 0);
 	glyphIndex = FT_Get_Char_Index(face[font_type], codepoint);
 	FT_Load_Glyph(face[font_type], glyphIndex, FT_LOAD_DEFAULT);
 	FT_Get_Glyph(face[font_type]->glyph, &glyph);
@@ -511,7 +540,7 @@ bool draw_glyph(struct image *img,
 
 	/* アウトライン(外側)を描画する */
 	FT_Stroker_New(library, &stroker);
-	FT_Stroker_Set(stroker, 2*64, FT_STROKER_LINECAP_ROUND, FT_STROKER_LINEJOIN_ROUND, 0);
+	FT_Stroker_Set(stroker, outline_width * 64, FT_STROKER_LINECAP_ROUND, FT_STROKER_LINEJOIN_ROUND, 0);
 	glyphIndex = FT_Get_Char_Index(face[font_type], codepoint);
 	FT_Load_Glyph(face[font_type], glyphIndex, FT_LOAD_DEFAULT);
 	FT_Get_Glyph(face[font_type]->glyph, &glyph);
@@ -929,6 +958,7 @@ void construct_draw_msg_context(
 	int base_font_size,
 	int ruby_size,
 	bool use_outline,
+	int outline_width,
 	int pen_x,
 	int pen_y,
 	int area_width,
@@ -960,6 +990,7 @@ void construct_draw_msg_context(
 	context->base_font_size = base_font_size;
 	context->ruby_size = ruby_size;
 	context->use_outline = use_outline;
+	context->outline_width = outline_width;
 	context->pen_x = pen_x;
 	context->pen_y = pen_y;
 	context->area_width = area_width;
@@ -1164,6 +1195,7 @@ draw_msg_common(
 			   context->font_size,
 			   context->base_font_size,
 			   context->use_outline,
+			   context->outline_width,
 			   context->pen_x + ofs_x,
 			   context->pen_y + ofs_y,
 			   context->color,
@@ -1954,6 +1986,7 @@ static bool process_escape_sequence_ruby(struct draw_msg_context *context)
 			   context->ruby_size,
 			   context->ruby_size,
 			   context->use_outline,
+			   context->outline_width,
 			   context->runtime_ruby_x,
 			   context->runtime_ruby_y,
 			   context->color,

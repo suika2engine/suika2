@@ -2008,6 +2008,13 @@ static bool reparse_smode_line(int index, int state, int *accepted, int *end_ind
 			*end_index = index;
 			return true;
 		}
+
+		/* break前の不正な}への対策 */
+		if (starts_with(&cmd[index].text[spaces], "}")) {
+			log_script_close_before_break();
+			*end_index = index + 1;
+			return true;
+		}
 	}
 
 	/* switchの'}'文を処理する */
@@ -2277,6 +2284,7 @@ static bool reparse_case_block(int index, const char *raw, int *end_index)
 	/* breakが現れるまで読み込む */
 	state = SMODE_ACCEPT_BREAK | SMODE_ACCEPT_IF | SMODE_ACCEPT_SWITCH;
 	while (true) {
+		ret_index = index; /* avoid warning */
 		index++;
 		if (index >= cmd_size)
 			break;

@@ -78,6 +78,7 @@ void log_script_cha_no_image(const char *pos);
 void log_script_parameter_name_not_specified(void);
 void log_script_param_order_mismatch(void);
 void log_script_too_many_files(void);
+void log_script_close_before_break(void);
 void log_video_error(const char *reason);
 void log_script_choose_no_message(void);
 void log_script_empty_string(void);

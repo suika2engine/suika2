@@ -61,6 +61,7 @@ bool pencil_command(void)
 		conf_font_size,
 		conf_font_ruby_size,
 		!conf_font_outline_remove,
+		2 + conf_font_outline_add,
 		0,	/* pen_x */
 		0,	/* pen_y */
 		layer_w,

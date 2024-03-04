@@ -69,6 +69,7 @@ int conf_font_outline_remove;
 int conf_font_outline_color_r;
 int conf_font_outline_color_g;
 int conf_font_outline_color_b;
+int conf_font_outline_add;
 int conf_font_ruby_size;
 
 /*
@@ -78,6 +79,7 @@ char *conf_namebox_file;
 int conf_namebox_font_select;
 int conf_namebox_font_size;
 int conf_namebox_font_outline;
+int conf_namebox_font_outline_bold;
 int conf_namebox_x;
 int conf_namebox_y;
 int conf_namebox_margin_top;
@@ -522,6 +524,7 @@ static struct rule {
 	{"font.outline.color.r", 'i', &conf_font_outline_color_r, OPTIONAL, SAVE},
 	{"font.outline.color.g", 'i', &conf_font_outline_color_g, OPTIONAL, SAVE},
 	{"font.outline.color.b", 'i', &conf_font_outline_color_b, OPTIONAL, SAVE},
+	{"font.outline.add", 'i', &conf_font_outline_add, OPTIONAL, SAVE},
 	{"font.ruby.size", 'i', &conf_font_ruby_size, OPTIONAL, SAVE},
 	{"namebox.file", 's', &conf_namebox_file, MUST, SAVE},
 	{"namebox.font.select", 'i', &conf_namebox_font_select, OPTIONAL, SAVE},

@@ -7,6 +7,9 @@ Poniko (ぽにこ):
   001-normal.png
   001-sad.png
 
+レタッチ by Ronron:
+  001-happy_eye.png
+
 猫柳れお (Reo Nekoyanagi):
   002-normal.png
 

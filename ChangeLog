@@ -5,13 +5,18 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/16.70 2024/3/5
+  <ul>
+    <li>caseブロックのbreakの前に}が来た場合にエラーを出すように修正 (Thanks to Ronron-san and SOrow-san!)</li>
+    <li>文字のふちどりの幅を変更するコンフィグを追加 (日本語テンプレートゲームを参照) (Thanks to Mirin-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
 <li>Suika2/16.69 2024/3/4
   <ul>
     <li>エクスポート時の実行機能を追加</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
-
 <li>Suika2/16.68 2024/3/4
   <ul>
     <li>かんたんWebテストツールのweb-test.exeを追加</li>
@@ -1603,13 +1608,18 @@ This file is referred by some automatic release scripts.
 Release History (English)
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/16.70 2024/3/5
+  <ul>
+    <li>Added an error when a } comes before break in a case block (Thanks to Ronron-san and SOrow-san!)</li>
+    <li>Added a config to change glyph outline width (see also the Japanese ADV template) (Thanks to Mirin-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
 <li>Suika2/16.69 2024/3/4
   <ul>
     <li>Added a support for auto-run on export</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
-
 <li>Suika2/16.68 2024/3/4
   <ul>
     <li>Added an easy-to-use Web testing tool "web-test.exe"</li>

@@ -990,6 +990,7 @@ static void draw_text(struct image *target, const char *text, int w, int h, bool
 	pixel_t color, outline_color;
 	int font_size, char_count;
 	int x, y;
+	int outline_width;
 	bool use_outline;
 
 	x = 0;
@@ -1000,10 +1001,14 @@ static void draw_text(struct image *target, const char *text, int w, int h, bool
 
 	/* ふちどりを決定する */
 	switch (conf_switch_font_outline) {
-	case 0: use_outline = !conf_font_outline_remove; break;
-	case 1: use_outline = true; break;
-	case 2: use_outline = false; break;
-	default: use_outline = false; break;
+	case 0: use_outline = !conf_font_outline_remove; outline_width = 0; break;
+	case 1: use_outline = true; outline_width = 2 + conf_font_outline_add; break;
+	case 2: use_outline = false; outline_width = 1; break;
+	case 3: use_outline = true; outline_width = 1; break;
+	case 4: use_outline = true; outline_width = 2; break;
+	case 5: use_outline = true; outline_width = 3; break;
+	case 6: use_outline = true; outline_width = 4; break;
+	default: use_outline = false; outline_width = 4; break;
 	}
 
 	/* 色を決める */
@@ -1078,6 +1083,7 @@ static void draw_text(struct image *target, const char *text, int w, int h, bool
 		font_size,		/* base_font_size */
 		conf_font_ruby_size,	/* FIXME: namebox.ruby.sizeの導入 */
 		use_outline,
+		outline_width,
 		x,
 		y,
 		conf_window_width,

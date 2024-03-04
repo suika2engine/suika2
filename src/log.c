@@ -653,6 +653,17 @@ void log_script_too_many_files(void)
 }
 
 /*
+ * breakの前の}
+ */
+void log_script_close_before_break(void)
+{
+	if (is_english_mode())
+		log_error("\'}\' before \"break\" in a case block.\n");
+	else
+		log_error(U8("case文に対応する\"break\"の前に\'}\'が現れました。"));
+}
+
+/*
  * 書き換え可能なコンフィグキーがないエラーを記録する
  */
 void log_script_config_not_found(const char *key)
