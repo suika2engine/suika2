@@ -335,6 +335,7 @@ static VOID OnPopup(void);
 static VOID OnWriteVars(void);
 static VOID OnExportPackage(void);
 static VOID OnExportWin(void);
+static VOID RunWindowsGame(void);
 static VOID OnExportWinInst(void);
 static VOID OnExportWinMac(void);
 static VOID OnExportWeb(void);
@@ -4505,14 +4506,46 @@ VOID OnExportWin(void)
 		return;
 	}
 
-	MessageBox(hWndMain, bEnglish ?
-			   L"Export succeeded. Will open the folder." :
-			   L"エクスポートに成功しました。フォルダを開きます。",
-			   TITLE,
-			   MB_ICONINFORMATION | MB_OK);
+	if (MessageBox(hWndMain,
+				   bEnglish ?
+				   L"Export succeeded. Will open the folder." :
+				   L"エクスポートに成功しました。ゲームを実行しますか？",
+				   TITLE,
+				   MB_ICONQUESTION | MB_YESNO) == IDYES)
+	{
+		/* suika.exeを実行する */
+		RunWindowsGame();
+	}
+	else
+	{
+		/* Explorerを開く */
+		ShellExecuteW(NULL, L"explore", L".\\windows-export", NULL, NULL, SW_SHOW);
+	}
+}
 
-	/* Explorerを開く */
-	ShellExecuteW(NULL, L"explore", L".\\windows-export", NULL, NULL, SW_SHOW);
+/* エクスポートされたWindowsゲームを実行する */
+VOID RunWindowsGame(void)
+{
+	STARTUPINFOW si;
+	PROCESS_INFORMATION pi;
+
+	/* プロセスを実行する */
+	ZeroMemory(&si, sizeof(STARTUPINFOW));
+	si.cb = sizeof(STARTUPINFOW);
+	CreateProcessW(L".\\windows-export\\suika.exe",	/* lpApplication */
+				   NULL,	/* lpCommandLine */
+				   NULL,	/* lpProcessAttribute */
+				   NULL,	/* lpThreadAttributes */
+				   FALSE,	/* bInheritHandles */
+				   NORMAL_PRIORITY_CLASS | CREATE_NEW_CONSOLE | CREATE_NEW_PROCESS_GROUP,
+				   NULL,	/* lpEnvironment */
+				   L".\\windows-export",
+				   &si,
+				   &pi);
+	if (pi.hProcess != NULL)
+		CloseHandle(pi.hThread);
+	if (pi.hProcess != NULL)
+		CloseHandle(pi.hProcess);
 }
 
 /* Windows向けインストーラをエクスポートするのメニューが押下されたときの処理を行う */
@@ -4741,7 +4774,7 @@ VOID RunWebTest(void)
 	wchar_t szPath[MAX_PATH];
 	wchar_t *pSep;
 
-	/* コピー元を求める */
+	/* web-test.exeのパスを求める */
 	GetModuleFileName(NULL, szPath, MAX_PATH);
 	pSep = wcsrchr(szPath, L'\\');
 	if (pSep != NULL)
