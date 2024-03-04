@@ -338,6 +338,7 @@ static VOID OnExportWin(void);
 static VOID OnExportWinInst(void);
 static VOID OnExportWinMac(void);
 static VOID OnExportWeb(void);
+static VOID RunWebTest(void);
 static VOID OnExportAndroid(void);
 static VOID OnExportIOS(void);
 static VOID OnFont(void);
@@ -4715,14 +4716,55 @@ VOID OnExportWeb(void)
 		return;
 	}
 
-	MessageBox(hWndMain, bEnglish ?
-			   L"Export succeeded. Will open the folder." :
-			   L"エクスポートに成功しました。フォルダを開きます。",
-			   TITLE,
-			   MB_ICONINFORMATION | MB_OK);
+	if (MessageBox(hWndMain,
+				   bEnglish ?
+				   L"Export succeeded. Do you want to run the game on a browser?." :
+				   L"エクスポートに成功しました。ブラウザで開きますか？",
+				   TITLE,
+				   MB_ICONQUESTION | MB_YESNO) == IDYES)
+	{
+		/* web-test.exeを実行する */
+		RunWebTest();
+	}
+	else
+	{
+		/* Explorerを開く */
+		ShellExecuteW(NULL, L"explore", L".\\web-export", NULL, NULL, SW_SHOW);
+	}
+}
 
-	/* Explorerを開く */
-	ShellExecuteW(NULL, L"explore", L".\\web-export", NULL, NULL, SW_SHOW);
+/* web-test.exeを実行する */
+VOID RunWebTest(void)
+{
+	STARTUPINFOW si;
+	PROCESS_INFORMATION pi;
+	wchar_t szPath[MAX_PATH];
+	wchar_t *pSep;
+
+	/* コピー元を求める */
+	GetModuleFileName(NULL, szPath, MAX_PATH);
+	pSep = wcsrchr(szPath, L'\\');
+	if (pSep != NULL)
+		*(pSep + 1) = L'\0';
+	wcscat(szPath, L"tools\\web-test.exe");
+
+	/* プロセスを実行する */
+	ZeroMemory(&si, sizeof(STARTUPINFOW));
+	si.cb = sizeof(STARTUPINFOW);
+	CreateProcessW(szPath,	/* lpApplication */
+				   NULL,	/* lpCommandLine */
+				   NULL,	/* lpProcessAttribute */
+				   NULL,	/* lpThreadAttributes */
+				   FALSE,	/* bInheritHandles */
+				   NORMAL_PRIORITY_CLASS | CREATE_NEW_CONSOLE | CREATE_NEW_PROCESS_GROUP,
+				   NULL,	/* lpEnvironment */
+				   L".\\web-export",
+				   &si,
+				   &pi);
+	if (pi.hProcess != NULL)
+		CloseHandle(pi.hThread);
+	if (pi.hProcess != NULL)
+		CloseHandle(pi.hProcess);
 }
 
 /* Androidプロジェクトをエクスポートのメニューが押下されたときの処理を行う */
