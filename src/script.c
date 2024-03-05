@@ -2290,6 +2290,7 @@ static bool reparse_case_block(int index, const char *raw, int *end_index)
 			break;
 
 		/* 行を処理する */
+		accepted = SMODE_ACCEPT_NONE; /* avoid warning */
 		if (!reparse_smode_line(index, state, &accepted, &ret_index))
 			return false;
 		index = ret_index;
