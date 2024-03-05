@@ -518,7 +518,7 @@ static bool s2_pop_stage(struct wms_runtime *rt)
 			if (!set_layer_file_name(i, saved_layer_file_name[i]))
 				return false;
 			set_layer_image(i, img);
-		} else if (i >= LAYER_CHB && i <= LAYER_CHC_EYE ||
+		} else if ((i >= LAYER_CHB && i <= LAYER_CHC_EYE) ||
 			   i == LAYER_CHF) {
 			/* Restore an character. */
 			if (saved_layer_file_name[i] != NULL) {

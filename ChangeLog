@@ -1616,7 +1616,7 @@ This file is referred by some automatic release scripts.
 Release History (English)
 
 <!-- BEGIN-LATEST-EN -->
-<li>Suika2/16.72 2024/3/6
+<li>Suika2/16.71 2024/3/6
   <ul>
     <li>Fixed the random number generation (Thanks to ubi_2-san, Ronron-san and こつ子-san!)</li>
     <li>Fixed the font outline widthn (Thanks to Kameno-san!</li>
