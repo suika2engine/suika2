@@ -1439,9 +1439,9 @@ static void blit_namebox(void)
 
 	/* ふちどりを行うかを取得する */
 	switch (conf_namebox_font_outline) {
-	case 0: use_outline = !conf_font_outline_remove; outline_width = 0; break;
+	case 0: use_outline = !conf_font_outline_remove; outline_width = 2 + conf_font_outline_add; break;
 	case 1: use_outline = true; outline_width = 2 + conf_font_outline_add; break;
-	case 2: use_outline = false; outline_width = 1; break;
+	case 2: use_outline = false; outline_width = 0; break;
 	case 3: use_outline = true; outline_width = 1; break;
 	case 4: use_outline = true; outline_width = 2; break;
 	case 5: use_outline = true; outline_width = 3; break;
@@ -2342,9 +2342,11 @@ static bool frame_sysmenu(void)
 		action_config();
 		break;
 	case SYSMENU_CUSTOM1:
+		play_se(conf_sysmenu_custom1_se);
 		action_custom(0);
 		break;
 	case SYSMENU_CUSTOM2:
+		play_se(conf_sysmenu_custom2_se);
 		action_custom(1);
 		break;
 	default:

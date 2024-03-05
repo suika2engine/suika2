@@ -2466,7 +2466,7 @@ static int draw_save_text_item(int button_index, int x, int y,
 
 	/* ふちどりを選択する */
 	switch (conf_gui_save_font_outline) {
-	case 0: use_outline = !conf_font_outline_remove; outline_width = 0; break;
+	case 0: use_outline = !conf_font_outline_remove; outline_width = 2 + conf_font_outline_add; break;
 	case 1: use_outline = true; outline_width = 2 + conf_font_outline_add; break;
 	case 2: use_outline = false; outline_width = 1; break;
 	case 3: use_outline = true; outline_width = 1; break;
@@ -2769,7 +2769,7 @@ static void draw_history_text_item(int button_index)
 
 	/* ふちどりを選択する */
 	switch (conf_gui_history_font_outline) {
-	case 0: use_outline = !conf_font_outline_remove; outline_width = 0; break;
+	case 0: use_outline = !conf_font_outline_remove; outline_width = 2 + conf_font_outline_add; break;
 	case 1: use_outline = true; outline_width = 2 + conf_font_outline_add; break;
 	case 2: use_outline = false; outline_width = 1; break;
 	case 3: use_outline = true; outline_width = 1; break;
