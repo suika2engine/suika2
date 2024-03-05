@@ -24,6 +24,8 @@
  */
 bool on_event_init(void)
 {
+	srand((unsigned int)time(NULL));
+
 	/* 変数の初期化処理を行う */
 	init_vars();
 

@@ -91,7 +91,6 @@ static bool process_normal_var(const char *lhs,
 
 	/* 右辺の値を求める */
 	if (strcmp(rhs, RANDOM_VARIABLE) == 0) {
-		srand((unsigned int)time(NULL));
 		rval = rand();
 	} else if (strcmp(rhs, "yes") == 0) {
 		rval = 1;
