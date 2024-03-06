@@ -183,7 +183,7 @@ msgbox.margin.line=55
 msgbox.margin.char=0
 
 # [メッセージのスピード(毎秒x文字表示する)]
-msgbox.speed=20.0
+msgbox.speed=40.0
 
 # [メッセージボックスを非表示にするボタンの座標] (省略可)
 #  - メッセージボックス内の座標

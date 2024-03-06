@@ -191,7 +191,7 @@ msgbox.margin.line=55
 msgbox.margin.char=0
 
 # The message speed. (x characters per second)
-msgbox.speed=20.0
+msgbox.speed=40.0
 
 # Use skipping for unseen messages? (optional)
 #  0: No

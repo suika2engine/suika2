@@ -5,12 +5,17 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/16.73 2024/3/6
+  <ul>
+    <li>テンプレゲームのメッセージボックススピードを変更 (Thanks to あさつき-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
 <li>Suika2/16.72 2024/3/6
   <ul>
     <li>以前のcustom1ボタンの挙動を復活 (Thanks to ubi_2-san and Ronron-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
 <li>Suika2/16.71 2024/3/6
   <ul>
     <li>乱数を修正 (Thanks to ubi_2-san, Ronron-san and こつ子-san!)</li>
@@ -1621,12 +1626,17 @@ This file is referred by some automatic release scripts.
 Release History (English)
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/16.73 2024/3/6
+  <ul>
+    <li>Changed the message speed in the template games (Thanks to Asatsuki-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
 <li>Suika2/16.72 2024/3/6
   <ul>
     <li>Added a support for the old behavior of custom1/2 buttons (Thanks to ubi_2-san and Ronron-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
 <li>Suika2/16.71 2024/3/6
   <ul>
     <li>Fixed the random number generation (Thanks to ubi_2-san, Ronron-san and こつ子-san!)</li>
