@@ -5,6 +5,12 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/16.72 2024/3/6
+  <ul>
+    <li>以前のcustom1ボタンの挙動を復活 (Thanks to ubi_2-san and Ronron-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
 <li>Suika2/16.71 2024/3/6
   <ul>
     <li>乱数を修正 (Thanks to ubi_2-san, Ronron-san and こつ子-san!)</li>
@@ -13,7 +19,6 @@ This file is referred by some automatic release scripts.
     <li>custom1ボタンのSEが鳴らないのを修正 (Thanks to Ronron-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
 <li>Suika2/16.70 2024/3/5
   <ul>
     <li>caseブロックのbreakの前に}が来た場合にエラーを出すように修正 (Thanks to Ronron-san and SOrow-san!)</li>
@@ -1616,6 +1621,12 @@ This file is referred by some automatic release scripts.
 Release History (English)
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/16.72 2024/3/6
+  <ul>
+    <li>Added a support for the old behavior of custom1/2 buttons (Thanks to ubi_2-san and Ronron-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
 <li>Suika2/16.71 2024/3/6
   <ul>
     <li>Fixed the random number generation (Thanks to ubi_2-san, Ronron-san and こつ子-san!)</li>
@@ -1624,7 +1635,6 @@ Release History (English)
     <li>Fixed the SE of custom1/2 bottons (Thanks to Ronron-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
 <li>Suika2/16.70 2024/3/5
   <ul>
     <li>Added an error when a } comes before break in a case block (Thanks to Ronron-san and SOrow-san!)</li>

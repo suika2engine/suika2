@@ -295,6 +295,9 @@ static bool need_custom1_mode;
 /* カスタム2に遷移するか */
 static bool need_custom2_mode;
 
+/* カスタム1/2でgosubを使うときの飛び先 */
+static const char *custom_gosub_target;
+
 /* クイックロードに失敗したか */
 static bool is_quick_load_failed;
 
@@ -537,16 +540,24 @@ static bool blit_process(void)
 		start_gui_mode();
 		return true;
 	} else if (need_custom1_mode) {
-		if (!prepare_gui_mode(CUSTOM1_GUI_FILE, true))
-			return false;
-		set_gui_options(true, false, false);
-		start_gui_mode();
+		if (conf_sysmenu_custom1_gosub == NULL)  {
+			if (!prepare_gui_mode(CUSTOM1_GUI_FILE, true))
+				return false;
+			set_gui_options(true, false, false);
+			start_gui_mode();
+		} else {
+			custom_gosub_target = conf_sysmenu_custom1_gosub;
+		}
 		return true;
 	} else if (need_custom2_mode) {
-		if (!prepare_gui_mode(CUSTOM2_GUI_FILE, true))
-			return false;
-		set_gui_options(true, false, false);
-		start_gui_mode();
+		if (conf_sysmenu_custom2_gosub == NULL)  {
+			if (!prepare_gui_mode(CUSTOM1_GUI_FILE, true))
+				return false;
+			set_gui_options(true, false, false);
+			start_gui_mode();
+		} else {
+			custom_gosub_target = conf_sysmenu_custom2_gosub;
+		}
 		return true;
 	}
 
@@ -3197,6 +3208,13 @@ static bool cleanup(void)
 			free(voice_file);
 			voice_file = NULL;
 		}
+	}
+
+	/* カスタムシステムメニューのgosubを処理する */
+	if ((need_custom1_mode || need_custom2_mode) && custom_gosub_target != NULL) {
+		push_return_point_minus_one();
+		if (!move_to_label(custom_gosub_target))
+			return false;
 	}
 
 	/* 次のコマンドに移動する */
