@@ -77,6 +77,9 @@ void delete_global_save(void);
 /* セーブデータの日付を取得する */
 time_t get_save_date(int index);
 
+/* 最新のセーブデータの番号を取得する */
+int get_latest_save_index(void);
+
 /* セーブデータの章タイトルを取得する */
 const char *get_save_chapter_name(int index);
 

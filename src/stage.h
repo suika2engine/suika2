@@ -528,6 +528,12 @@ void show_automode_banner(bool show);
 void show_skipmode_banner(bool show);
 
 /*
+ * セーブスロットのNEW画像の描画
+ */
+
+void render_savenew(int x, int y, int alpha);
+
+/*
  * キラキラエフェクト
  */
 

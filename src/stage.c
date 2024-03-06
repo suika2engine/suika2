@@ -109,6 +109,9 @@ static struct image *sysmenu_hover_image;
 /* システムメニュー(禁止項目)のイメージ */
 static struct image *sysmenu_disable_image;
 
+/* セーブストッロのNEW画像のイメージ */
+static struct image *savenew_image;
+
 /* セーブデータ用のサムネイルイメージ */
 static struct image *thumb_image;
 
@@ -235,6 +238,7 @@ static bool setup_news(void);
 static bool setup_sysmenu(void);
 static bool setup_banners(void);
 static bool setup_kirakira(void);
+static bool setup_savenew(void);
 static bool setup_thumb(void);
 static void restore_text_layers(void);
 static bool create_fade_layer_images(void);
@@ -349,6 +353,10 @@ bool reload_stage(void)
 
 	/* キラキラ画像をセットアップする */
 	if (!setup_kirakira())
+		return false;
+
+	/* セーブスロットのNEW画像をセットアップする */
+	if (!setup_savenew())
 		return false;
 
 	/* テキストレイヤの文字を復元する */
@@ -718,6 +726,27 @@ static bool setup_thumb(void)
 	thumb_image = create_image(conf_save_data_thumb_width,
 				   conf_save_data_thumb_height);
 	if (thumb_image == NULL)
+		return false;
+
+	return true;
+}
+
+/* セーブスロットのNEW画像をセットアップする */
+static bool setup_savenew(void)
+{
+	/* 再初期化時に破棄する */
+	if (savenew_image != NULL) {
+		destroy_image(savenew_image);
+		savenew_image = NULL;
+	}
+
+	/* コンフィグが指定されていない場合 */
+	if (conf_save_data_new == NULL)
+		return true;
+
+	/* イメージを作成する */
+	savenew_image = create_image_from_file(CG_DIR, conf_save_data_new);
+	if (savenew_image == NULL)
 		return false;
 
 	return true;
@@ -4439,6 +4468,28 @@ void render_fo_all_and_fi_rect(int x, int y, int w, int h)
 			    w,
 			    h,
 			    255);
+}
+
+/*
+ * セーブスロットのNEW画像の描画
+ */
+
+/* Renders a NEW image of save slots. */
+void render_savenew(int x, int y, int alpha)
+{
+	if (savenew_image == NULL)
+		return;
+
+	render_image_normal(x,
+			    y,
+			    savenew_image->width,
+			    savenew_image->height,
+			    savenew_image,
+			    0,
+			    0,
+			    savenew_image->width,
+			    savenew_image->height,
+			    alpha);
 }
 
 /*

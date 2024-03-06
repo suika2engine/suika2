@@ -113,7 +113,7 @@ static struct gui_button {
 	int height;
 
 	/* TYPE_SAVE/TYPE_LOAD */
-	int margin;
+	int margin, new_x, new_y;
 
 	/* TYPE_GOTO, TYPE_GALLERY */
 	char *label;
@@ -125,10 +125,7 @@ static struct gui_button {
 	char *alt;
 	int order;
 
-	/*
-	 * TYPE_SAVEPAGE, TYPE_LOADPAGE, TYPE_SAVE, TYPE_LOAD,
-	 * TYPE_CHARACTERVOL
-	 */
+	/* TYPE_SAVEPAGE, TYPE_LOADPAGE, TYPE_SAVE, TYPE_LOAD, TYPE_CHARACTERVOL */
 	int index;
 
 	/* TYPE_PREVIEW, TYPE_CHAR */
@@ -173,6 +170,9 @@ static struct gui_button {
 
 		/* ヒストリのオフセット */
 		int history_offset;
+
+		/* TYPE_SAVE/TYPE_LOADのときNEWボタンを表示するか */
+		bool is_new_enabled;
 
 		/*
 		 * テキストプレビューの情報
@@ -819,6 +819,12 @@ static bool set_button_key_value(const int index, const char *key,
 		b->clear_g = atoi(val);
 	} else if (strcmp("clear-b", key) == 0) {
 		b->clear_b = atoi(val);
+	} else if (strcmp("new-x", key) == 0) {
+		b->new_x = atoi(val);
+		b->rt.is_new_enabled = true;
+	} else if (strcmp("new-y", key) == 0) {
+		b->new_y = atoi(val);
+		b->rt.is_new_enabled = true;
 	} else if (strcmp("usearrow", key) == 0) {
 		/* removed */
 	} else {
@@ -2616,6 +2622,11 @@ static void process_button_render_save(int index)
 
 	/* サムネイルとテキストの描画を行う */
 	render_image_normal(b->x, b->y, b->width, b->height, b->rt.img, 0, 0, b->width, b->height, cur_alpha);
+
+	/* NEW画像を表示する */
+	if (b->rt.is_new_enabled &&
+	    get_latest_save_index() == save_page * save_slots + b->index)
+		render_savenew(b->new_x, b->new_y, cur_alpha);
 }
 
 /*

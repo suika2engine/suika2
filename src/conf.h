@@ -237,6 +237,7 @@ extern char *conf_news_change_se;
  */
 extern int conf_save_data_thumb_width;
 extern int conf_save_data_thumb_height;
+extern char *conf_save_data_new;
 
 /* 
  * システムメニューの設定

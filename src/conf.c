@@ -227,6 +227,7 @@ char *conf_news_change_se;
  */
 int conf_save_data_thumb_width;
 int conf_save_data_thumb_height;
+char *conf_save_data_new;
 
 /* 
  * システムメニューの設定
@@ -697,6 +698,7 @@ static struct rule {
 	{"news.change.se", 's', &conf_news_change_se, OPTIONAL, SAVE},
 	{"save.data.thumb.width", 'i', &conf_save_data_thumb_width, MUST, NOSAVE},
 	{"save.data.thumb.height", 'i', &conf_save_data_thumb_height, MUST, NOSAVE},
+	{"save.data.new", 's', &conf_save_data_new, OPTIONAL, NOSAVE},
 	{"sysmenu.x", 'i', &conf_sysmenu_x, MUST, SAVE},
 	{"sysmenu.y", 'i', &conf_sysmenu_y, MUST, SAVE},
 	{"sysmenu.idle.file", 's', &conf_sysmenu_idle_file, MUST, SAVE},

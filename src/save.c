@@ -69,6 +69,9 @@ static float msg_auto_speed;
 /* セーブデータの日付 (0のときデータなし) */
 static time_t save_time[SAVE_SLOTS];
 
+/* 最後にセーブされたセーブデータ番号 */
+static int latest_index;
+
 /* セーブデータの章タイトル */
 static char *save_title[SAVE_SLOTS];
 
@@ -250,6 +253,14 @@ time_t get_save_date(int index)
 }
 
 /*
+ * 最新のセーブデータの番号を取得する
+ */
+int get_latest_save_index(void)
+{
+	return latest_index;
+}
+
+/*
  * セーブデータの章タイトルを取得する
  */
 const char *get_save_chapter_name(int index)
@@ -367,6 +378,9 @@ bool execute_save(int index)
 		}
 	});
 #endif
+
+	latest_index = index;
+
 	return true;
 }
 
@@ -1306,6 +1320,8 @@ static void load_basic_save_data(void)
 	uint64_t t;
 	int i;
 
+	latest_index = -1;
+
 	/* セーブスロットごとに読み込む */
 	for (i = 0; i < SAVE_SLOTS; i++) {
 		/* セーブデータファイルを開く */
@@ -1350,6 +1366,10 @@ static void load_basic_save_data_file(struct rfile *rf, int index)
 	if (read_rfile(rf, &t, sizeof(t)) < sizeof(t))
 		return;
 	save_time[index] = (time_t)t;
+	if (latest_index == -1)
+		latest_index = index;
+	else if ((time_t)t > save_time[latest_index])
+		latest_index = index;
 
 	/* 章題を取得する */
 	if (gets_rfile(rf, tmp_str, sizeof(tmp_str)) == NULL)
