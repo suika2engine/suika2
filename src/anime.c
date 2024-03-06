@@ -211,6 +211,8 @@ void clear_anime_sequence(int layer)
 	context[layer].seq_count = 0;
 	context[layer].is_running = false;
 	context[layer].is_finished = false;
+	context[layer].loop_len = 0;
+	context[layer].loop_ofs = 0;
 	if (context[layer].file != NULL) {
 		free(context[layer].file);
 		context[layer].file = NULL;
@@ -593,6 +595,9 @@ static bool on_key_value(const char *key, const char *val)
 		context[cur_seq_layer].sw = cur_sw;
 		context[cur_seq_layer].is_running = true;
 		context[cur_seq_layer].is_finished = false;
+		context[cur_seq_layer].loop_len = 0;
+		context[cur_seq_layer].loop_ofs = 0;
+
 		return true;
 	}
 	if (cur_seq_layer == -1) {
@@ -814,8 +819,11 @@ bool load_eye_image_if_exists(int chpos, const char *fname)
 	set_layer_image(layer, NULL);
 
 	/* キャラがない場合 */
-	if (fname == NULL || strcmp(fname, "none") == 0 || strcmp(fname, U8("消去")) == 0)
+	if (fname == NULL || strcmp(fname, "none") == 0 || strcmp(fname, U8("消去")) == 0) {
+		/* 既存の目パチアニメを終了する */
+		clear_anime_sequence(chpos_to_eye_layer(chpos));
 		return true;
+	}
 
 	/* 目パチファイル名の文字列"filename_eye.ext"を作る */
 	strcpy(eye_fname, fname);
@@ -853,8 +861,7 @@ bool load_eye_image_if_exists(int chpos, const char *fname)
 
 	/* 目パチのアニメを開始する */
 	frame_count = get_layer_image(chpos_to_eye_layer(chpos))->width / get_layer_image(chpos_to_layer(chpos))->width;
-	base_time = conf_character_eyeblink_interval + conf_character_eyeblink_interval * 0.3f 
-											       * (2.0f * (float)rand() / (float)RAND_MAX - 1.0f);
+	base_time = conf_character_eyeblink_interval + conf_character_eyeblink_interval * 0.3f * (2.0f * (float)rand() / (float)RAND_MAX - 1.0f);
 	clear_anime_sequence(layer);
 	new_anime_sequence(layer);
 	add_anime_sequence_property_f("start",	0);

@@ -103,6 +103,11 @@ bool log_info(const char *s, ...)
 	return true;
 }
 
+void log_dir_many_files(void)
+{
+	log_error("Too many files.\n");
+}
+
 const char *conv_utf8_to_native(const char *utf8_message)
 {
 	return utf8_message;

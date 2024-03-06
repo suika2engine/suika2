@@ -1,5 +1,5 @@
 CPPFLAGS=\
-	-DUSE_DEBUGGER \
+	-DUSE_EDITOR \
 	-I../../src
 
 CFLAGS=\
