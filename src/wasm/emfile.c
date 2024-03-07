@@ -2,7 +2,7 @@
 
 /*
  * Suika2
- * Copyright (C) 2001-2023, Keiichi Tabata. All rights reserved.
+ * Copyright (C) 2001-2024, Keiichi Tabata. All rights reserved.
  */
 
 /*
@@ -103,6 +103,24 @@ EM_ASYNC_JS(int, s2ReadFile, (const char *dir_name, const char *file_name, char 
 	}
 	return -1;
 });
+
+/*
+ * ファイルがあるか調べる
+ */
+bool check_file_exist(const char *dir, const char *file)
+{
+	uint64_t size;
+
+	/* ファイルのサイズを取得する */
+	size = s2GetFileSize(dir, file);
+	if (size == -1) {
+		/* ファイルが存在しない */
+		return false;
+	}
+
+	/* ファイルが存在する */
+	return true;
+}
 
 /*
  * ファイル読み込みストリームを開く
@@ -266,3 +284,4 @@ void remove_file(const char *dir, const char *file)
 {
 	/* TODO */
 }
+
