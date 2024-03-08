@@ -1,5 +1,5 @@
-<!-- Big Banner -->
-<img src="https://github.com/suika2engine/suika2/raw/master/.doc/banner.png" width="100%">
+Suika2
+======
 
 ## What is Suika2?
 
@@ -39,8 +39,8 @@ The author thinks as a researcher of software engineering that VLS is one shape 
 
 ## Downloads
 
-Note that releases on GitHub and the stores are infrequent.
-Please visit [the official website](https://suika2.com/en/dl/) to obtain the latest release.
+Note that releases on stores are older than the latest version on GitHub and the Web site because stores take 2-3 business days for reviews but we do 2-3 releases a day.
+Please visit [the official Web site](https://suika2.com/en/dl/) to obtain the latest release.
 
 * On Windows (Suika2 Pro Desktop):
   * Open [Microsoft Store](https://apps.microsoft.com/detail/XP99CQV05PR79W)
@@ -54,7 +54,7 @@ Please visit [the official website](https://suika2.com/en/dl/) to obtain the lat
 * On Android/Chromebook (Suika2 Pro Mobile):
   * Open [Google Play](https://play.google.com/store/apps/details?id=jp.luxion.suikapro)
 
-* On Linux including Chromebook (Suika2 Pro Desktop):
+* On Linux including terminal of Chromebook (Suika2 Pro Desktop):
   * You can build from the souce code:
   ```
   sudo apt-get install -y git build-essential libasound2-dev libx11-dev mesa-common-dev qt6-base-dev qt6-multimedia-dev libwebp-dev
@@ -74,7 +74,7 @@ Please visit [the official website](https://suika2.com/en/dl/) to obtain the lat
 
 ## Discord
 
-Our community is a cherished and invaluable space that embraces developers, creators, and end-users irrespective of their nationality, language, ethnicity, color, lineage, beliefs, gender, education, age, religion, or identity.
+Our community is a cherished and invaluable space that embraces developers, creators, and end-users irrespective of their nationality, language, ethnicity, color, lineage, beliefs, sexuality, gender, education, age, religion, or identity.
 That's why we'd love you to join our community!
 You're definitely deserved to be a part of it.
 
@@ -92,7 +92,7 @@ They provide creators with all the functionalities they need, such as editing, d
 This software is released under the MIT license.
 There is no restriction on distribution and or modification of the Suika2 Source Code.
 
-This project will not be commercialized in the future and please use with confidence.
+This project will never be commercialized in the future. Please use Suika2 with confidence.
 
 ## Contribution
 
@@ -110,10 +110,10 @@ We are always open to suggestions and ideas.
 
 ## Portability
 
-Games made with Suika2 can run on Windows PC, Mac, iPhone, iPad, Android phone/tablet, Web browser, Chromebook, Linux, FreeBSD, NetBSD, OpenBSD, and some consoles.
+Games made with Suika2 can run on Windows PC, Mac, iPhone, iPad, Android, Web browser, Chromebook, Linux, FreeBSD, NetBSD, OpenBSD, and some commercial consoles.
 
-Suika2 consists of a platform independent core (CORE) and a hardware abstraction layer (HAL).
-The CORE is written in ANSI C, the most portable programming language in the world, while HAL implementations are currently written in C, C++, Objective-C, and Java.
+Suika2 consists of the platform independent core (CORE) and the hardware abstraction layer (HAL).
+The CORE is written in ANSI C, the most portable programming language in the world, while HAL implementations are currently written in C, C++, Objective-C, Swift and Java.
 
 If you would like to port Suika2 to a new target platform, you only need to write a thin HAL, this is generally possible within a week.
 
@@ -124,6 +124,9 @@ Suika2 does not depend on SDKs or frameworks such as Unity, Godot, Python, or SD
 * We do CI for build sanity checks on every push to the repository using GitHub Actions.
 * We currently don't have a way to do CD on the cloud due to a lack of code signing capability.
 * However, the author has a release script and thus releases are fully automated on his MacBook Pro.
+  * The release script builds all binaries and uploads them to the Web site and GitHub.
+  * It also posts a message to the Discord server.
+  * This is generally done in 10 minutes.
 
 ## Trivia
 
@@ -137,7 +140,7 @@ Did you know that...
 
 ## Sponsors
 
-Here's where you raise your banner!
+[Here's where you raise your banner!](https://github.com/ktabata/suika2/raw/master/FUND.md)
 
 **Come forward**, those who resonate with our vision and are of like mind.
 
