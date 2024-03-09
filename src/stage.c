@@ -83,10 +83,10 @@ static struct image *namebox_image;
 static struct image *click_image[CLICK_FRAMES];
 
 /* 選択肢(非選択時)のイメージ */
-static struct image *switch_bg_image[8];
+static struct image *switch_bg_image[10];
 
 /* 選択肢(選択時)のイメージ */
-static struct image *switch_fg_image[8];
+static struct image *switch_fg_image[10];
 
 /* NEWS(非選択)のイメージ */
 static struct image *news_bg_image;
@@ -510,7 +510,7 @@ static bool setup_switch(bool no_bg, bool no_fg, int index)
 	int i;
 
 	/* 再初期化時に破棄する */
-	for (i = 0; i < 8; i ++) {
+	for (i = 0; i < 10; i ++) {
 		if (index == -1 || index == 0) {
 			if (!no_bg) {
 				if (switch_bg_image[i] != NULL) {
@@ -527,7 +527,7 @@ static bool setup_switch(bool no_bg, bool no_fg, int index)
 		}
 	}
 
-	for (i = 0; i < 8; i ++) {
+	for (i = 0; i < 10; i ++) {
 		if (i != 0 &&
 		    (conf_switch_bg_file[i] == NULL || 
 		     conf_switch_fg_file[i] == NULL))
@@ -4073,7 +4073,7 @@ void get_switch_rect(int index, int *x, int *y, int *w, int *h)
 {
 	int use_image_index, width, height;
 
-	assert(index >= 0 && index < 8);
+	assert(index >= 0 && index < 10);
 
 	if (index != 0 && switch_bg_image[index] == NULL)
 		use_image_index = 0;

@@ -257,20 +257,20 @@ struct insn_item {
 	{U8("@動画"), COMMAND_VIDEO, 1, 2},
 
 	/* 選択肢 */
-	{"@choose", COMMAND_CHOOSE, 2, 16},
-	{U8("@選択肢"), COMMAND_CHOOSE, 2, 16},
+	{"@choose", COMMAND_CHOOSE, 2, 20},
+	{U8("@選択肢"), COMMAND_CHOOSE, 2, 20},
 
 	/* インライン選択肢 */
-	{"@ichoose", COMMAND_ICHOOSE, 2, 16},
-	{U8("@インライン選択肢"), COMMAND_ICHOOSE, 2, 16},
+	{"@ichoose", COMMAND_ICHOOSE, 2, 20},
+	{U8("@インライン選択肢"), COMMAND_ICHOOSE, 2, 20},
 
 	/* 条件付き選択肢 */
-	{"@mchoose", COMMAND_MCHOOSE, 3, 24},
-	{U8("@条件付き選択肢"), COMMAND_MCHOOSE, 3, 24},
+	{"@mchoose", COMMAND_MCHOOSE, 3, 30},
+	{U8("@条件付き選択肢"), COMMAND_MCHOOSE, 3, 30},
 
 	/* 条件付きインライン選択肢 */
-	{"@michoose", COMMAND_MICHOOSE, 3, 24},
-	{U8("@条件付きインライン選択肢"), COMMAND_MICHOOSE, 3, 24},
+	{"@michoose", COMMAND_MICHOOSE, 3, 40},
+	{U8("@条件付きインライン選択肢"), COMMAND_MICHOOSE, 3, 40},
 
 	/* 章タイトル */
 	{"@chapter", COMMAND_CHAPTER, 1, 1},

@@ -22,6 +22,7 @@
  *  2023-12-11 Separated winmain.c to winmain.c and winpro.c
  *  2024-01-04 Added the dark mode and the preference save/load.
  *  2024-01-06 Changed the language check logic.
+ *  2024-03-09 Added the support for VLS (Visual Live Scripting).
  */
 
 /* Suika2 Base */
@@ -1609,6 +1610,17 @@ static BOOL PretranslateMessage(MSG* pMsg)
 		PostMessage(hWndMain, WM_COMMAND, (WPARAM)ID_POPUP, 0);
 		return FALSE;
 	}
+
+#if 0
+	/* 左ダブルクリックを処理する */
+	if (pMsg->hwnd == hWndRichEdit &&
+		pMsg->message == WM_LBUTTONDBLCLK)
+	{
+		/* 編集ウィンドウを開くためのWM_COMMANDをポストする */
+		PostMessage(hWndMain, WM_COMMAND, (WPARAM)ID_PROPERTY, 0);
+		return FALSE;
+	}
+#endif
 
 	/* キー押下を処理する */
 	if (pMsg->hwnd == hWndRichEdit && pMsg->message == WM_KEYDOWN)

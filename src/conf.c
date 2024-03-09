@@ -186,13 +186,13 @@ int conf_click_disable;
 /*
  * スイッチの設定
  */
-char *conf_switch_bg_file[8];
-char *conf_switch_fg_file[8];
+char *conf_switch_bg_file[10];
+char *conf_switch_fg_file[10];
 int conf_switch_font_select;
 int conf_switch_font_size;
 int conf_switch_font_outline;
-int conf_switch_x[8];
-int conf_switch_y[8];
+int conf_switch_x[10];
+int conf_switch_y[10];
 int conf_switch_margin_y;
 int conf_switch_text_margin_y;
 int conf_switch_color_inactive;
@@ -691,6 +691,14 @@ static struct rule {
 	{"switch.fg.file8", 's', &conf_switch_fg_file[7], OPTIONAL, SAVE},
 	{"switch.x8", 'i', &conf_switch_x[7], OPTIONAL, SAVE},
 	{"switch.y8", 'i', &conf_switch_y[7], OPTIONAL, SAVE},
+	{"switch.bg.file9", 's', &conf_switch_bg_file[8], OPTIONAL, SAVE},
+	{"switch.fg.file9", 's', &conf_switch_fg_file[8], OPTIONAL, SAVE},
+	{"switch.x9", 'i', &conf_switch_x[8], OPTIONAL, SAVE},
+	{"switch.y9", 'i', &conf_switch_y[8], OPTIONAL, SAVE},
+	{"switch.bg.file10", 's', &conf_switch_bg_file[9], OPTIONAL, SAVE},
+	{"switch.fg.file10", 's', &conf_switch_fg_file[9], OPTIONAL, SAVE},
+	{"switch.x10", 'i', &conf_switch_x[9], OPTIONAL, SAVE},
+	{"switch.y10", 'i', &conf_switch_y[9], OPTIONAL, SAVE},
 	{"news.bg.file", 's', &conf_news_bg_file, OPTIONAL, SAVE},
 	{"news.fg.file", 's', &conf_news_fg_file, OPTIONAL, SAVE},
 	{"news.margin", 'i', &conf_news_margin, OPTIONAL, SAVE},
