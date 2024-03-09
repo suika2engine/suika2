@@ -5,12 +5,17 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/16.77 2024/3/9
+  <ul>
+    <li>chooseコマンドの選択肢数の上限を8から10に増加 (Thanks to ソロー-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
 <li>Suika2/16.76 2024/3/8
   <ul>
     <li>chsxコマンドの省略記法の追加 (Thanks to あさつき-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
 <li>Suika2/16.75 2024/3/7
   <ul>
     <li>最新のセーブデータにNEWロゴを表示する機能を追加 (Thanks to Mirin-san!)</li>
@@ -1641,12 +1646,17 @@ This file is referred by some automatic release scripts.
 Release History (English)
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/16.77 2024/3/9
+  <ul>
+    <li>Incremented the maximum choose options from 8 to 10 (Thanks to SOrow-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
 <li>Suika2/16.76 2024/3/8
   <ul>
     <li>Added abbreviated chsx parameter names (Thanks to Asatsuki-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
 <li>Suika2/16.75 2024/3/7
   <ul>
     <li>Added a feature to show "NEW" logo on the latest save slot (Thanks to Mirin-san!)</li>
