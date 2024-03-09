@@ -81,6 +81,7 @@ static int saved_pen_x;
 static int saved_pen_y;
 
 /* 前方参照 */
+static void post_process(void);
 static bool dispatch_command(bool *cont);
 
 #ifdef USE_EDITOR
@@ -89,6 +90,9 @@ static bool dbg_running;
 
 /* 停止が要求されているか */
 static bool dbg_request_stop;
+
+/* GUI直後の停止が要求されているか */
+static bool dbg_request_stop_after_gui;
 
 /* エラー状態であるか */
 static bool dbg_runtime_error;
@@ -141,71 +145,153 @@ void init_game_loop(void)
 #endif
 }
 
+#if !defined(USE_EDITOR)
 /*
  * ゲームループの中身を実行する
  */
 bool game_loop_iter(void)
 {
-	bool is_gui;
-	bool cont;
+	bool is_gui, cont;
+
+	/* GUIを実行中であるかを取得する */
+	is_gui = is_gui_mode();
 
 	/* GUI実行中の場合を処理する */
-	is_gui = is_gui_mode();
 	if (is_gui) {
-		/* GUIモードを実行する */
+		/* GUIのフレームを実行する */
 		if (!run_gui_mode())
 			return false; /* エラー */
 
-		/* GUIモードが終了した場合 */
+		/* GUIが終了した場合 */
 		if (!is_gui_mode()) {
 			if (!is_in_repetition) {
-				/* ロードされたときのために終了処理を行う */
+				/* ロードされたのでGUI終了処理を行う */
 				cleanup_gui();
 			} else {
-				/* @guiを終了する */
-				if (get_command_type() == COMMAND_GUI)
-					if (!gui_command())
-						return false; /* エラー */
+				/* @guiコマンド内なので続くコマンド処理を行う */
+				is_gui = false;
 			}
 		}
 	}
 
-#ifndef USE_EDITOR
-	/* ゲームエンジン本体の場合、コマンドを実行する */
+	/* GUI実行中でない場合 */
 	if (!is_gui) {
-		/* コマンドを実行する */
+		/* 連続するコマンドを実行する */
 		do {
 			/* ディスパッチする */
 			if (!dispatch_command(&cont))
 				return false;
 		} while (cont);
 	}
-#else
-	/* デバッガの場合、実行中の場合だけコマンドを実行する */
-	if (!is_gui) {
-		if (!pre_dispatch()) {
-			/* 実行中でないので画面を再描画する */
-			render_stage();
-		} else {
+
+	post_process();
+
+	return true;
+}
+#endif
+
+#if defined(USE_EDITOR)
+/*
+ * ゲームループの中身を実行する
+ */
+bool game_loop_iter(void)
+{
+	bool need_dummy_render;
+
+	need_dummy_render = false;
+
+	/* 実行制御を行う */
+	if (!pre_dispatch()) {
+		/* 停止中で実行されない場合、ステージを描画してフレームを終了する */
+		render_stage();
+		if (conf_sysmenu_hidden != 0)
+			render_collapsed_sysmenu(false);
+		return true;
+	}
+
+	/* @guiコマンドに対して一行実行ボタンが押下されたとき */
+	if (get_command_type() == COMMAND_GUI && !is_gui_mode() && dbg_request_stop) {
+		dbg_request_stop = false;
+		dbg_request_stop_after_gui = true;
+	}
+
+	/* フレームを実行する */
+	if (!is_gui_mode()) {
+		/* GUI実行中でない場合 */
+		do {
 			/* ディスパッチする */
-			if (!dispatch_command(&cont)) {
+			if (!dispatch_command(&need_dummy_render)) {
 				/* 実行時エラーの場合、エラー終了をキャンセルする */
 				if (dbg_runtime_error) {
 					dbg_runtime_error = false;
 					dbg_stop();
 					on_change_position();
-					return true;
+					break;
+				} else {
+					/* 最後まで実行した場合、最後のコマンドに留まる */
+					dbg_stop();
+					on_change_position();
+					break;
+				}
+			}
+		} while (0);
+	} else {
+		/* GUI実行中の場合 */
+		do {
+			/* GUIのフレームを実行する */
+			if (!run_gui_mode()) {
+				/* エラー */
+				return false;
+			}
+
+			/* GUIが終了した場合 */
+			if (!is_gui_mode()) {
+				/* 一行実行で実行された@guiコマンドの直後で停止する */
+				if (dbg_request_stop_after_gui) {
+					dbg_request_stop = dbg_request_stop_after_gui;
+					dbg_request_stop_after_gui = false;
 				}
 
-				/* 最後まで実行した場合、最後のコマンドに留まる */
-				dbg_stop();
-				on_change_position();
-				return true;
+				/* ロードされた場合、GUI終了処理を行う */
+				if (!is_in_repetition) {
+					cleanup_gui();
+					break;
+				}
+
+				/* @guiコマンド内なので、終了処理を行う */
+				if (!gui_command())
+					return false;
+				break;
 			}
-		}
+
+			/* @guiコマンドの実行中に停止ボタンが押された場合 */
+			if (get_command_type() == COMMAND_GUI && dbg_request_stop) {
+				stop_gui_mode();
+				cleanup_gui();
+				is_in_repetition = false;
+				dbg_stop();
+				break;
+			}
+		} while(0);
 	}
+
+	/* 描画のないコマンドである場合 */
+	if (need_dummy_render) {
+		/* 実行中でないので画面を再描画する */
+		render_stage();
+		if (conf_sysmenu_hidden != 0)
+			render_collapsed_sysmenu(false);
+	}
+
+	post_process();
+
+	return true;
+}
 #endif
 
+/* ゲームループのフレームの後処理を実行する */
+static void post_process(void)
+{
 	/* サウンドのフェード処理を実行する */
 	process_sound_fading();
 
@@ -227,8 +313,6 @@ bool game_loop_iter(void)
 	is_h_pressed = false;
 	is_touch_canceled = false;
 	is_swiped = false;
-
-	return true;
 }
 
 #ifdef USE_EDITOR
@@ -542,32 +626,6 @@ static bool dispatch_command(bool *cont)
 		assert(COMMAND_DISPATCH_NOT_IMPLEMENTED);
 		break;
 	}
-
-#ifdef USE_EDITOR
-	if (*cont && !dbg_request_stop) {
-		render_stage();
-		switch (command_type) {
-		case COMMAND_BGM:
-		case COMMAND_SE:
-		case COMMAND_VOL:
-		case COMMAND_SET:
-		case COMMAND_IF:
-		case COMMAND_UNLESS:
-		case COMMAND_LABEL:
-		case COMMAND_LABELEDGOTO:
-		case COMMAND_GOTO:
-		case COMMAND_GOSUB:
-		case COMMAND_RETURN:
-		case COMMAND_WMS:
-		case COMMAND_SETCONFIG:
-			render_collapsed_sysmenu(false);
-			break;
-		default:
-			break;
-		}
-		*cont = false;
-	}
-#endif
 
 	return true;
 }

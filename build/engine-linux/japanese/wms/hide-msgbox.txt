@@ -1,3 +1,0 @@
-func main() {
-    s2_hide_msgbox();
-}

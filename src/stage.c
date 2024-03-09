@@ -4653,6 +4653,7 @@ void write_layers_to_files(void)
 			     (png_uint_32)layer_image[i]->height,
 			     8, PNG_COLOR_TYPE_RGBA, PNG_INTERLACE_NONE,
 			     PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+		png_set_bgr(png);
 		png_write_info(png, info);
 		png_write_image(png, row_pointers);
 		png_write_end(png, NULL);
