@@ -2,7 +2,7 @@
 
 /*
  * Suika2
- * Copyright (C) 2001-2023, Keiichi Tabata. All rights reserved.
+ * Copyright (C) 2001-2024, Keiichi Tabata. All rights reserved.
  */
 
 /*
@@ -42,6 +42,7 @@
  *  - 2023-08-31 Added @chsx
  *  - 2023-09-14 Added @pencil
  *  - 2023-10-21 Supported dynamic update of script model
+ *  - 2024-03-09 Added @all
  */
 
 #include "suika.h"
@@ -245,12 +246,9 @@ struct insn_item {
 	{U8("@振動"), COMMAND_SHAKE, 4, 4},
 
 	/* ステージの一括変更 */
-	{"@chs", COMMAND_CHS, 4, 7},
-	{U8("@場面転換"), COMMAND_CHS, 4, 7},
-
-	/* ステージの一括変更(オフセット付き) */
-	{"@chsx", COMMAND_CHSX, 0, 29},
-	{U8("@場面転換X"), COMMAND_CHSX, 0, 21},
+	{"@all", COMMAND_CHSX, 0, 30},
+	{"@chsx", COMMAND_CHSX, 0, 30},
+	{U8("@場面転換X"), COMMAND_CHSX, 0, 30},
 
 	/* ビデオ再生 */
 	{"@video", COMMAND_VIDEO, 1, 2},
@@ -288,6 +286,9 @@ struct insn_item {
 	{"@skip", COMMAND_SKIP, 1, 1},
 	{U8("@スキップ"), COMMAND_SKIP, 1, 1},
 
+	/* セーブ許可 */
+	{"@setsave", COMMAND_SETSAVE, 1, 1},
+
 	/* アニメ */
 	{"@anime", COMMAND_ANIME, 1, 2},
 	{U8("@アニメ"), COMMAND_ANIME, 1, 2},
@@ -306,12 +307,11 @@ struct insn_item {
 	{"@pencil", COMMAND_PENCIL, 1, 2},
 	{U8("@鉛筆"), COMMAND_PENCIL, 1, 2},
 
-	/* その他 */
-	{"@setsave", COMMAND_SETSAVE, 1, 1},
-
 	/* deprecated */
 	{"@news", COMMAND_NEWS, 9, 136},
 	{"@switch", COMMAND_SWITCH, 9, 136},
+	{"@chs", COMMAND_CHS, 4, 7},
+	{U8("@場面転換"), COMMAND_CHS, 4, 7},
 };
 
 #define INSN_TBL_SIZE	(sizeof(insn_tbl) / sizeof(struct insn_item))
@@ -523,89 +523,119 @@ struct param_item {
 	{COMMAND_SETCONFIG, SETCONFIG_PARAM_VALUE, "value="},
 	{COMMAND_SETCONFIG, SETCONFIG_PARAM_VALUE, U8("値=")},
 
-	/* @chsx */
-	{COMMAND_CHSX, CHSX_PARAM_CENTER, "c="},
-	{COMMAND_CHSX, CHSX_PARAM_CENTER, "center="},
-	{COMMAND_CHSX, CHSX_PARAM_CENTER, "centre="},
-	{COMMAND_CHSX, CHSX_PARAM_CENTER, U8("中央=")},
+	/* @all (former @chsx) */
+	{COMMAND_CHSX, CHSX_PARAM_C, "c="},
+	{COMMAND_CHSX, CHSX_PARAM_C, "center="},
+	{COMMAND_CHSX, CHSX_PARAM_C, "centre="},
+	{COMMAND_CHSX, CHSX_PARAM_C, U8("中央=")},
+	{COMMAND_CHSX, CHSX_PARAM_CX, "cx="},
 	{COMMAND_CHSX, CHSX_PARAM_CX, "center-x="},
 	{COMMAND_CHSX, CHSX_PARAM_CX, "centre-x="},
 	{COMMAND_CHSX, CHSX_PARAM_CX, U8("中央X=")},
+	{COMMAND_CHSX, CHSX_PARAM_CY, "cy="},
 	{COMMAND_CHSX, CHSX_PARAM_CY, "center-y="},
 	{COMMAND_CHSX, CHSX_PARAM_CY, "centre-y="},
 	{COMMAND_CHSX, CHSX_PARAM_CY, U8("中央Y=")},
+	{COMMAND_CHSX, CHSX_PARAM_CA, "ca="},
 	{COMMAND_CHSX, CHSX_PARAM_CA, "center-a="},
 	{COMMAND_CHSX, CHSX_PARAM_CA, "centre-a="},
 	{COMMAND_CHSX, CHSX_PARAM_CA, U8("中央A=")},
+	{COMMAND_CHSX, CHSX_PARAM_CD, "cd="},
 	{COMMAND_CHSX, CHSX_PARAM_CD, "center-dim="},
 	{COMMAND_CHSX, CHSX_PARAM_CD, "centre-dim="},
 	{COMMAND_CHSX, CHSX_PARAM_CD, U8("中央の明暗=")},
-	{COMMAND_CHSX, CHSX_PARAM_RIGHT, "r="},
-	{COMMAND_CHSX, CHSX_PARAM_RIGHT, "right="},
-	{COMMAND_CHSX, CHSX_PARAM_RIGHT, U8("右=")},
+	{COMMAND_CHSX, CHSX_PARAM_R, "r="},
+	{COMMAND_CHSX, CHSX_PARAM_R, "right="},
+	{COMMAND_CHSX, CHSX_PARAM_R, U8("右=")},
+	{COMMAND_CHSX, CHSX_PARAM_RX, "rx="},
 	{COMMAND_CHSX, CHSX_PARAM_RX, "right-x="},
 	{COMMAND_CHSX, CHSX_PARAM_RX, U8("右X=")},
+	{COMMAND_CHSX, CHSX_PARAM_RY, "ry="},
 	{COMMAND_CHSX, CHSX_PARAM_RY, "right-y="},
 	{COMMAND_CHSX, CHSX_PARAM_RY, "右Y="},
+	{COMMAND_CHSX, CHSX_PARAM_RA, "ra="},
 	{COMMAND_CHSX, CHSX_PARAM_RA, "right-a="},
 	{COMMAND_CHSX, CHSX_PARAM_RA, "右A="},
+	{COMMAND_CHSX, CHSX_PARAM_RD, "rd="},
 	{COMMAND_CHSX, CHSX_PARAM_RD, "right-dim="},
 	{COMMAND_CHSX, CHSX_PARAM_RD, U8("右の明暗=")},
-	{COMMAND_CHSX, CHSX_PARAM_RIGHT_CENTER, "rc="},
-	{COMMAND_CHSX, CHSX_PARAM_RIGHT_CENTER, "right-center="},
-	{COMMAND_CHSX, CHSX_PARAM_RIGHT_CENTER, "right-centre="},
-	{COMMAND_CHSX, CHSX_PARAM_RIGHT_CENTER, U8("右中=")},
+	{COMMAND_CHSX, CHSX_PARAM_RC, "rc="},
+	{COMMAND_CHSX, CHSX_PARAM_RC, "right-center="},
+	{COMMAND_CHSX, CHSX_PARAM_RC, "right-centre="},
+	{COMMAND_CHSX, CHSX_PARAM_RC, U8("右中=")},
+	{COMMAND_CHSX, CHSX_PARAM_RCX, "rcx="},
 	{COMMAND_CHSX, CHSX_PARAM_RCX, "right-center-x="},
 	{COMMAND_CHSX, CHSX_PARAM_RCX, U8("右中X=")},
-	{COMMAND_CHSX, CHSX_PARAM_RCY, "right-center-y="},
+	{COMMAND_CHSX, CHSX_PARAM_RCY, "rcy="},
+	{COMMAND_CHSX, CHSX_PARAM_RCY, "rightcenter-y="},
 	{COMMAND_CHSX, CHSX_PARAM_RCY, "右中Y="},
+	{COMMAND_CHSX, CHSX_PARAM_RCA, "rca="},
 	{COMMAND_CHSX, CHSX_PARAM_RCA, "right-center-a="},
 	{COMMAND_CHSX, CHSX_PARAM_RCA, "右中A="},
+	{COMMAND_CHSX, CHSX_PARAM_RCD, "rcd="},
 	{COMMAND_CHSX, CHSX_PARAM_RCD, "right-center-dim="},
 	{COMMAND_CHSX, CHSX_PARAM_RCD, "right-centre-dim="},
 	{COMMAND_CHSX, CHSX_PARAM_RCD, U8("右中央の明暗=")},
-	{COMMAND_CHSX, CHSX_PARAM_LEFT, "l="},
-	{COMMAND_CHSX, CHSX_PARAM_LEFT, "left="},
-	{COMMAND_CHSX, CHSX_PARAM_LEFT, U8("左=")},
+	{COMMAND_CHSX, CHSX_PARAM_L, "l="},
+	{COMMAND_CHSX, CHSX_PARAM_L, "left="},
+	{COMMAND_CHSX, CHSX_PARAM_L, U8("左=")},
+	{COMMAND_CHSX, CHSX_PARAM_LX, "lx="},
 	{COMMAND_CHSX, CHSX_PARAM_LX, "left-x="},
 	{COMMAND_CHSX, CHSX_PARAM_LX, U8("左X=")},
+	{COMMAND_CHSX, CHSX_PARAM_LY, "ly="},
 	{COMMAND_CHSX, CHSX_PARAM_LY, "left-y="},
 	{COMMAND_CHSX, CHSX_PARAM_LY, U8("左Y=")},
+	{COMMAND_CHSX, CHSX_PARAM_LA, "la="},
 	{COMMAND_CHSX, CHSX_PARAM_LA, "left-a="},
 	{COMMAND_CHSX, CHSX_PARAM_LA, U8("左A=")},
+	{COMMAND_CHSX, CHSX_PARAM_LD, "ld="},
 	{COMMAND_CHSX, CHSX_PARAM_LD, "left-dim="},
 	{COMMAND_CHSX, CHSX_PARAM_LD, U8("左の明暗=")},
-	{COMMAND_CHSX, CHSX_PARAM_LEFT_CENTER, "lc="},
-	{COMMAND_CHSX, CHSX_PARAM_LEFT_CENTER, "left-center="},
-	{COMMAND_CHSX, CHSX_PARAM_LEFT_CENTER, "left-centre="},
-	{COMMAND_CHSX, CHSX_PARAM_LEFT_CENTER, U8("左中=")},
+	{COMMAND_CHSX, CHSX_PARAM_LC, "lc="},
+	{COMMAND_CHSX, CHSX_PARAM_LC, "left-center="},
+	{COMMAND_CHSX, CHSX_PARAM_LC, "left-centre="},
+	{COMMAND_CHSX, CHSX_PARAM_LC, U8("左中=")},
+	{COMMAND_CHSX, CHSX_PARAM_LCX, "lcx="},
 	{COMMAND_CHSX, CHSX_PARAM_LCX, "left-center-x="},
 	{COMMAND_CHSX, CHSX_PARAM_LCX, U8("左中X=")},
+	{COMMAND_CHSX, CHSX_PARAM_LCY, "lcy="},
 	{COMMAND_CHSX, CHSX_PARAM_LCY, "left-center-y="},
 	{COMMAND_CHSX, CHSX_PARAM_LCY, U8("左中Y=")},
+	{COMMAND_CHSX, CHSX_PARAM_LCA, "lca="},
 	{COMMAND_CHSX, CHSX_PARAM_LCA, "left-center-a="},
 	{COMMAND_CHSX, CHSX_PARAM_LCA, U8("左中A=")},
+	{COMMAND_CHSX, CHSX_PARAM_LCD, "lcd="},
 	{COMMAND_CHSX, CHSX_PARAM_LCD, "left-center-dim="},
 	{COMMAND_CHSX, CHSX_PARAM_LCD, "left-centre-dim="},
 	{COMMAND_CHSX, CHSX_PARAM_LCD, U8("左中央の明暗=")},
-	{COMMAND_CHSX, CHSX_PARAM_BACK, "b="},
-	{COMMAND_CHSX, CHSX_PARAM_BACK, "back="},
-	{COMMAND_CHSX, CHSX_PARAM_BACK, U8("背面=")},
+	{COMMAND_CHSX, CHSX_PARAM_B, "b="},
+	{COMMAND_CHSX, CHSX_PARAM_B, "back="},
+	{COMMAND_CHSX, CHSX_PARAM_B, U8("背面=")},
+	{COMMAND_CHSX, CHSX_PARAM_BX, "bx="},
 	{COMMAND_CHSX, CHSX_PARAM_BX, "back-x="},
 	{COMMAND_CHSX, CHSX_PARAM_BX, U8("背面X=")},
+	{COMMAND_CHSX, CHSX_PARAM_BY, "by="},
 	{COMMAND_CHSX, CHSX_PARAM_BY, "back-y="},
 	{COMMAND_CHSX, CHSX_PARAM_BY, U8("背面Y=")},
+	{COMMAND_CHSX, CHSX_PARAM_BA, "ba="},
 	{COMMAND_CHSX, CHSX_PARAM_BA, "back-a="},
 	{COMMAND_CHSX, CHSX_PARAM_BA, U8("背面A=")},
+	{COMMAND_CHSX, CHSX_PARAM_BD, "bd="},
 	{COMMAND_CHSX, CHSX_PARAM_BD, "back-dim="},
 	{COMMAND_CHSX, CHSX_PARAM_BD, "背面の明暗="},
 	{COMMAND_CHSX, CHSX_PARAM_BG, "bg="},
 	{COMMAND_CHSX, CHSX_PARAM_BG, "background="},
 	{COMMAND_CHSX, CHSX_PARAM_BG, U8("背景=")},
+	{COMMAND_CHSX, CHSX_PARAM_BGX, "bgx="},
 	{COMMAND_CHSX, CHSX_PARAM_BGX, "bg-x="},
 	{COMMAND_CHSX, CHSX_PARAM_BGX, U8("背景X=")},
+	{COMMAND_CHSX, CHSX_PARAM_BGY, "bgy="},
 	{COMMAND_CHSX, CHSX_PARAM_BGY, "bg-y="},
 	{COMMAND_CHSX, CHSX_PARAM_BGY, U8("背景Y=")},
+	{COMMAND_CHSX, CHSX_PARAM_BGY, "bga="},
+	{COMMAND_CHSX, CHSX_PARAM_BGY, "bg-a="},
+	{COMMAND_CHSX, CHSX_PARAM_BGY, U8("背景A=")},
+	{COMMAND_CHSX, CHSX_PARAM_METHOD, "e="},
 	{COMMAND_CHSX, CHSX_PARAM_METHOD, "effect="},
 	{COMMAND_CHSX, CHSX_PARAM_METHOD, U8("エフェクト=")},
 	{COMMAND_CHSX, CHSX_PARAM_SPAN, "t="},

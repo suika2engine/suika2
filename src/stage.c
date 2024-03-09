@@ -2223,8 +2223,8 @@ bool start_fade_for_chs(const bool *stay, const char **fname,
 	/* キャラフェードアウトレイヤにステージを描画する */
 	draw_fo_common();
 
-	/* キャラを入れ替える */
-	for (i = 0; i < CH_BASIC_LAYERS; i++) {
+	/* 画像を入れ替える */
+	for (i = 0; i <= BG_INDEX; i++) {
 		layer = chpos_to_layer(i);
 		if (!stay[i]) {
 			if (!set_layer_file_name(layer, fname[i]))
@@ -2234,14 +2234,6 @@ bool start_fade_for_chs(const bool *stay, const char **fname,
 		set_layer_position(layer, x[i], y[i]);
 		set_layer_alpha(layer, alpha[i]);
 	}
-
-	/* 背景を入れ替える */
-	if (!stay[BG_INDEX]) {
-		if (!set_layer_file_name(LAYER_BG, fname[BG_INDEX]))
-			return false;
-		set_layer_image(LAYER_BG, img[BG_INDEX]);
-	}
-	set_layer_position(LAYER_BG, x[BG_INDEX], y[BG_INDEX]);
 
 	/* キャラフェードインレイヤにステージを描画する */
 	draw_fi_common(conf_msgbox_show_on_ch);

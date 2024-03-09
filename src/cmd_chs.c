@@ -12,6 +12,7 @@
  *  - 2023/01/06 日本語の指定に対応
  *  - 2023/08/31 @chsxに対応
  *  - 2024/01/06 *-dimに対応
+ *  - 2024/03/09 @allに対応
  */
 
 #include "suika.h"
@@ -64,7 +65,7 @@ static bool init(void)
 	bool ofs_keep_y[PARAM_SIZE];
 	int ofs_x[PARAM_SIZE];
 	int ofs_y[PARAM_SIZE];
-	int alpha[PARAM_SIZE - 1];
+	int alpha[PARAM_SIZE];
 	int x[PARAM_SIZE];
 	int y[PARAM_SIZE];
 	int dim[PARAM_SIZE];
@@ -100,6 +101,7 @@ static bool init(void)
 		alpha[CH_RIGHT_CENTER] = 255;
 		alpha[CH_LEFT_CENTER] = 255;
 		alpha[CH_BACK] = 255;
+		alpha[BG_INDEX] = 255;
 		dim[CH_CENTER] = 0;
 		dim[CH_RIGHT] = 0;
 		dim[CH_LEFT] = 0;
@@ -109,12 +111,12 @@ static bool init(void)
 		span = get_float_param(CHS_PARAM_SPAN);
 		method = get_string_param(CHS_PARAM_METHOD);
 	} else {
-		fname[CH_CENTER] = get_string_param(CHSX_PARAM_CENTER);
-		fname[CH_RIGHT] = get_string_param(CHSX_PARAM_RIGHT);
-		fname[CH_RIGHT_CENTER] = get_string_param(CHSX_PARAM_RIGHT_CENTER);
-		fname[CH_LEFT] = get_string_param(CHSX_PARAM_LEFT);
-		fname[CH_LEFT_CENTER] = get_string_param(CHSX_PARAM_LEFT_CENTER);
-		fname[CH_BACK] = get_string_param(CHSX_PARAM_BACK);
+		fname[CH_CENTER] = get_string_param(CHSX_PARAM_C);
+		fname[CH_RIGHT] = get_string_param(CHSX_PARAM_R);
+		fname[CH_RIGHT_CENTER] = get_string_param(CHSX_PARAM_RC);
+		fname[CH_LEFT] = get_string_param(CHSX_PARAM_L);
+		fname[CH_LEFT_CENTER] = get_string_param(CHSX_PARAM_LC);
+		fname[CH_BACK] = get_string_param(CHSX_PARAM_B);
 		fname[BG_INDEX] = get_string_param(CHSX_PARAM_BG);
 		get_offset_x(get_string_param(CHSX_PARAM_CX), LAYER_CHC, &ofs_x[CH_CENTER], &ofs_keep_x[CH_CENTER]);
 		get_offset_y(get_string_param(CHSX_PARAM_CY), LAYER_CHC, &ofs_y[CH_CENTER], &ofs_keep_y[CH_CENTER]);
@@ -136,6 +138,7 @@ static bool init(void)
 		alpha[CH_BACK] = get_alpha(get_string_param(CHSX_PARAM_BA));
 		alpha[CH_RIGHT_CENTER] = get_alpha(get_string_param(CHSX_PARAM_RCA));
 		alpha[CH_LEFT_CENTER] = get_alpha(get_string_param(CHSX_PARAM_LCA));
+		alpha[BG_INDEX] = get_alpha(get_string_param(CHSX_PARAM_LCA));
 		dim[CH_CENTER] = get_dim(get_string_param(CHSX_PARAM_CD));
 		dim[CH_RIGHT] = get_dim(get_string_param(CHSX_PARAM_RD));
 		dim[CH_LEFT] = get_dim(get_string_param(CHSX_PARAM_LD));
@@ -201,14 +204,10 @@ static bool init(void)
 		/* 背景の色指定の場合 */
 		if (i == BG_INDEX && fname[i][0] == '#') {
 			/* 色を指定してイメージを作成する */
-			img[i] = create_image_from_color_string(
-				conf_window_width,
-				conf_window_height,
-				&fname[i][1]);
+			img[i] = create_image_from_color_string(conf_window_width, conf_window_height, &fname[i][1]);
 		} else {
 			/* イメージを読み込む */
-			img[i] = create_image_from_file(
-				i != BG_INDEX ? CH_DIR : BG_DIR, fname[i]);
+			img[i] = create_image_from_file(i != BG_INDEX ? CH_DIR : BG_DIR, fname[i]);
 		}
 		if (img[i] == NULL) {
 			log_script_exec_footer();
