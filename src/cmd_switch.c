@@ -2,12 +2,17 @@
 
 /*
  * Suika2
- * Copyright (C) 2001-2023, Keiichi Tabata. All rights reserved.
+ * Copyright (C) 2001-2024, Keiichi Tabata. All rights reserved.
  */
 
 /*
- * swicthコマンドの実装
- *  - @choose, @switch, @newsがここで実装されている
+ * 選択肢系コマンドの実装
+ *  - @choose ... 通常の選択肢
+ *  - @ichoose ... 全画面ノベル用のインライン選択肢
+ *  - @mchoose ... 条件つき選択肢
+ *  - @michoose ... 条件つきインライン選択肢
+ *  - @switch ... 隠しコマンド
+ *  - @news ... 隠しコマンド
  *
  * [Changes]
  *  - 2017/08/14 作成

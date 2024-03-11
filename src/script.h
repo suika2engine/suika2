@@ -546,6 +546,12 @@ enum layer_command_param {
 };
 
 /*
+ * 選択肢の個数
+ */
+
+#define SWITCH_MAX 10
+
+/*
  * 初期化
  */
 

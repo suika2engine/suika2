@@ -65,7 +65,7 @@ rm -f *.o
 if [ ! -e libroot ]; then
     ./build-libs.sh;
 fi
-make -j20
+make -j16
 sign.sh suika.exe
 cd ..
 
@@ -118,7 +118,7 @@ rm -f *.o
 if [ ! -e libroot ]; then
     cp -Rav ../engine-windows/libroot .;
 fi
-make -j20 VERSION="$VERSION"
+make -j16 VERSION="$VERSION"
 sign.sh suika-pro.exe
 cd ..
 
@@ -170,7 +170,8 @@ make
 sign.sh suika2-installer.exe
 
 # Also, make a zip
-make zip
+#make zip
+
 cd ..
 
 #
@@ -188,8 +189,8 @@ cd ..
 echo "Uploading files."
 
 ftp-upload.sh installer-windows/suika2-installer.exe "dl/suika2-$VERSION.exe"
-ftp-upload.sh installer-windows/suika2.7z "dl/suika2-$VERSION.7z"
 ftp-upload.sh pro-macos/suika2.dmg "dl/suika2-$VERSION.dmg"
+#ftp-upload.sh installer-windows/suika2.7z "dl/suika2-$VERSION.7z"
 echo "Upload completed."
 
 #
@@ -199,13 +200,12 @@ echo ""
 echo "Updating the Web site."
 SAVE_DIR=`pwd`
 cd ../web && \
-    ./templates.sh && \
-    ./version.sh && \
-    ftp-upload.sh index.html && \
+    ./update-templates.sh && \
+    ./update-version-latest.sh && \
     ftp-upload.sh dl/index.html && \
-    ftp-upload.sh en/index.html && \
     ftp-upload.sh en/dl/index.html && \
-    ./push.sh
+    git add -u dl/index.html en/dl/index.html && \
+	git commit -m "web: testing release $VERSION"
 cd "$SAVE_DIR"
 
 #
@@ -219,16 +219,12 @@ mv engine-macos/suika-mac-nosign.dmg engine-macos/suika-mac.dmg
 discord-release-bot.sh
 
 #
-# Upload to GitHub.
+# Push a tag to GitHub.
 #
-git add -u
-git commit -m "release: Suika2/$VERSION" || true
 git tag -a "v2.$VERSION" -m "release"
 git push github "v2.$VERSION"
-yes "" | gh release create "v2.$VERSION" --title "v2.$VERSION" ~/Sites/suika2.com/dl/suika2-$VERSION.exe ~/Sites/suika2.com/dl/suika2-$VERSION.dmg
 
 #
 # Finish.
 #
 echo "Finished. $VERSION was released!"
-echo "$NOTE_JP"

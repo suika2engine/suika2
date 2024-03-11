@@ -267,8 +267,8 @@ struct insn_item {
 	{U8("@条件付き選択肢"), COMMAND_MCHOOSE, 3, 30},
 
 	/* 条件付きインライン選択肢 */
-	{"@michoose", COMMAND_MICHOOSE, 3, 40},
-	{U8("@条件付きインライン選択肢"), COMMAND_MICHOOSE, 3, 40},
+	{"@michoose", COMMAND_MICHOOSE, 3, 30},
+	{U8("@条件付きインライン選択肢"), COMMAND_MICHOOSE, 3, 30},
 
 	/* 章タイトル */
 	{"@chapter", COMMAND_CHAPTER, 1, 1},
@@ -2158,8 +2158,8 @@ static bool reparse_switch_block(int index, char *params, int *end_index)
 	char finally_label[GEN_CMD_SIZE];
 	char *raw_save;
 	char *stop;
-	char *opt[8];
-	char label[8][256];
+	char *opt[SWITCH_MAX];
+	char label[SWITCH_MAX][256];
 	const char *save_smode_target_finally;
 	const char *save_smode_target_case;
 	int opt_count, i, state, accepted, cur_opt, ret_index;
@@ -2192,18 +2192,18 @@ static bool reparse_switch_block(int index, char *params, int *end_index)
 	/* ２番目以降のトークンを取り出す */
 	opt_count = 1;
 	while ((opt[opt_count] = strtok_escape(NULL, &escaped)) != NULL &&
-	       opt_count < 8) {
+	       opt_count < SWITCH_MAX) {
 		if (strcmp(opt[opt_count], "{") == 0)
 			break;
 		opt_count++;
 
 		/* FIXME: とりあえず空白も許可しておく */
 	}
-	for (i = opt_count; i < 8; i++)
+	for (i = opt_count; i < SWITCH_MAX; i++)
 		opt[i] = "";
 
 	/* ラベル名を生成する */
-	for (i = 0; i < 8; i++) {
+	for (i = 0; i < SWITCH_MAX; i++) {
 		if (i >= opt_count) {
 			label[i][0] = '\0';
 		} else {
@@ -2221,7 +2221,7 @@ static bool reparse_switch_block(int index, char *params, int *end_index)
 
 	/* @chooseコマンドを生成して格納する */
 	snprintf(tmp_command, sizeof(tmp_command),
-		 "@choose %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s",
+		 "@choose %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s",
 		 label[0], opt[0],
 		 label[1], opt[1],
 		 label[2], opt[2],
@@ -2229,7 +2229,9 @@ static bool reparse_switch_block(int index, char *params, int *end_index)
 		 label[4], opt[4],
 		 label[5], opt[5],
 		 label[6], opt[6],
-		 label[7], opt[7]);
+		 label[7], opt[7],
+		 label[8], opt[8],
+		 label[9], opt[9]);
 	if (!parse_insn(raw_save, tmp_command, 0, index)) {
 		free(raw_save);
 		return false;
