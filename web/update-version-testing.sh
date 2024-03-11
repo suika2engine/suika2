@@ -22,9 +22,9 @@ NOTE_EN=`cat ../ChangeLog | awk '/BEGIN-LATEST-EN/,/END-LATEST-EN/' | tail -n +2
 
 # Update /dl/index.html
 cat dl/index.html | \
-$SED -e "s|.*TESTING-VERSION-AND-DATE.*|<!-- LATEST-VERSION-AND-DATE -->テスト中 $VERSION \($DATE\):<br>|" \
-     -e "s|.*TESTING-EXE.*|<!-- LATEST-EXE --><a href=\"/dl/suika2-$VERSION_DIGIT.exe\">Windows</a><br>|" \
-     -e "s|.*TESTING-DMG.*|<!-- LATEST-DMG --><a href=\"/dl/suika2-$VERSION_DIGIT.dmg\">macOS</a><br>|" \
+$SED -e "s|.*TESTING-VERSION-AND-DATE.*|<!-- TESTING-VERSION-AND-DATE -->テスト中 $VERSION \($DATE\):<br>|" \
+     -e "s|.*TESTING-EXE.*|<!-- TESTING-EXE --><a href=\"/dl/suika2-$VERSION_DIGIT.exe\">Windows</a><br>|" \
+     -e "s|.*TESTING-DMG.*|<!-- TESTING-DMG --><a href=\"/dl/suika2-$VERSION_DIGIT.dmg\">macOS</a><br>|" \
  > tmp
 cat tmp | awk '/.*DOCTYPE html.*/,/.*LATEST-RELEASE-NOTE.*/' > before
 cat tmp | awk '/.*LATEST-RELEASE-NOTE.*/,/\<\/html\>/' | tail -n +2 > after
