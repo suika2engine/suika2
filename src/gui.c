@@ -146,6 +146,9 @@ static struct gui_button {
 	/* TYPE_HISTORY, TYPE_SAVE, TYPE_LOAD */
 	int clear_r, clear_g, clear_b;
 
+	/* TYPE_GOTO */
+	bool gosub;
+
 	/*
 	 * 実行時の情報
 	 */
@@ -672,6 +675,7 @@ static bool set_button_key_value(const int index, const char *key,
 			return false;
 		}
 	} else if (strcmp("file", key) == 0) {
+		log_warn("\"file:\" is deprecated. Use @layer.");
 		b->file = strdup(val);
 		if (b->file == NULL) {
 			log_memory();
@@ -825,8 +829,8 @@ static bool set_button_key_value(const int index, const char *key,
 	} else if (strcmp("new-y", key) == 0) {
 		b->new_y = atoi(val);
 		b->rt.is_new_enabled = true;
-	} else if (strcmp("usearrow", key) == 0) {
-		/* removed */
+	} else if (strcmp("gosub", key) == 0) {
+		b->gosub = true;
 	} else {
 		log_gui_unknown_button_property(key);
 		return false;
@@ -1125,7 +1129,7 @@ static void process_input(void)
 			process_button_click(i);
 		}
 	}
-    
+
 	/* ドラッグ終了後の処理を行う */
 	if (is_drag_finished) {
 		for (i = 0; i < BUTTON_COUNT; i++)
@@ -1281,13 +1285,28 @@ static bool process_move(void)
 	/* キャンセルの場合 */
 	if (result_index != -1 &&
 	    button[result_index].type == TYPE_CANCEL) {
-		/* Do nothing here, move to cmd_gui.c */
+		/* ここでは何もしないが、@guiコマンドの場合はcmd_gui.cで後処理を行う。 */
+	}
+
+	/*
+	 * ラベルへジャンプする場合l:
+	 *  - @guiコマンドの場合はcmd_gui.cで処理する
+	 *  - ただしシステムGUIの場合はここで処理する
+	 *    - gosubオプションがついている場合はpushも行う
+	 */
+	if (result_index != -1 &&
+	    button[result_index].type == TYPE_GOTO) {
+		if (is_sys_gui) {
+			if (button[result_index].gosub)
+				push_return_point();
+			if (!move_to_label(button[result_index].label))
+				return false;
+		}
 	}
 
 	/* GUIモードを終了する */
 	stop_gui_mode();
 
-	/* ラベルへジャンプする場合はcmd_gui.cで処理する */
 	return true;
 }
 
@@ -3452,6 +3471,17 @@ bool is_gui_result_exit(void)
 bool is_gui_saved(void)
 {
 	if (did_save)
+		return true;
+
+	return false;
+}
+
+/*
+ * GUIでロードされたか
+ */
+bool is_gui_loaded(void)
+{
+	if (did_load)
 		return true;
 
 	return false;

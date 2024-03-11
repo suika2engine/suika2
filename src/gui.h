@@ -59,4 +59,7 @@ bool is_gui_result_exit(void);
 /* GUIでセーブされたか */
 bool is_gui_saved(void);
 
+/* GUIでロードされたか */
+bool is_gui_loaded(void);
+
 #endif

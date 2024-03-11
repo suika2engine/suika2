@@ -142,5 +142,6 @@ static bool cleanup(void)
 		ret = move_to_next_command();
 
 	cleanup_gui();
+
 	return ret;
 }

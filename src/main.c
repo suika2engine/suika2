@@ -158,18 +158,27 @@ bool game_loop_iter(void)
 
 	/* GUI実行中の場合を処理する */
 	if (is_gui) {
+		bool is_cmd_gui = get_command_type() == COMMAND_GUI;
+
 		/* GUIのフレームを実行する */
 		if (!run_gui_mode())
 			return false; /* エラー */
 
 		/* GUIが終了した場合 */
 		if (!is_gui_mode()) {
-			if (!is_in_repetition) {
+			if (is_gui_loaded()) {
 				/* ロードされたのでGUI終了処理を行う */
 				cleanup_gui();
-			} else {
-				/* @guiコマンド内なので続くコマンド処理を行う */
+			} else if (is_cmd_gui) {
+				/* @guiコマンド内なのでコマンド終了処理のためにgui_command()を呼び出す */
 				is_gui = false;
+			} else {
+				/* システムGUIの中でgotoが選択された場合 */
+				const char *label = get_gui_result_label();
+				if (label != NULL) {
+					if (!move_to_label(label))
+						return false;
+				}
 			}
 		}
 	}
@@ -238,6 +247,8 @@ bool game_loop_iter(void)
 	} else {
 		/* GUI実行中の場合 */
 		do {
+			bool is_cmd_gui = get_command_type() == COMMAND_GUI;
+
 			/* GUIのフレームを実行する */
 			if (!run_gui_mode()) {
 				/* エラー */
@@ -253,14 +264,18 @@ bool game_loop_iter(void)
 				}
 
 				/* ロードされた場合、GUI終了処理を行う */
-				if (!is_in_repetition) {
+				if (is_gui_loaded()) {
 					cleanup_gui();
 					break;
 				}
 
 				/* @guiコマンド内なので、終了処理を行う */
-				if (!gui_command())
-					return false;
+				if (is_cmd_gui) {
+					if (!gui_command())
+						return false;
+					break;
+				}
+
 				break;
 			}
 
