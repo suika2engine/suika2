@@ -675,7 +675,6 @@ static bool set_button_key_value(const int index, const char *key,
 			return false;
 		}
 	} else if (strcmp("file", key) == 0) {
-		log_warn("\"file:\" is deprecated. Use @layer.");
 		b->file = strdup(val);
 		if (b->file == NULL) {
 			log_memory();
