@@ -60,6 +60,7 @@ read str
 # Build "suika.exe".
 #
 echo "Building suika.exe"
+say "Windows用のエンジンをビルドしています"
 cd engine-windows
 rm -f *.o
 if [ ! -e libroot ]; then
@@ -73,6 +74,7 @@ cd ..
 # Build the "Suika.app".
 #
 echo "Building Suika.app (suika-mac.dmg)."
+say "Mac用のエンジンをビルドしています"
 cd engine-macos
 rm -f suika-mac.dmg suika-mac-nosign.dmg
 make suika-mac.dmg
@@ -84,6 +86,7 @@ cd ..
 # Build the Wasm files.
 #
 echo "Building Wasm files."
+say "Web用のエンジンをビルドしています"
 cd engine-wasm
 make clean
 make
@@ -93,17 +96,19 @@ cd ..
 # Build the iOS source tree.
 #
 echo "Building iOS source tree."
+say "iOS用のソースコードを作成しています"
 cd engine-ios
-make src
+make src > /dev/null
 cd ..
 
 #
 # Build the Android source tree.
 #
 echo "Building Android source tree."
+say "Android用のソースコードを作成しています"
 cd engine-android
-make debug
-make src
+make debug > /dev/null
+make src > /dev/null
 cd ..
 cd pro-android
 make
@@ -113,6 +118,7 @@ cd ..
 # Build "suika-pro.exe".
 #
 echo "Building suika-pro.exe"
+say "Windows用の開発ツールをビルドしています"
 cd pro-windows
 rm -f *.o
 if [ ! -e libroot ]; then
@@ -126,6 +132,7 @@ cd ..
 # Build "web-test.exe"
 #
 echo "Building web-test.exe"
+say "Windows用のWebテストツールをビルドしています"
 cd ../tools/web-test
 make
 cd ../../build
@@ -134,6 +141,7 @@ cd ../../build
 # Make an installer for Windows.
 #
 echo "Creating an installer for Windows."
+say "Windows用のインストーラをビルドしています"
 
 # /
 cp -v pro-windows/suika-pro.exe installer-windows/suika-pro.exe
@@ -178,6 +186,7 @@ cd ..
 # Build "Suika2 Pro.app".
 #
 echo "Building Suika2 Pro.app (suika2.dmg)"
+say "Mac用の開発ツールをビルドしています"
 cd pro-macos
 rm -f suika2.dmg
 make
@@ -187,6 +196,7 @@ cd ..
 # Upload.
 #
 echo "Uploading files."
+say "Webサーバにアップロード中です"
 
 ftp-upload.sh installer-windows/suika2-installer.exe "dl/suika2-$VERSION.exe"
 ftp-upload.sh pro-macos/suika2.dmg "dl/suika2-$VERSION.dmg"
@@ -198,14 +208,15 @@ echo "Upload completed."
 #
 echo ""
 echo "Updating the Web site."
+say "Webページを更新中です"
 SAVE_DIR=`pwd`
 cd ../web && \
     ./update-templates.sh && \
-    ./update-version-testing.sh && \
+    ./update-version.sh && \
     ftp-upload.sh dl/index.html && \
     ftp-upload.sh en/dl/index.html && \
     git add -u dl/index.html en/dl/index.html && \
-    git commit -m "web: testing release $VERSION"
+    git commit -m "web: release $VERSION"
 cd "$SAVE_DIR"
 
 #
@@ -216,15 +227,24 @@ mv engine-macos/suika-mac-nosign.dmg engine-macos/suika-mac.dmg
 #
 # Post to the Discord server.
 #
+echo ""
+echo "Posting to the Discord server."
+say "Discordサーバにポストします"
 discord-release-bot.sh
 
 #
-# Push a tag to GitHub.
+# Make a release on GitHub.
 #
+echo ""
+echo "Making a release on GitHub."
+say "GitHubでリリースを作成中です"
 git tag -a "v2.$VERSION" -m "release"
 git push github "v2.$VERSION"
+yes "" | gh release create "v2.$VERSION" --title "v2.$VERSION" ~/Sites/suika2.com/dl/suika2-$VERSION.exe ~/Sites/suika2.com/dl/suika2-$VERSION.dmg
 
 #
 # Finish.
 #
+echo ""
 echo "Finished. $VERSION was released!"
+say "リリースが完了しました"

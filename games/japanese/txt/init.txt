@@ -72,7 +72,7 @@
 @背景 ファイル=white.png 秒=1.0
 @音楽 ファイル=cicada.ogg
 @音量 トラック=音楽 音量=1.0 秒=1.0
-@背景 ファイル=roof.png 秒=1.0 エフェクト=rule:rule-star.png
+@背景 ファイル=roof.png 秒=1.0 エフェクト=rule:suika.png
 
 # 以降、キャラの表示、セリフ、音量の調節を行う
 

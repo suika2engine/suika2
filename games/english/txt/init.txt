@@ -80,7 +80,7 @@
 @bg white.png 1.0
 @bgm cicada.ogg
 @vol bgm 1.0 1.0
-@bg roof.png 1.0 rule:rule-star.png
+@bg roof.png 1.0 rule:suika.png
 @ch c 001-fun.png 1.0
 *???*e001.ogg*Isn't the breeze great from up here? It's so cool...
 
