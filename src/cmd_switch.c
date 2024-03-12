@@ -1451,7 +1451,7 @@ static void process_sysmenu_input(void)
 	case SYSMENU_CUSTOM1:
 		set_mixer_input(VOICE_STREAM, NULL);
 		play_se(conf_sysmenu_custom1_se);
-		need_custom2_mode = true;
+		need_custom1_mode = true;
 		break;
 	case SYSMENU_CUSTOM2:
 		set_mixer_input(VOICE_STREAM, NULL);
@@ -1687,14 +1687,6 @@ static bool cleanup(void)
 {
 	int i, j;
 
-	/* クイックロードやシステムGUIへの遷移を行う場合 */
-	if (did_quick_load || need_save_mode || need_load_mode ||
-	    need_history_mode || need_config_mode ||
-	    need_custom1_mode || need_custom2_mode) {
-		/* コマンドの移動を行わない */
-		return true;
-	}
-
 	/* 画像を破棄する */
 	for (i = 0; i < PARENT_COUNT; i++) {
 		if (parent_button[i].img_idle != NULL)
@@ -1713,6 +1705,22 @@ static bool cleanup(void)
 			if (child_button[i][j].img_hover != NULL)
 				destroy_image(child_button[i][j].img_hover);
 		}
+	}
+
+	/* カスタムシステムメニューのgosubを処理する */
+	if ((need_custom1_mode || need_custom2_mode) && custom_gosub_target != NULL) {
+		push_return_point_minus_one();
+		if (!move_to_label(custom_gosub_target))
+			return false;
+		return true;
+	}
+
+	/* クイックロードやシステムGUIへの遷移を行う場合 */
+	if (did_quick_load || need_save_mode || need_load_mode ||
+	    need_history_mode || need_config_mode ||
+	    need_custom1_mode || need_custom2_mode) {
+		/* コマンドの移動を行わない */
+		return true;
 	}
 
 	/*

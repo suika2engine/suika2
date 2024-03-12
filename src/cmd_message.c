@@ -659,8 +659,10 @@ static bool init(void)
 	 *  - ロードされてもクリアされる
 	 *  - タイトルに戻るときにもクリアされる
 	 */
-	if (!gui_sys_flag)
-		set_message_active();
+	if (!gui_sys_flag) {
+		if (!is_message_active())
+			set_message_active();
+	}
 
 	/* クリックアニメーションを非表示の状態にする */
 	init_click();
