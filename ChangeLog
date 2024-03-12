@@ -5,12 +5,17 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/16.85 2024/3/13
+  <ul>
+    <li>ルール画像を変更 (Thanks to SOrow-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
 <li>Suika2/16.84 2024/3/12
   <ul>
     <li>システムGUIからgotoしたときのバグを修正 (Thanks to Ronron-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
 <li>Suika2/16.83 2024/3/12
   <ul>
     <li>インラインウェイトのバグを修正 (Thanks to Ronron-san!)</li>
@@ -1686,12 +1691,17 @@ This file is referred by some automatic release scripts.
 [Release History (English)]
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/16.85 2024/3/13
+  <ul>
+    <li>Replaced a rule image (Thanks to SOrow-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
 <li>Suika2/16.84 2024/3/12
   <ul>
     <li>Fixed a bug on a system GUI goto (Thanks to Ronron-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
 <li>Suika2/16.83 2024/3/12
   <ul>
     <li>Fixed an inline wait bug (Thanks to Ronron-san!)</li>
