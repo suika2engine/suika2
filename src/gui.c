@@ -1506,6 +1506,8 @@ static bool move_to_title(void)
 	for (i = 0; i < MIXER_STREAMS; i++)
 		set_mixer_input(i, NULL);
 
+	did_load = true;
+
 	return true;
 }
 
