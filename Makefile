@@ -71,7 +71,10 @@ clean:
 ##
 
 do-release:
-	@cd build && ./do-release.sh && cd ..
+	@cd build && \
+	./do-release.sh && \
+	if [ ! $? -eq 0 ]; then discord-post.sh "リリースの途中で失敗しました。"; fi && \
+	cd ..
 
 setup:
 	@# For macOS:

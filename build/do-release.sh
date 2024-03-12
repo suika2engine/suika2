@@ -45,6 +45,7 @@ NOTE_EN=`cat ../ChangeLog | awk '/BEGIN-LATEST-EN/,/END-LATEST-EN/' | tail -n +2
 #
 # Do an interactive confirmation.
 #
+echo ""
 echo "Are you sure you want to release version $VERSION?"
 echo ""
 echo "[Japanese Note]"
@@ -56,11 +57,14 @@ echo ""
 echo "(press enter to proceed)"
 read str
 
+discord-post.sh "自動リリースシステムが起動しました。Suika2/${VERSION}をビルドしています。アップロード完了まで推定で10分です。"
+
 #
 # Build "suika.exe".
 #
+echo ""
 echo "Building suika.exe"
-say "Windows用のエンジンをビルドしています"
+say "Windows用のエンジンをビルドしています" &
 cd engine-windows
 rm -f *.o
 if [ ! -e libroot ]; then
@@ -73,8 +77,9 @@ cd ..
 #
 # Build the "Suika.app".
 #
+echo ""
 echo "Building Suika.app (suika-mac.dmg)."
-say "Mac用のエンジンをビルドしています"
+say "Mac用のエンジンをビルドしています" &
 cd engine-macos
 rm -f suika-mac.dmg suika-mac-nosign.dmg
 make suika-mac.dmg
@@ -85,8 +90,9 @@ cd ..
 #
 # Build the Wasm files.
 #
+echo ""
 echo "Building Wasm files."
-say "Web用のエンジンをビルドしています"
+say "Web用のエンジンをビルドしています" &
 cd engine-wasm
 make clean
 make
@@ -95,8 +101,9 @@ cd ..
 #
 # Build the iOS source tree.
 #
+echo ""
 echo "Building iOS source tree."
-say "iOS用のソースコードを作成しています"
+say "iOS用のソースコードを作成しています" &
 cd engine-ios
 make src > /dev/null
 cd ..
@@ -104,8 +111,9 @@ cd ..
 #
 # Build the Android source tree.
 #
+echo ""
 echo "Building Android source tree."
-say "Android用のソースコードを作成しています"
+say "Android用のソースコードを作成しています" &
 cd engine-android
 make debug > /dev/null
 make src > /dev/null
@@ -117,8 +125,9 @@ cd ..
 #
 # Build "suika-pro.exe".
 #
+echo ""
 echo "Building suika-pro.exe"
-say "Windows用の開発ツールをビルドしています"
+say "Windows用の開発ツールをビルドしています" &
 cd pro-windows
 rm -f *.o
 if [ ! -e libroot ]; then
@@ -131,8 +140,9 @@ cd ..
 #
 # Build "web-test.exe"
 #
+echo ""
 echo "Building web-test.exe"
-say "Windows用のWebテストツールをビルドしています"
+say "Windows用のWebテストツールをビルドしています" &
 cd ../tools/web-test
 make
 cd ../../build
@@ -140,8 +150,9 @@ cd ../../build
 #
 # Make an installer for Windows.
 #
+echo ""
 echo "Creating an installer for Windows."
-say "Windows用のインストーラをビルドしています"
+say "Windows用のインストーラをビルドしています" &
 
 # /
 cp -v pro-windows/suika-pro.exe installer-windows/suika-pro.exe
@@ -150,27 +161,27 @@ cp -v pro-windows/suika-pro.exe installer-windows/suika-pro.exe
 rm -rf installer-windows/games
 find ../games -name '.*' | xargs rm
 mkdir installer-windows/games
-cp -Rv ../games/japanese installer-windows/games/
-cp -Rv ../games/english installer-windows/games/
-cp -Rv ../games/nvl installer-windows/games/
-cp -Rv ../games/nvl-tategaki installer-windows/games/
-cp -Rv ../games/nvl-en installer-windows/games/
+cp -R ../games/japanese installer-windows/games/
+cp -R ../games/english installer-windows/games/
+cp -R ../games/nvl installer-windows/games/
+cp -R ../games/nvl-tategaki installer-windows/games/
+cp -R ../games/nvl-en installer-windows/games/
 
 # /tools
 rm -rf installer-windows/tools
 mkdir -p installer-windows/tools
-cp -v engine-windows/suika.exe installer-windows/tools/
-cp -v engine-macos/suika-mac.dmg installer-windows/tools/
-cp -Rv engine-android/android-src installer-windows/tools/android-src
-cp -Rv engine-ios/ios-src installer-windows/tools/ios-src
+cp  engine-windows/suika.exe installer-windows/tools/
+cp engine-macos/suika-mac.dmg installer-windows/tools/
+cp -R engine-android/android-src installer-windows/tools/android-src
+cp -R engine-ios/ios-src installer-windows/tools/ios-src
 mkdir -p installer-windows/tools/web
-cp -v engine-wasm/html/index.html installer-windows/tools/web/index.html
-cp -v engine-wasm/html/index.js installer-windows/tools/web/index.js
-cp -v engine-wasm/html/index.wasm installer-windows/tools/web/index.wasm
-cp -v ../tools/web-test/web-test.exe installer-windows/tools/web-test.exe
-cp -Rv ../tools/installer installer-windows/tools/installer
-cp -v ../tools/snippets/jp-normal/plaintext.code-snippets installer-windows/plaintext.code-snippets.jp
-cp -v ../tools/snippets/en-normal/plaintext.code-snippets installer-windows/plaintext.code-snippets.en
+cp engine-wasm/html/index.html installer-windows/tools/web/index.html
+cp engine-wasm/html/index.js installer-windows/tools/web/index.js
+cp engine-wasm/html/index.wasm installer-windows/tools/web/index.wasm
+cp  ../tools/web-test/web-test.exe installer-windows/tools/web-test.exe
+cp -R ../tools/installer installer-windows/tools/installer
+cp ../tools/snippets/jp-normal/plaintext.code-snippets installer-windows/plaintext.code-snippets.jp
+cp ../tools/snippets/en-normal/plaintext.code-snippets installer-windows/plaintext.code-snippets.en
 
 # Make an installer
 cd installer-windows
@@ -185,6 +196,7 @@ cd ..
 #
 # Build "Suika2 Pro.app".
 #
+echo ""
 echo "Building Suika2 Pro.app (suika2.dmg)"
 say "Mac用の開発ツールをビルドしています"
 cd pro-macos
@@ -195,6 +207,7 @@ cd ..
 #
 # Upload.
 #
+echo ""
 echo "Uploading files."
 say "Webサーバにアップロード中です"
 
@@ -229,7 +242,7 @@ mv engine-macos/suika-mac-nosign.dmg engine-macos/suika-mac.dmg
 #
 echo ""
 echo "Posting to the Discord server."
-say "Discordサーバにポストします"
+say "Discordサーバにポストします" &
 discord-release-bot.sh
 
 #
@@ -247,4 +260,4 @@ yes "" | gh release create "v2.$VERSION" --title "v2.$VERSION" ~/Sites/suika2.co
 #
 echo ""
 echo "Finished. $VERSION was released!"
-say "リリースが完了しました"
+say "リリースが完了しました" &
