@@ -1298,6 +1298,7 @@ static bool process_move(void)
 	if (result_index != -1 &&
 	    button[result_index].type == TYPE_GOTO) {
 		if (is_sys_gui) {
+			is_sys_gui = false;
 			if (button[result_index].gosub)
 				push_return_point();
 			if (!move_to_label(button[result_index].label))
