@@ -5,13 +5,19 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/16.82 2024/3/12
+  <ul>
+    <li>カスタムメニューのバグを修正 (Thanks to Ronron-san!)</li>
+    <li>タイトルへ戻るのバグを修正 (Thanks to usagi_hiyoko-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
 <li>Suika2/16.81 2024/3/12
   <ul>
     <li>animeコマンドのファイル名にresetを指定することで拡大率と回転を初期化する機能を追加 (Thanks to 赤月-san!)</li>
     <li>GUIファイルのパースエラーを修正 (Thanks to usagi_hiyoko-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
 <li>Suika2/16.80 2024/3/11
   <ul>
     <li>新しいコード署名証明書に変更 (目安100DL達成まで警告が出ます)</li>
@@ -1670,13 +1676,19 @@ This file is referred by some automatic release scripts.
 [Release History (English)]
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/16.82 2024/3/12
+  <ul>
+    <li>Fixed a bug of custom menu (Thanks to Ronron-san!)</li>
+    <li>Fixed a buf of move-to-title (Thanks to usagi_hiyoko-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
 <li>Suika2/16.81 2024/3/12
   <ul>
     <li>Added the reset operation to the anime command (Thanks to Akatsuki-san!)</li>
     <li>Fixed a bug of GUI file parse error (Thanks to usagi_hiyoko-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
 <li>Suika2/16.80 2024/3/11
   <ul>
     <li>Changed to a new code signing certificate</li>
