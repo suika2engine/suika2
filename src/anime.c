@@ -637,6 +637,7 @@ static bool on_key_value(const char *key, const char *val)
 	/* その他のキーのとき */
 	s = &sequence[cur_seq_layer][top];
 	if (strcmp(key, "file") == 0) {
+		log_warn("\"file:\" is deprecated. Use @layer.");
 		s->file = strdup(val);
 		if (s->file == NULL) {
 			log_memory();
