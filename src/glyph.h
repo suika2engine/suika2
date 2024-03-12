@@ -181,4 +181,7 @@ int draw_msg_common(struct draw_msg_context *context, int max_chars);
 void get_pen_position_common(struct draw_msg_context *context, int *pen_x,
 			     int *pen_y);
 
+/* Set ignore inline wait. */
+void set_ignore_inline_wait(struct draw_msg_context *context);
+
 #endif

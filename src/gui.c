@@ -830,6 +830,8 @@ static bool set_button_key_value(const int index, const char *key,
 		b->rt.is_new_enabled = true;
 	} else if (strcmp("gosub", key) == 0) {
 		b->gosub = true;
+	} else if (strcmp("usearrow", key) == 0) {
+		/* removed */
 	} else {
 		log_gui_unknown_button_property(key);
 		return false;

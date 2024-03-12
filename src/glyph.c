@@ -2016,3 +2016,11 @@ void get_pen_position_common(struct draw_msg_context *context, int *pen_x,
 	*pen_x = context->pen_x;
 	*pen_y = context->pen_y;
 }
+
+/*
+ * Set ignore inline wait.
+ */
+void set_ignore_inline_wait(struct draw_msg_context *context)
+{
+	context->ignore_wait = true;
+}

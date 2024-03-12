@@ -2644,6 +2644,7 @@ static int get_frame_chars(void)
 
 		/* 残りの文字をすべて描画する */
 		do_draw_all = true;
+		set_ignore_inline_wait(&msgbox_context);
 		return total_chars - drawn_chars;
 	}
 
