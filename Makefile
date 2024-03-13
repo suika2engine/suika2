@@ -73,7 +73,7 @@ clean:
 do-release:
 	@cd build && \
 	./do-release.sh && \
-	if [ $? -ne 0 ]; then discord-post.sh "リリースの途中で失敗しました。"; fi && \
+	if [ $? -ne 0 ]; then discord-post.sh "自動リリースシステムが異常終了しました。"; fi && \
 	cd ..
 
 setup:
