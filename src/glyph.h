@@ -184,4 +184,7 @@ void get_pen_position_common(struct draw_msg_context *context, int *pen_x,
 /* Set ignore inline wait. */
 void set_ignore_inline_wait(struct draw_msg_context *context);
 
+/* Check if c is an escape sequence character. */
+bool is_escape_sequence_char(char c);
+
 #endif

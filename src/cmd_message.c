@@ -333,7 +333,6 @@ static bool init_name_top(void);
 static void init_font_color(void);
 static bool init_voice_file(void);
 static bool init_msg_top(void);
-static bool is_escape_sequence_char(char c);
 static const char *skip_lf(const char *m, int *lf);
 static void put_space(void);
 static bool register_message_for_history(const char *msg);
@@ -1023,26 +1022,6 @@ static bool init_msg_top(void)
 		is_continue_mode = false;
 
 	return true;
-}
-
-/* エスケープ文字かチェックする */
-static bool is_escape_sequence_char(char c)
-{
-	switch (c) {
-	case 'n': /* 改行 */
-	case 'f': /* フォント */
-	case 'o': /* ふちどり */
-	case '#': /* 文字色 */
-	case '@': /* 文字サイズ */
-	case 'w': /* インラインウェイト */
-	case 'p': /* ペン移動 */
-	case '^': /* ルビ */
-		return true;
-	default:
-		break;
-	}
-
-	return false;
 }
 
 /* 継続行の先頭の改行をスキップする */

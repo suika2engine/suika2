@@ -42,6 +42,11 @@ static FT_Byte *font_file_content[FONT_COUNT];
 static FT_Long font_file_size[FONT_COUNT];
 
 /*
+ * Emoticon images
+ */
+static struct image *emoticon_image[EMOTICON_COUNT];
+
+/*
  * Forward declarations
  */
 static bool read_font_file_content(
@@ -87,6 +92,7 @@ static void draw_glyph_dim_func(
 static bool isgraph_extended(const char **mbs, uint32_t *wc);
 static int translate_font_type(int font_ype);
 static bool apply_font_size(int font_type, int size);
+static void draw_emoticon(struct image *image, const char *name, int x, int y, int *w, int *h);
 
 /*
  * フォントレンダラの初期化処理を行う
@@ -141,6 +147,15 @@ bool init_glyph(void)
 	for (i = 0; i < FONT_COUNT; i++) 
 		get_glyph_width(i, conf_font_size, 'A');
 
+	/* エモーティコンのロードを行う */
+	for (i = 0; i < EMOTICON_COUNT; i++) {
+		if (conf_emoticon_name[i] != NULL && conf_emoticon_file[i] != NULL) {
+			emoticon_image[i] = create_image_from_file(CG_DIR, conf_emoticon_file[i]);
+			if (emoticon_image[i] == NULL)
+				return false;
+		}
+	}
+
 	return true;
 }
 
@@ -165,6 +180,13 @@ void cleanup_glyph(void)
 	if (library != NULL) {
 		FT_Done_FreeType(library);
 		library = NULL;
+	}
+
+	for (i = 0; i < EMOTICON_COUNT; i++) {
+		if (emoticon_image[i] != NULL) {
+			destroy_image(emoticon_image[i]);
+			emoticon_image[i] = NULL;
+		}
 	}
 }
 
@@ -934,6 +956,7 @@ static bool process_escape_sequence_size(struct draw_msg_context *context);
 static bool process_escape_sequence_wait(struct draw_msg_context *context);
 static bool process_escape_sequence_pen(struct draw_msg_context *context);
 static bool process_escape_sequence_ruby(struct draw_msg_context *context);
+static bool process_escape_sequence_emoticon(struct draw_msg_context *context);
 static bool search_for_end_of_escape_sequence(const char **msg);
 static bool do_word_wrapping(struct draw_msg_context *context);
 static int get_en_word_width(struct draw_msg_context *context);
@@ -1070,6 +1093,7 @@ int count_chars_common(struct draw_msg_context *context)
 			case '@':	/* サイズ指定 */
 			case 'w':	/* インラインウェイト */
 			case 'p':	/* ペン移動 */
+			case 'e':	/* エモーティコン */
 			case '^':	/* ルビ */
 				if (!search_for_end_of_escape_sequence(&msg))
 					return count;
@@ -1611,6 +1635,28 @@ static bool is_small_kana(uint32_t wc)
 	return false;
 }
 
+/*
+ * エスケープ文字かチェックする
+ */
+bool is_escape_sequence_char(char c)
+{
+	switch (c) {
+	case 'n': /* 改行 */
+	case 'f': /* フォント */
+	case 'o': /* ふちどり */
+	case '#': /* 文字色 */
+	case '@': /* 文字サイズ */
+	case 'w': /* インラインウェイト */
+	case 'p': /* ペン移動 */
+	case '^': /* ルビ */
+		return true;
+	default:
+		break;
+	}
+
+	return false;
+}
+
 /* 先頭のエスケープシーケンスを処理する */
 static void process_escape_sequence(struct draw_msg_context *context)
 {
@@ -1649,6 +1695,11 @@ static void process_escape_sequence(struct draw_msg_context *context)
 		case 'p':
 			/* ペン移動 */
 			if (!process_escape_sequence_pen(context))
+				return; /* 不正: 読み飛ばさない */
+			break;
+		case 'e':
+			/* エモーティコン */
+			if (!process_escape_sequence_emoticon(context))
 				return; /* 不正: 読み飛ばさない */
 			break;
 		case '^':
@@ -2007,6 +2058,52 @@ static bool process_escape_sequence_ruby(struct draw_msg_context *context)
 	return true;
 }
 
+/* エモーティコン("\\e{絵文字名}")を処理する */
+static bool process_escape_sequence_emoticon(struct draw_msg_context *context)
+{
+	char name[256];
+	const char *p;
+	int i, ret_w, ret_h;
+
+	p = context->msg;
+	assert(*p == '\\');
+	assert(*(p + 1) == 'e');
+
+	/* '{'をチェックする */
+	if (*(p + 2) != '{')
+		return false;
+
+	/* 絵文字名を読む */
+	for (i = 0; i < (int)sizeof(name) - 1; i++) {
+		if (*(p + 3 + i) == '\0')
+			return false;
+		if (*(p + 3 + i) == '}')
+			break;
+		name[i] = *(p + 3 + i);
+	}
+	name[i] = '\0';
+
+	/* \^{ + name[] + } */
+	context->msg += 3 + i + 1;
+
+	/* 描画する */
+	ret_w = 0;
+	ret_h = 0;
+	draw_emoticon(context->layer_image,
+		      name,
+		      context->pen_x,
+		      context->pen_y,
+		      &ret_w,
+		      &ret_h);
+
+	if (!context->use_tategaki)
+		context->pen_x += ret_w;
+	else
+		context->pen_y += ret_h;
+
+	return true;
+}
+
 /*
  * Get a pen position.
  */
@@ -2023,4 +2120,37 @@ void get_pen_position_common(struct draw_msg_context *context, int *pen_x,
 void set_ignore_inline_wait(struct draw_msg_context *context)
 {
 	context->ignore_wait = true;
+}
+
+/*
+ * Emoticon
+ */
+
+/* Draw an emoticon. */
+static void
+draw_emoticon(struct image *image,
+	      const char *name,
+	      int x,
+	      int y,
+	      int *w,
+	      int *h)
+{
+	int i;
+
+	for (i = 0; i < EMOTICON_COUNT; i++) {
+		if (conf_emoticon_name[i] == NULL || conf_emoticon_file[i] == NULL)
+			continue;
+		if (strcmp(name, conf_emoticon_name[i]) == 0)
+			break;
+	}
+	if (i == EMOTICON_COUNT)
+		return;
+
+	if (emoticon_image[i] == NULL)
+		return;
+
+	*w = emoticon_image[i]->width;
+	*h = emoticon_image[i]->height;
+
+	draw_image_normal(image, x, y, emoticon_image[i], *w, *h, 0, 0, 255);
 }

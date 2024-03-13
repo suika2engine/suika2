@@ -406,6 +406,15 @@ char *conf_kirakira_file[KIRAKIRA_FRAME_COUNT];
 char *conf_var_name[VAR_SIZE];
 
 /*
+ * エモーティコン
+ */
+
+#define EMOTICON_COUNT		(16)
+
+char *conf_emoticon_name[EMOTICON_COUNT];
+char *conf_emoticon_file[EMOTICON_COUNT];
+
+/*
  * config.txtには公開されないコンフィグ
  */
 
@@ -1564,6 +1573,38 @@ static struct rule {
 	{"kirakira.file14", 's', &conf_kirakira_file[13], OPTIONAL, SAVE},
 	{"kirakira.file15", 's', &conf_kirakira_file[14], OPTIONAL, SAVE},
 	{"kirakira.file16", 's', &conf_kirakira_file[15], OPTIONAL, SAVE},
+	{"emoticon.name1", 's', &conf_emoticon_name[0], OPTIONAL, NOSAVE},
+	{"emoticon.file1", 's', &conf_emoticon_file[0], OPTIONAL, NOSAVE},
+	{"emoticon.name2", 's', &conf_emoticon_name[1], OPTIONAL, NOSAVE},
+	{"emoticon.file2", 's', &conf_emoticon_file[1], OPTIONAL, NOSAVE},
+	{"emoticon.name3", 's', &conf_emoticon_name[2], OPTIONAL, NOSAVE},
+	{"emoticon.file3", 's', &conf_emoticon_file[2], OPTIONAL, NOSAVE},
+	{"emoticon.name4", 's', &conf_emoticon_name[3], OPTIONAL, NOSAVE},
+	{"emoticon.file4", 's', &conf_emoticon_file[3], OPTIONAL, NOSAVE},
+	{"emoticon.name5", 's', &conf_emoticon_name[4], OPTIONAL, NOSAVE},
+	{"emoticon.file5", 's', &conf_emoticon_file[4], OPTIONAL, NOSAVE},
+	{"emoticon.name6", 's', &conf_emoticon_name[5], OPTIONAL, NOSAVE},
+	{"emoticon.file6", 's', &conf_emoticon_file[5], OPTIONAL, NOSAVE},
+	{"emoticon.name7", 's', &conf_emoticon_name[6], OPTIONAL, NOSAVE},
+	{"emoticon.file7", 's', &conf_emoticon_file[6], OPTIONAL, NOSAVE},
+	{"emoticon.name8", 's', &conf_emoticon_name[7], OPTIONAL, NOSAVE},
+	{"emoticon.file8", 's', &conf_emoticon_file[7], OPTIONAL, NOSAVE},
+	{"emoticon.name9", 's', &conf_emoticon_name[8], OPTIONAL, NOSAVE},
+	{"emoticon.file9", 's', &conf_emoticon_file[8], OPTIONAL, NOSAVE},
+	{"emoticon.name10", 's', &conf_emoticon_name[9], OPTIONAL, NOSAVE},
+	{"emoticon.file10", 's', &conf_emoticon_file[9], OPTIONAL, NOSAVE},
+	{"emoticon.name11", 's', &conf_emoticon_name[10], OPTIONAL, NOSAVE},
+	{"emoticon.file11", 's', &conf_emoticon_file[10], OPTIONAL, NOSAVE},
+	{"emoticon.name12", 's', &conf_emoticon_name[11], OPTIONAL, NOSAVE},
+	{"emoticon.file12", 's', &conf_emoticon_file[11], OPTIONAL, NOSAVE},
+	{"emoticon.name13", 's', &conf_emoticon_name[12], OPTIONAL, NOSAVE},
+	{"emoticon.file13", 's', &conf_emoticon_file[12], OPTIONAL, NOSAVE},
+	{"emoticon.name14", 's', &conf_emoticon_name[13], OPTIONAL, NOSAVE},
+	{"emoticon.file14", 's', &conf_emoticon_file[13], OPTIONAL, NOSAVE},
+	{"emoticon.name15", 's', &conf_emoticon_name[14], OPTIONAL, NOSAVE},
+	{"emoticon.file15", 's', &conf_emoticon_file[14], OPTIONAL, NOSAVE},
+	{"emoticon.name16", 's', &conf_emoticon_name[15], OPTIONAL, NOSAVE},
+	{"emoticon.file16", 's', &conf_emoticon_file[15], OPTIONAL, NOSAVE},
 	{"tts.enable", 'i', &conf_tts_enable, OPTIONAL, SAVE},
 	{"tts.user", 'i', &conf_tts_user, OPTIONAL, SAVE},
 	{"click.disable", 'i', &conf_click_disable, OPTIONAL, SAVE},

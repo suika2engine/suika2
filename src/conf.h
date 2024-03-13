@@ -431,6 +431,15 @@ extern char *conf_kirakira_file[KIRAKIRA_FRAME_COUNT];
 extern char *conf_var_name[VAR_SIZE];
 
 /*
+ * エモーティコン
+ */
+
+#define EMOTICON_COUNT		(16)
+
+extern char *conf_emoticon_name[EMOTICON_COUNT];
+extern char *conf_emoticon_file[EMOTICON_COUNT];
+
+/*
  * config.txtには公開されないコンフィグ
  */
 
