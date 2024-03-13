@@ -65,6 +65,7 @@ discord-post.sh "自動リリースシステムが起動しました。Suika2/${
 echo ""
 echo "Building suika.exe"
 say "Windows用のエンジンをビルドしています" &
+discord-post.sh "Windows用のエンジンをビルドしています..."
 cd engine-windows
 rm -f *.o
 if [ ! -e libroot ]; then
@@ -80,6 +81,7 @@ cd ..
 echo ""
 echo "Building Suika.app (suika-mac.dmg)."
 say "Mac用のエンジンをビルドしています" &
+discord-post.sh "Mac用のエンジンをビルドしています..."
 cd engine-macos
 rm -f suika-mac.dmg suika-mac-nosign.dmg
 make suika-mac.dmg
@@ -93,6 +95,7 @@ cd ..
 echo ""
 echo "Building Wasm files."
 say "Web用のエンジンをビルドしています" &
+discord-post.sh "Web用のエンジンをビルドしています..."
 cd engine-wasm
 make clean
 make
@@ -128,6 +131,7 @@ cd ..
 echo ""
 echo "Building suika-pro.exe"
 say "Windows用の開発ツールをビルドしています" &
+discord-post.sh "Windows用の開発ツールをビルドしています..."
 cd pro-windows
 rm -f *.o
 if [ ! -e libroot ]; then
@@ -153,6 +157,7 @@ cd ../../build
 echo ""
 echo "Creating an installer for Windows."
 say "Windows用のインストーラをビルドしています" &
+discord-post.sh "Windows用のインストーラをビルドしています..."
 
 # /
 cp -v pro-windows/suika-pro.exe installer-windows/suika-pro.exe
@@ -199,6 +204,7 @@ cd ..
 echo ""
 echo "Building Suika2 Pro.app (suika2.dmg)"
 say "Mac用の開発ツールをビルドしています"
+discord-post.sh "Mac用の開発ツールをビルドしています..."
 cd pro-macos
 rm -f suika2.dmg
 make
@@ -210,6 +216,7 @@ cd ..
 echo ""
 echo "Uploading files."
 say "Webサーバにアップロード中です"
+discord-post.sh "Webサーバに実行ファイルをアップロード中です..."
 
 ftp-upload.sh installer-windows/suika2-installer.exe "dl/suika2-$VERSION.exe"
 ftp-upload.sh pro-macos/suika2.dmg "dl/suika2-$VERSION.dmg"
@@ -222,6 +229,7 @@ echo "Upload completed."
 echo ""
 echo "Updating the Web site."
 say "Webページを更新中です"
+discord-post.sh "Webページを更新中です..."
 SAVE_DIR=`pwd`
 cd ../web && \
     ./update-templates.sh && \
@@ -243,7 +251,7 @@ mv engine-macos/suika-mac-nosign.dmg engine-macos/suika-mac.dmg
 echo ""
 echo "Posting to the Discord server."
 say "Discordサーバにポストします" &
-discord-release-bot.sh
+discord-release-bot.s
 
 #
 # Make a release on GitHub.
