@@ -225,14 +225,14 @@
                                         <rect key="frame" x="20" y="128" width="384" height="515"/>
                                         <autoresizingMask key="autoresizingMask" heightSizable="YES" flexibleMaxY="YES"/>
                                         <clipView key="contentView" drawsBackground="NO" id="V4A-1h-5KK">
-                                            <rect key="frame" x="0.0" y="0.0" width="369" height="515"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="384" height="515"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <subviews>
                                                 <textView wantsLayer="YES" importsGraphics="NO" verticallyResizable="YES" findStyle="bar" incrementalSearchingEnabled="YES" allowsDocumentBackgroundColorChange="YES" allowsUndo="YES" smartInsertDelete="YES" id="VMX-fm-Qqf" customClass="ScriptTextView">
-                                                    <rect key="frame" x="0.0" y="0.0" width="369" height="515"/>
+                                                    <rect key="frame" x="0.0" y="0.0" width="384" height="515"/>
                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                    <size key="minSize" width="369" height="515"/>
+                                                    <size key="minSize" width="384" height="515"/>
                                                     <size key="maxSize" width="389" height="10000000"/>
                                                     <color key="insertionPointColor" name="textInsertionPointColor" catalog="System" colorSpace="catalog"/>
                                                 </textView>
@@ -243,7 +243,7 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                         </scroller>
                                         <scroller key="verticalScroller" wantsLayer="YES" verticalHuggingPriority="750" horizontal="NO" id="3em-3z-yKd">
-                                            <rect key="frame" x="369" y="0.0" width="15" height="515"/>
+                                            <rect key="frame" x="368" y="0.0" width="16" height="515"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                         </scroller>
                                     </scrollView>
@@ -382,16 +382,35 @@
                                     <menuItem title="Undo" keyEquivalent="z" id="eoy-7p-ZwH"/>
                                     <menuItem title="Redo" keyEquivalent="Z" id="ILe-Oo-fEU"/>
                                     <menuItem isSeparatorItem="YES" id="9WV-mt-6XI"/>
-                                    <menuItem title="Cut" keyEquivalent="x" id="nYd-Sd-I1A"/>
-                                    <menuItem title="Copy" keyEquivalent="c" id="cyG-Qx-Hyk"/>
-                                    <menuItem title="Paste" keyEquivalent="v" id="ytJ-ES-OS8"/>
+                                    <menuItem title="Cut" keyEquivalent="x" id="nYd-Sd-I1A">
+                                        <connections>
+                                            <action selector="cut:" target="VMX-fm-Qqf" id="F32-f0-Blv"/>
+                                        </connections>
+                                    </menuItem>
+                                    <menuItem title="Copy" keyEquivalent="c" id="cyG-Qx-Hyk">
+                                        <connections>
+                                            <action selector="copy:" target="VMX-fm-Qqf" id="jtA-2p-UEh"/>
+                                        </connections>
+                                    </menuItem>
+                                    <menuItem title="Paste" keyEquivalent="v" id="ytJ-ES-OS8">
+                                        <connections>
+                                            <action selector="paste:" target="VMX-fm-Qqf" id="CwV-pf-3eK"/>
+                                        </connections>
+                                    </menuItem>
                                     <menuItem title="Paste and Match Style" keyEquivalent="V" id="ATj-gk-rWy">
                                         <modifierMask key="keyEquivalentModifierMask" option="YES" command="YES"/>
                                     </menuItem>
                                     <menuItem title="Delete" id="VbE-Hx-f71">
                                         <modifierMask key="keyEquivalentModifierMask"/>
+                                        <connections>
+                                            <action selector="delete:" target="VMX-fm-Qqf" id="KCO-pc-mxC"/>
+                                        </connections>
                                     </menuItem>
-                                    <menuItem title="Select All" keyEquivalent="a" id="55j-Il-COD"/>
+                                    <menuItem title="Select All" keyEquivalent="a" id="55j-Il-COD">
+                                        <connections>
+                                            <action selector="selectAll:" target="VMX-fm-Qqf" id="QEc-ra-Tzr"/>
+                                        </connections>
+                                    </menuItem>
                                     <menuItem isSeparatorItem="YES" id="Mgj-fR-wTY"/>
                                     <menuItem title="Find" id="zrY-zq-J3M">
                                         <modifierMask key="keyEquivalentModifierMask"/>
@@ -478,9 +497,15 @@
                                             <items>
                                                 <menuItem title="Start Speaking" id="9s6-Ti-afZ">
                                                     <modifierMask key="keyEquivalentModifierMask"/>
+                                                    <connections>
+                                                        <action selector="startSpeaking:" target="VMX-fm-Qqf" id="fP7-sq-eHi"/>
+                                                    </connections>
                                                 </menuItem>
                                                 <menuItem title="Stop Speaking" id="kBQ-wQ-7cY">
                                                     <modifierMask key="keyEquivalentModifierMask"/>
+                                                    <connections>
+                                                        <action selector="stopSpeaking:" target="VMX-fm-Qqf" id="27G-A3-lv1"/>
+                                                    </connections>
                                                 </menuItem>
                                             </items>
                                         </menu>
@@ -880,7 +905,7 @@
                 </menu>
                 <userDefaultsController representsSharedInstance="YES" id="rul-NS-Req"/>
             </objects>
-            <point key="canvasLocation" x="106" y="829"/>
+            <point key="canvasLocation" x="101" y="949"/>
         </scene>
     </scenes>
 </document>

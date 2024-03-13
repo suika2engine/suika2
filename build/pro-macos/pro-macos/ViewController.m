@@ -582,7 +582,7 @@ static ViewController *theViewController;
     NSString *basePath = [[NSFileManager defaultManager] currentDirectoryPath];
     NSString *txtPath = [NSString stringWithFormat:@"%@/%@", basePath, @"txt"];
     NSOpenPanel *panel= [NSOpenPanel openPanel];
-    [panel setAllowedFileTypes:[NSArray arrayWithObjects:@"txt", @"'TEXT'", nil]];
+    [panel setAllowedFileTypes:[NSArray arrayWithObjects:@"txt", @"stxt", @"ks", @"'TEXT'", nil]];
     [panel setDirectoryURL:[[NSURL alloc] initFileURLWithPath:txtPath]];
     if ([panel runModal] == NSModalResponseOK) {
         NSString *choose = [[panel URL] path];
@@ -693,6 +693,7 @@ static ViewController *theViewController;
     if([alert runModal] != NSAlertFirstButtonReturn)
         return;
 
+    [self updateScriptModelFromText];
     save_script();
 }
 
