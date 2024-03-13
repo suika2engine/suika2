@@ -5,12 +5,17 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/16.88 2024/3/13
+  <ul>
+    <li>allコマンド(旧chsxコマンド)で背景を指定したときのバグを修正 (Thanks to 赤月-san, 松野-san, and いそぎんちく-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
 <li>Suika2/16.87 2024/3/13
   <ul>
     <li>Mac版で編集機能の未実装部分を実装 (Thanks to 赤月-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
 <li>Suika2/16.86 2024/3/13
   <ul>
     <li>独自絵文字(エモーティコン)に対応 (Thanks to Mirin-san!)</li>
@@ -1701,12 +1706,17 @@ This file is referred by some automatic release scripts.
 [Release History (English)]
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/16.88 2024/3/13
+  <ul>
+    <li>Fixed a bug of the all command (former chsx command) (Thanks to Akatsuki-san, MATSUNO-san, and Isoginchiku-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
 <li>Suika2/16.87 2024/3/13
   <ul>
     <li>Implemented some missing edit features on Mac (Thanks to Akatsuki-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
 <li>Suika2/16.86 2024/3/13
   <ul>
     <li>Added a support for emoticons (Thanks to Mirin-san!)</li>

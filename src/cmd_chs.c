@@ -68,7 +68,7 @@ static bool init(void)
 	int alpha[PARAM_SIZE];
 	int x[PARAM_SIZE];
 	int y[PARAM_SIZE];
-	int dim[PARAM_SIZE];
+	int dim[PARAM_SIZE - 1];
 	const char *method;
 	int i, layer;
 
@@ -138,7 +138,7 @@ static bool init(void)
 		alpha[CH_BACK] = get_alpha(get_string_param(CHSX_PARAM_BA));
 		alpha[CH_RIGHT_CENTER] = get_alpha(get_string_param(CHSX_PARAM_RCA));
 		alpha[CH_LEFT_CENTER] = get_alpha(get_string_param(CHSX_PARAM_LCA));
-		alpha[BG_INDEX] = get_alpha(get_string_param(CHSX_PARAM_LCA));
+		alpha[BG_INDEX] = get_alpha(get_string_param(CHSX_PARAM_BGA));
 		dim[CH_CENTER] = get_dim(get_string_param(CHSX_PARAM_CD));
 		dim[CH_RIGHT] = get_dim(get_string_param(CHSX_PARAM_RD));
 		dim[CH_LEFT] = get_dim(get_string_param(CHSX_PARAM_LD));

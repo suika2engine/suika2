@@ -2225,7 +2225,7 @@ bool start_fade_for_chs(const bool *stay, const char **fname,
 
 	/* 画像を入れ替える */
 	for (i = 0; i <= BG_INDEX; i++) {
-		layer = chpos_to_layer(i);
+		layer = i == BG_INDEX ? LAYER_BG : chpos_to_layer(i);
 		if (!stay[i]) {
 			if (!set_layer_file_name(layer, fname[i]))
 				return false;
