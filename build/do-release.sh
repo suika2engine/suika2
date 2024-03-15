@@ -269,4 +269,3 @@ yes "" | gh release create "v2.$VERSION" --title "v2.$VERSION" ~/Sites/suika2.co
 echo ""
 echo "Finished. $VERSION was released!"
 say "リリースが完了しました" &
-discord-post.sh '\n自動リリースシステムが正常終了しました。'

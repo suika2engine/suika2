@@ -71,10 +71,7 @@ clean:
 ##
 
 do-release:
-	@cd build && \
-	./do-release.sh && \
-	if [ $? -ne 0 ]; then discord-post.sh "自動リリースシステムが異常終了しました。"; fi && \
-	cd ..
+	@cd build && ./do-release.sh && cd ..
 
 setup:
 	@# For macOS:
