@@ -1112,6 +1112,7 @@ static void process_input(void)
 				reset_lap_timer(&fade_sw);
 			} else {
 				is_finished = true;
+				clear_input_state();
 			}
 		}
 	}
@@ -1300,7 +1301,7 @@ static bool process_move(void)
 		if (is_sys_gui) {
 			is_sys_gui = false;
 			if (button[result_index].gosub)
-				push_return_point();
+				push_return_point_minus_one();
 			if (!move_to_label(button[result_index].label))
 				return false;
 		}

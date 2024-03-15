@@ -5,12 +5,17 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/16.90 2024/3/16
+  <ul>
+    <li>システムメニューからGUIを呼び出し、GUIからgosubした場合の、戻り先のずれを修正 (Thanks to ロンロンさん)</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
 <li>Suika2/16.89 2024/3/15
   <ul>
     <li>animeコマンドのreset指定を改善 (Thanks to 赤月さん)</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
 <li>Suika2/16.88 2024/3/13
   <ul>
     <li>allコマンド(旧chsxコマンド)で背景を指定したときのバグを修正 (Thanks to 赤月-san, 松野-san, and いそぎんちく-san!)</li>
@@ -1711,12 +1716,17 @@ This file is referred by some automatic release scripts.
 [Release History (English)]
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/16.90 2024/3/16
+  <ul>
+    <li>Fixed a bug of gosub call point (Thanks to Ronron)</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
 <li>Suika2/16.89 2024/3/15
   <ul>
     <li>Improved the reset specifiers of the anime command (Thanks to Akatsuki-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
 <li>Suika2/16.88 2024/3/13
   <ul>
     <li>Fixed a bug of the all command (former chsx command) (Thanks to Akatsuki-san, MATSUNO-san, and Isoginchiku-san!)</li>
