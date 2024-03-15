@@ -233,7 +233,7 @@ discord-post.sh "Webページを更新中です..."
 SAVE_DIR=`pwd`
 cd ../web && \
     ./update-templates.sh && \
-    ./update-version-latest.sh && \
+    ./update-version-stable.sh && \
     ftp-upload.sh dl/index.html && \
     ftp-upload.sh en/dl/index.html && \
     git add -u dl/index.html en/dl/index.html && \

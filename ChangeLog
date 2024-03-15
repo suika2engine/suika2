@@ -5,12 +5,17 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/17.0 2024/3/16
+  <ul>
+    <li>17系列を機能追加用の最新版とし、16系列をバグ修正のみの安定版として分離</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
 <li>Suika2/16.90 2024/3/16
   <ul>
     <li>システムメニューからGUIを呼び出し、GUIからgosubした場合の、戻り先のずれを修正 (Thanks to ロンロンさん)</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
 <li>Suika2/16.89 2024/3/15
   <ul>
     <li>animeコマンドのreset指定を改善 (Thanks to 赤月さん)</li>
@@ -1716,12 +1721,17 @@ This file is referred by some automatic release scripts.
 [Release History (English)]
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/17.0 2024/3/16
+  <ul>
+    <li>Made the stable-16, a branch for bug fix only, in order to separate new features on the master branch</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
 <li>Suika2/16.90 2024/3/16
   <ul>
     <li>Fixed a bug of gosub call point (Thanks to Ronron)</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
 <li>Suika2/16.89 2024/3/15
   <ul>
     <li>Improved the reset specifiers of the anime command (Thanks to Akatsuki-san!)</li>
