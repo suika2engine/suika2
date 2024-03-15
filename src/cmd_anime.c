@@ -21,7 +21,9 @@ static bool opt_nosysmenu;
 static bool opt_showmsgbox;
 static bool opt_forcemsgbox;
 static bool opt_forcenamebox;
-static bool opt_all;
+static bool opt_layer_all;
+static bool opt_layer_tbl[STAGE_LAYERS];
+static bool opt_xy;
 static bool opt_rotate;
 static bool opt_scale;
 static bool opt_reg[REG_SIZE];
@@ -35,7 +37,45 @@ struct option_table {
 	{"showmsgbox", &opt_showmsgbox},
 	{"forcemsgbox", &opt_forcemsgbox},
 	{"forcenamebox", &opt_forcenamebox},
-	{"all", &opt_all},
+	{"layer-all", &opt_layer_all},
+	{"layer-bg", &opt_layer_tbl[LAYER_BG]},
+	{"layer-bg2", &opt_layer_tbl[LAYER_BG2]},
+	{"layer-effect5", &opt_layer_tbl[LAYER_EFFECT5]},
+	{"layer-effect6", &opt_layer_tbl[LAYER_EFFECT5]},
+	{"layer-effect7", &opt_layer_tbl[LAYER_EFFECT5]},
+	{"layer-effect8", &opt_layer_tbl[LAYER_EFFECT5]},
+	{"layer-chb", &opt_layer_tbl[LAYER_CHB]},
+	{"layer-chb-eye", &opt_layer_tbl[LAYER_CHB_EYE]},
+	{"layer-chl", &opt_layer_tbl[LAYER_CHL]},
+	{"layer-chl-eye", &opt_layer_tbl[LAYER_CHL_EYE]},
+	{"layer-chlc", &opt_layer_tbl[LAYER_CHL]},
+	{"layer-chlc-eye", &opt_layer_tbl[LAYER_CHL_EYE]},
+	{"layer-chr", &opt_layer_tbl[LAYER_CHR]},
+	{"layer-chr-eye", &opt_layer_tbl[LAYER_CHR_EYE]},
+	{"layer-chrc", &opt_layer_tbl[LAYER_CHRC]},
+	{"layer-chrc-eye", &opt_layer_tbl[LAYER_CHRC_EYE]},
+	{"layer-chc", &opt_layer_tbl[LAYER_CHC]},
+	{"layer-chc-eye", &opt_layer_tbl[LAYER_CHC_EYE]},
+	{"layer-effect1", &opt_layer_tbl[LAYER_EFFECT1]},
+	{"layer-effect2", &opt_layer_tbl[LAYER_EFFECT2]},
+	{"layer-effect3", &opt_layer_tbl[LAYER_EFFECT3]},
+	{"layer-effect4", &opt_layer_tbl[LAYER_EFFECT4]},
+	{"layer-msg", &opt_layer_tbl[LAYER_MSG]},
+	{"layer-name", &opt_layer_tbl[LAYER_NAME]},
+	{"layer-chf", &opt_layer_tbl[LAYER_CHF]},
+	{"layer-chf-eye", &opt_layer_tbl[LAYER_CHF_EYE]},
+	{"layer-click", &opt_layer_tbl[LAYER_CLICK]},
+	{"layer-auto", &opt_layer_tbl[LAYER_AUTO]},
+	{"layer-skip", &opt_layer_tbl[LAYER_SKIP]},
+	{"layer-text1", &opt_layer_tbl[LAYER_TEXT1]},
+	{"layer-text2", &opt_layer_tbl[LAYER_TEXT2]},
+	{"layer-text3", &opt_layer_tbl[LAYER_TEXT3]},
+	{"layer-text4", &opt_layer_tbl[LAYER_TEXT4]},
+	{"layer-text5", &opt_layer_tbl[LAYER_TEXT5]},
+	{"layer-text6", &opt_layer_tbl[LAYER_TEXT6]},
+	{"layer-text7", &opt_layer_tbl[LAYER_TEXT7]},
+	{"layer-text8", &opt_layer_tbl[LAYER_TEXT8]},
+	{"xy", &opt_xy},
 	{"rotate", &opt_rotate},
 	{"scale", &opt_scale},
 	{"reg00", &opt_reg[0]},
@@ -54,6 +94,7 @@ struct option_table {
  * 前方参照
  */
 static bool init(void);
+static void do_reset(void);
 static void draw(void);
 static bool cleanup(void);
 
@@ -113,11 +154,7 @@ static bool init(void)
 	/* 特殊なファイル名を処理する */
 	if (strcmp(file, "reset") == 0) {
 		/* 全レイヤのアニメを強制的に完了する */
-		for (i = 0; i < STAGE_LAYERS; i++) {
-			finish_layer_anime(i);
-			set_layer_scale(i, 1.0f, 1.0f);
-			set_layer_rotate(i, 0);
-		}
+		do_reset();
 	} else if (strcmp(file, "finish-all") == 0) {
 		/* 全レイヤのアニメ完了を待つ */
 		opt_async = false;
@@ -141,6 +178,22 @@ static bool init(void)
 		start_command_repetition();
 
 	return true;
+}
+
+static void do_reset(void)
+{
+	int i;
+
+	for (i = 0; i < STAGE_LAYERS; i++) {
+		if (opt_layer_tbl[i] || opt_layer_all) {
+			if (opt_xy)
+				set_layer_position(i, 0, 0);
+			if (opt_scale)
+				set_layer_scale(i, 1.0f, 1.0f);
+			if (opt_rotate)
+				set_layer_rotate(i, 0);
+		}
+	}
 }
 
 /* 描画を行う */
