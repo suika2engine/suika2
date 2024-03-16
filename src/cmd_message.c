@@ -229,6 +229,9 @@ static bool gui_cmd_flag;
 /* システムGUIから復帰したか */
 static bool gui_sys_flag;
 
+/* システムGUIのgosubから復帰したか */
+static bool gui_gosub_flag;
+
 /*
  * 非表示
  */
@@ -694,6 +697,7 @@ static void init_flags_and_vars(void)
 			 */
 			gui_sys_flag = true;
 			gui_cmd_flag = false;
+			gui_gosub_flag = false;
 		} else {
 			/*
 			 * GUIコマンドの直後の場合
@@ -701,7 +705,16 @@ static void init_flags_and_vars(void)
 			 */
 			gui_sys_flag = false;
 			gui_cmd_flag = true;
+			gui_gosub_flag = false;
 		}
+	} else if (is_return_from_sysmenu_gosub()) {
+		/*
+		 * GUIコマンドの直後の場合
+		 *  - 画面全体の更新を行うためにフラグをセットする
+		 */
+		gui_sys_flag = true;
+		gui_cmd_flag = false;
+		gui_gosub_flag = true;
 	} else {
 		gui_sys_flag = false;
 		gui_cmd_flag = false;
@@ -1087,6 +1100,8 @@ static bool register_message_for_history(const char *msg)
 	assert(!gui_sys_flag);
 
 	/* ヒストリに登録しない場合 */
+	if (gui_gosub_flag)
+		return true;
 	if (conf_msgbox_history_control != NULL &&
 	    strcmp(conf_msgbox_history_control, "no-history") == 0)
 		return true;

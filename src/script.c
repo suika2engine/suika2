@@ -115,6 +115,9 @@ static int cur_index;
 /* 最後にgosubが実行されたコマンド番号 */
 static int return_point;
 
+/* gosubがSysMenu由来か */
+static bool is_gosub_from_sysmenu;
+
 /* 無効なreturn_pointの値 */
 #define INVALID_RETURN_POINT	(-2)
 
@@ -1088,14 +1091,16 @@ bool move_to_label_finally(const char *label, const char *finally_label)
 void push_return_point(void)
 {
 	return_point = cur_index;
+	is_gosub_from_sysmenu = false;
 }
 
 /*
- * gosubによるリターンポイントを記録する(カスタムSYSMENUのgosub用)
+ * gosubによるリターンポイントを記録する(SysMenuからのGUIによるgosub用)
  */
 void push_return_point_minus_one(void)
 {
 	return_point = cur_index - 1;
+	is_gosub_from_sysmenu = true;
 }
 
 /*
@@ -1107,6 +1112,17 @@ int pop_return_point(void)
 	rp = return_point;
 	return_point = INVALID_RETURN_POINT;
 	return rp;
+}
+
+/*
+ * SysMenu経由のGUIからgosubされてreturnしたか
+ */
+bool is_return_from_sysmenu_gosub(void)
+{
+	bool flag;
+	flag = is_gosub_from_sysmenu;
+	is_gosub_from_sysmenu = false;
+	return flag;
 }
 
 /*

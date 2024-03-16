@@ -601,6 +601,9 @@ bool set_return_point(int index);
 /* gosubによるリターンポイントの行番号を取得する(セーブ用) */
 int get_return_point(void);
 
+/* SysMenu経由のGUIからgosubされてreturnしたか */
+bool is_return_from_sysmenu_gosub(void);
+
 /* 最後のコマンドであるかを取得する(@goto $SAVE用) */
 bool is_final_command(void);
 
