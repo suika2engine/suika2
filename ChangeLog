@@ -10,12 +10,12 @@ This file is referred by some automatic release scripts.
     <li>GUIに時間制限を加えるtimed:プロパティをglobalセクションに追加 (Thanks to あさつき-san and 三力滴-san!)</li>
   </ul>
 </li>
+<!-- END-LATEST-JP -->
 <li>Suika2/17.2 2024/3/18
   <ul>
     <li>選択肢に時間制限を加えるswitch.timedコンフィグを追加 (Thanks to 三力滴-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
 <li>Suika2/17.1 2024/3/18
   <ul>
     <li>選択肢に時間制限を加えるswitch.timedコンフィグを追加 (Thanks to 三力滴-san!)</li>

@@ -1032,7 +1032,7 @@ bool run_gui_mode(void)
 
 	/* 時間制限を処理する */
 	if (bomb_time > 0) {
-		if (get_lap_timer_millisec(&bomb_sw) >= bomb_time * 1000.0f) {
+		if ((float)get_lap_timer_millisec(&bomb_sw) >= bomb_time * 1000.0f) {
 			is_bombed = true;
 			result_index = -1;
 			if (fade_out_time > 0) {
