@@ -620,9 +620,9 @@ static BOOL InitMainWindow(HINSTANCE hInstance, int *pnRenderWidth, int *pnRende
 	nWinWidth = nRenderWidth + nFrameAddWidth + EDITOR_WIDTH;
 	nWinHeight = nRenderHeight + nFrameAddHeight;
 
-	/* If the display size is smaller than the window size in the config: */
-	if (nVirtualScreenWidth < conf_window_width ||
-		nVirtualScreenHeight < conf_window_height)
+	/* If the display size is smaller than the window size: */
+	if (nWinWidth > nVirtualScreenWidth ||
+		nWinHeight > nVirtualScreenHeight)
 	{
 		nWinWidth = nVirtualScreenWidth;
 		nWinHeight = nVirtualScreenHeight;
@@ -633,6 +633,9 @@ static BOOL InitMainWindow(HINSTANCE hInstance, int *pnRenderWidth, int *pnRende
 	/* Center the window if not multi-display environment. */
 	if (nMonitors == 1)
 	{
+		log_info("nVirtualScreenWidth = %d", nVirtualScreenWidth);
+		log_info("nWinWidth = %d", nWinWidth);
+
 		nPosX = (nVirtualScreenWidth - nWinWidth) / 2;
 		nPosY = (nVirtualScreenHeight - nWinHeight) / 2;
 	}
