@@ -57,6 +57,12 @@ echo ""
 echo "(press enter to proceed)"
 read str
 
+#
+# Push a tag to GitHub in order to check the version number is available.
+#
+git tag -a "v2.$VERSION" -m "release"
+git push github "v2.$VERSION"
+
 discord-post.sh "自動リリースシステムが起動しました。Suika2/${VERSION}をビルドしています。アップロード完了まで推定で10分です。"
 
 #
@@ -259,8 +265,6 @@ discord-release-bot.sh
 echo ""
 echo "Making a release on GitHub."
 say "GitHubでリリースを作成中です"
-git tag -a "v2.$VERSION" -m "release"
-git push github "v2.$VERSION"
 yes "" | gh release create "v2.$VERSION" --title "v2.$VERSION" ~/Sites/suika2.com/dl/suika2-$VERSION.exe ~/Sites/suika2.com/dl/suika2-$VERSION.dmg
 
 #
