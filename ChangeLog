@@ -5,6 +5,11 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/17.3 2024/3/18
+  <ul>
+    <li>GUIに時間制限を加えるtimed:プロパティをglobalセクションに追加 (Thanks to あさつき-san and 三力滴-san!)</li>
+  </ul>
+</li>
 <li>Suika2/17.2 2024/3/18
   <ul>
     <li>選択肢に時間制限を加えるswitch.timedコンフィグを追加 (Thanks to 三力滴-san!)</li>
@@ -1731,12 +1736,17 @@ This file is referred by some automatic release scripts.
 [Release History (English)]
 
 <!-- BEGIN-LATEST-EN -->
-<li>Suika2/17.2 2024/3/16
+<li>Suika2/17.3 2024/3/18
   <ul>
-    <li>Added a config to set a time limit to choose (Thanks to Miryoku-Teki-san!)/li>
+    <li>Added a timed global property of GUI to limit time (Thanks to Asatsuki-san and Miryoku-Shizuk-san!)</li>
   </ul>
 </li>
 <!-- END-LATEST-EN -->
+<li>Suika2/17.2 2024/3/16
+  <ul>
+    <li>Added a config to set a time limit to choose (Thanks to Miryoku-Shizuku-san!)/li>
+  </ul>
+</li>
 <li>Suika2/17.1 2024/3/16
   <ul>
     <li>Fixed a bug where a message is registered to the history twice when returned from gosub from system GUI (Ronron-san!)</li>

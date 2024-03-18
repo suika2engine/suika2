@@ -316,6 +316,11 @@ static bool did_save;
 /* ロードを行ったか */
 static bool did_load;
 
+/* 制限時間 */
+static float bomb_time;
+static uint64_t bomb_sw;
+static bool is_bombed;
+
 /*
  * 前方参照
  */
@@ -486,6 +491,7 @@ bool prepare_gui_mode(const char *file, bool sys)
 	is_finished = false;
 	dragging_index = -1;
 	is_drag_finished = false;
+	bomb_time = 0;
 
 	/* GUIv2動作を無効にしておく(base:が指定されるとv2になる) */
 	is_v2 = false;
@@ -604,6 +610,10 @@ static bool set_global_key_value(const char *key, const char *val)
 		return true;
 	} else if (strcmp(key, "fadeout") == 0) {
 		fade_out_time = (float)atof(val);
+		return true;
+	} else if (strcmp(key, "timed") == 0) {
+		bomb_time = (float)atof(val);
+		reset_lap_timer(&bomb_sw);
 		return true;
 	} else if (strcmp(key, "alt") == 0) {
 		if (conf_tts_enable == 1)
@@ -1020,11 +1030,26 @@ bool run_gui_mode(void)
 {
 	bool chain;
 
+	/* 時間制限を処理する */
+	if (bomb_time > 0) {
+		if (get_lap_timer_millisec(&bomb_sw) >= bomb_time * 1000.0f) {
+			is_bombed = true;
+			result_index = -1;
+			if (fade_out_time > 0) {
+				is_fading_out = true;
+				reset_lap_timer(&fade_sw);
+			} else {
+				is_finished = true;
+				clear_input_state();
+			}
+		}
+	}
+
 	/* 入力を処理する */
 	process_input();
 
 	/* タイトルへ戻る場合 */
-	if (!did_load) {
+	if (!did_load && !is_bombed) {
 		if (result_index != -1 &&
 		    button[result_index].type == TYPE_TITLE)
 			return move_to_title();
@@ -1075,6 +1100,10 @@ static void process_input(void)
 
 	/* フェード中の場合は入力を受け付けない */
 	if (is_fading_in || is_fading_out)
+		return;
+
+	/* 制限時間に達した場合は入力を受け付けない */
+	if (is_bombed)
 		return;
 
 	result_index = -1;
@@ -1291,7 +1320,7 @@ static bool process_move(void)
 	}
 
 	/*
-	 * ラベルへジャンプする場合l:
+	 * ラベルへジャンプする場合:
 	 *  - @guiコマンドの場合はcmd_gui.cで処理する
 	 *  - ただしシステムGUIの場合はここで処理する
 	 *    - gosubオプションがついている場合はpushも行う
