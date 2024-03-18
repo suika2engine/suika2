@@ -5,12 +5,17 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
-<li>Suika2/17.1 2024/3/16
+<li>Suika2/17.2 2024/3/18
   <ul>
-    <li>システムGUIでgosubを使ってreturnしたときに、メッセージが二重で履歴に残る問題を修正 (ロンロンさん)</li>
+    <li>選択肢に時間制限を加えるswitch.timedコンフィグを追加 (Thanks to 三力滴-san!)</li>
   </ul>
 </li>
 <!-- END-LATEST-JP -->
+<li>Suika2/17.1 2024/3/18
+  <ul>
+    <li>選択肢に時間制限を加えるswitch.timedコンフィグを追加 (Thanks to 三力滴-san!)</li>
+  </ul>
+</li>
 <li>Suika2/17.0 2024/3/16
   <ul>
     <li>17系列を機能追加用の最新版とし、16系列をバグ修正のみの安定版として分離</li>
@@ -1726,12 +1731,17 @@ This file is referred by some automatic release scripts.
 [Release History (English)]
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/17.2 2024/3/16
+  <ul>
+    <li>Added a config to set a time limit to choose (Thanks to Miryoku-Teki-san!)/li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
 <li>Suika2/17.1 2024/3/16
   <ul>
     <li>Fixed a bug where a message is registered to the history twice when returned from gosub from system GUI (Ronron-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
 <li>Suika2/17.0 2024/3/16
   <ul>
     <li>Made the stable-16, a branch for bug fix only, in order to separate new features on the master branch</li>

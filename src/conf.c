@@ -209,6 +209,7 @@ int conf_switch_color_active_body_b;
 int conf_switch_color_active_outline_r;
 int conf_switch_color_active_outline_g;
 int conf_switch_color_active_outline_b;
+float conf_switch_timed;
 char *conf_switch_parent_click_se_file;
 char *conf_switch_child_click_se_file;
 char *conf_switch_change_se;
@@ -708,6 +709,7 @@ static struct rule {
 	{"switch.fg.file10", 's', &conf_switch_fg_file[9], OPTIONAL, SAVE},
 	{"switch.x10", 'i', &conf_switch_x[9], OPTIONAL, SAVE},
 	{"switch.y10", 'i', &conf_switch_y[9], OPTIONAL, SAVE},
+	{"switch.timed", 'f', &conf_switch_timed, OPTIONAL, NOSAVE},
 	{"news.bg.file", 's', &conf_news_bg_file, OPTIONAL, SAVE},
 	{"news.fg.file", 's', &conf_news_fg_file, OPTIONAL, SAVE},
 	{"news.margin", 'i', &conf_news_margin, OPTIONAL, SAVE},

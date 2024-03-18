@@ -219,6 +219,7 @@ extern int conf_switch_color_active_body_b;
 extern int conf_switch_color_active_outline_r;
 extern int conf_switch_color_active_outline_g;
 extern int conf_switch_color_active_outline_b;
+extern float conf_switch_timed;
 extern char *conf_switch_parent_click_se_file;
 extern char *conf_switch_child_click_se_file;
 extern char *conf_switch_change_se;

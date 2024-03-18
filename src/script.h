@@ -43,6 +43,7 @@
  *  - 2023-09-14 Added @pencil
  *  - 2023-10-21 Supported dynamic update of script model
  *  - 2024-03-09 Added @all
+ *  - 2024-03-28 Added @cl.*
  */
 
 #ifndef SUIKA_SCRIPT_H
@@ -106,6 +107,9 @@ enum command_type {
 	COMMAND_CHSX,
 	COMMAND_SWITCH,
 	COMMAND_NEWS,
+
+	/* Ciel Commands */
+	COMMAND_CIEL,
 
 	/* Invalid Value. */
 	COMMAND_MAX,
@@ -543,6 +547,17 @@ enum layer_command_param {
 	LAYER_PARAM_X,
 	LAYER_PARAM_Y,
 	LAYER_PARAM_A,
+};
+
+/* cielコマンドのパラメータ */
+enum ciel_command_param {
+	CIEL_PARAM_ACTION,	/* start from 0 */
+	CIEL_PARAM_NAME,
+	CIEL_PARAM_ALIGN,
+	CIEL_PARAM_X,
+	CIEL_PARAM_Y,
+	CIEL_PARAM_ALPHA,
+	CIEL_PARAM_TIME,
 };
 
 /*

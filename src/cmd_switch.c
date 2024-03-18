@@ -223,6 +223,13 @@ static const char *custom_gosub_target;
 static bool is_quick_load_failed;
 
 /*
+ * 時間制限
+ */
+static bool is_timed;
+static bool is_bombed;
+static uint64_t bomb_sw;
+
+/*
  * 前方参照
  */
 
@@ -292,6 +299,13 @@ bool switch_command(void)
 
 static void pre_process(void)
 {
+	if (is_timed) {
+		if ((float)get_lap_timer_millisec(&bomb_sw) >= conf_switch_timed * 1000.0f) {
+			is_bombed = true;
+			return;
+		}
+	}
+
 	/* システムメニューが表示されていない場合 */
 	if (!is_sysmenu) {
 		process_main_input();
@@ -305,6 +319,9 @@ static void pre_process(void)
 static bool blit_process(void)
 {
 	int i;
+
+	if (is_bombed)
+		return true;
 
 	/*
 	 * 必要な場合はステージのサムネイルを作成する
@@ -404,9 +421,12 @@ static bool post_process(void)
 	/*
 	 * 必要な場合は繰り返し動作を停止する
 	 *  - クイックロードされたとき
+	 *  - 時間制限に達したとき
 	 *  - システムGUIに遷移するとき
 	 */
 	if (did_quick_load
+	    ||
+	    is_bombed
 	    ||
 	    (need_save_mode || need_load_mode || need_history_mode || need_config_mode || need_custom1_mode || need_custom2_mode))
 		stop_command_repetition();
@@ -444,6 +464,10 @@ bool init(void)
 	need_custom1_mode = false;
 	need_custom2_mode = false;
 	is_quick_load_failed = false;
+
+	is_timed = false;
+	is_bombed = false;
+	reset_lap_timer(&bomb_sw);
 
 	/* Android NDKの場合、画像を破棄する */
 #ifdef SUIKA_TARGET_ANDROID
@@ -519,6 +543,12 @@ bool init(void)
 		stop_skip_mode();
 		show_skipmode_banner(false);
 	}
+
+	/* 時間制限設定を行う */
+	if (conf_switch_timed > 0)
+		is_timed = true;
+	else
+		is_timed = false;
 
 	/* 連続スワイプによるスキップ動作を無効にする */
 	set_continuous_swipe_enabled(false);
@@ -1720,6 +1750,13 @@ static bool cleanup(void)
 	    need_history_mode || need_config_mode ||
 	    need_custom1_mode || need_custom2_mode) {
 		/* コマンドの移動を行わない */
+		return true;
+	}
+
+	/* 時間制限に達したとき */
+	if (is_bombed) {
+		if (!move_to_next_command())
+			return false;
 		return true;
 	}
 

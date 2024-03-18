@@ -43,6 +43,7 @@
  *  - 2023-09-14 Added @pencil
  *  - 2023-10-21 Supported dynamic update of script model
  *  - 2024-03-09 Added @all
+ *  - 2024-03-18 Added Ciel
  */
 
 #include "suika.h"
@@ -59,6 +60,9 @@
 
 /* マクロインクルードのキーワード */
 #define MACRO_INC	"using "
+
+/* Ciel命令のプレフィクス */
+#define CIEL_PREFIX	"@cl."
 
 /*
  * コマンド配列
@@ -309,6 +313,8 @@ struct insn_item {
 	/* テキスト描画 */
 	{"@pencil", COMMAND_PENCIL, 1, 2},
 	{U8("@鉛筆"), COMMAND_PENCIL, 1, 2},
+
+	/* @cl.* are excluded. */
 
 	/* deprecated */
 	{"@news", COMMAND_NEWS, 9, 136},
@@ -1565,18 +1571,26 @@ static bool parse_insn(const char *raw, const char *buf, int locale_offset,
 	strtok_escape(c->param[0], &escaped);
 
 	/* コマンドのタイプを取得する */
-	for (i = 0; i < (int)INSN_TBL_SIZE; i++) {
-		if (strcmp(c->param[0], insn_tbl[i].str) == 0) {
-			c->type = insn_tbl[i].type;
-			min = insn_tbl[i].min;
-			max = insn_tbl[i].max;
-			break;
+	if (strncmp(c->param[0], CIEL_PREFIX, strlen(CIEL_PREFIX)) == 0) {
+		/* Ciel命令の場合 */
+		c->type = COMMAND_CIEL;
+		min = -1;
+		max = -1;
+	} else {		
+		/* その他の命令の場合 */
+		for (i = 0; i < (int)INSN_TBL_SIZE; i++) {
+			if (strcmp(c->param[0], insn_tbl[i].str) == 0) {
+				c->type = insn_tbl[i].type;
+				min = insn_tbl[i].min;
+				max = insn_tbl[i].max;
+				break;
+			}
 		}
-	}
-	if (i == INSN_TBL_SIZE) {
-		log_script_command_not_found(c->param[0]);
-		show_parse_error_footer(index, raw);
-		return false;
+		if (i == INSN_TBL_SIZE) {
+			log_script_command_not_found(c->param[0]);
+			show_parse_error_footer(index, raw);
+			return false;
+		}
 	}
 
 	/* 2番目以降のトークンを取得する */
@@ -1603,8 +1617,8 @@ static bool parse_insn(const char *raw, const char *buf, int locale_offset,
 
 		/* それ以外のコマンドで引数名がない場合 */
 		if (strstr(tp, "=") == NULL) {
-			/*  @chsxだけは引数名が必須 */
-			if (c->type == COMMAND_CHSX) {
+			/*  @chsxと@cl.*だけは引数名が必須 */
+			if (c->type == COMMAND_CHSX || c->type == COMMAND_CIEL) {
 				log_script_parameter_name_not_specified();
 				show_parse_error_footer(index, raw);
 				return false;
@@ -1658,15 +1672,19 @@ static bool parse_insn(const char *raw, const char *buf, int locale_offset,
 	}
 
 	/* パラメータの数をチェックする */
-	if (i - 1 < min) {
-		log_script_too_few_param(min, i - 1);
-		show_parse_error_footer(index, raw);
-		return false;
+	if (min != -1) {
+		if (i - 1 < min) {
+			log_script_too_few_param(min, i - 1);
+			show_parse_error_footer(index, raw);
+			return false;
+		}
 	}
-	if (i - 1 > max) {
-		log_script_too_many_param(max, i - 1);
-		show_parse_error_footer(index, raw);
-		return false;
+	if (max != -1) {
+		if (i - 1 > max) {
+			log_script_too_many_param(max, i - 1);
+			show_parse_error_footer(index, raw);
+			return false;
+		}
 	}
 
 	if (index == -1)
