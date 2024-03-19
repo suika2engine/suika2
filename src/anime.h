@@ -45,7 +45,8 @@ void cleanup_anime(void);
 bool load_anime_from_file(const char *fname, int reg_index);
 
 /* アニメーションシーケンスをクリアする */
-void clear_anime_sequence(int layer);
+void clear_layer_anime_sequence(int layer);
+void clear_all_anime_sequence(void);
 
 /* アニメーションシーケンスを開始する */
 bool new_anime_sequence(int layer);

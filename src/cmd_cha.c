@@ -88,7 +88,7 @@ static bool init(void)
 	to_y = from_y + ofs_y;
 
 	/* アニメ定義を行う */
-	clear_anime_sequence(layer);
+	clear_layer_anime_sequence(layer);
 	new_anime_sequence(layer);
 	add_anime_sequence_property_f("start", 0);
 	add_anime_sequence_property_f("end", span);
@@ -273,7 +273,7 @@ static bool cleanup(void)
 {
 	/* アニメが終了した場合は削除する */
 	if (is_anime_finished_for_layer(layer))
-		clear_anime_sequence(layer);
+		clear_layer_anime_sequence(layer);
 
 	/* 次のコマンドに移動する */
 	if (!move_to_next_command())

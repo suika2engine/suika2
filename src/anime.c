@@ -202,9 +202,9 @@ bool load_anime_from_file(const char *fname, int reg_index)
 /*
  * アニメーションシーケンスをクリアする
  */
-void clear_anime_sequence(int layer)
+void clear_layer_anime_sequence(int layer)
 {
-	int i, j;
+	int i;
 
 	assert(layer >= 0 && layer < STAGE_LAYERS);
 
@@ -218,7 +218,37 @@ void clear_anime_sequence(int layer)
 		context[layer].file = NULL;
 	}
 
+	for (i = 0 ; i < SEQUENCE_COUNT; i++) {
+		if (sequence[layer][i].file != NULL) {
+			free(sequence[layer][i].file);
+			sequence[layer][i].file = NULL;
+		}
+		memset(&sequence[layer][i], 0, sizeof(struct sequence));
+		sequence[layer][i].from_scale_x = 1.0f;
+		sequence[layer][i].from_scale_y = 1.0f;
+		sequence[layer][i].to_scale_x = 1.0f;
+		sequence[layer][i].to_scale_y = 1.0f;
+	}
+}
+
+/*
+ * アニメーションシーケンスをクリアする
+ */
+void clear_all_anime_sequence(void)
+{
+	int i, j;
+
 	for (i = 0; i < STAGE_LAYERS; i++) {
+		context[i].seq_count = 0;
+		context[i].is_running = false;
+		context[i].is_finished = false;
+		context[i].loop_len = 0;
+		context[i].loop_ofs = 0;
+		if (context[i].file != NULL) {
+			free(context[i].file);
+			context[i].file = NULL;
+		}
+
 		for (j = 0 ; j < SEQUENCE_COUNT; j++) {
 			if (sequence[i][j].file != NULL) {
 				free(sequence[i][j].file);
@@ -812,17 +842,17 @@ bool load_eye_image_if_exists(int chpos, const char *fname)
 	char eye_fname[1024], ext[128], *dot;
 	struct image *eye_img;
 	float base_time;
-	int layer, x, y, frame_count, i;
+	int base_layer, eye_layer, x, y, frame_count, i;
 
 	/* まず目のレイヤを無効にする */
-	layer = chpos_to_eye_layer(chpos);
-	set_layer_file_name(layer, NULL);
-	set_layer_image(layer, NULL);
+	eye_layer = chpos_to_eye_layer(chpos);
+	set_layer_file_name(eye_layer, NULL);
+	set_layer_image(eye_layer, NULL);
 
 	/* キャラがない場合 */
 	if (fname == NULL || strcmp(fname, "none") == 0 || strcmp(fname, U8("消去")) == 0) {
 		/* 既存の目パチアニメを終了する */
-		clear_anime_sequence(chpos_to_eye_layer(chpos));
+		clear_layer_anime_sequence(eye_layer);
 		return true;
 	}
 
@@ -848,23 +878,22 @@ bool load_eye_image_if_exists(int chpos, const char *fname)
 	}
 
 	/* キャラの座標を取得する */
-	layer = chpos_to_layer(chpos);
-	x = get_layer_x(layer);
-	y = get_layer_y(layer);
+	base_layer = chpos_to_layer(chpos);
+	x = get_layer_x(base_layer);
+	y = get_layer_y(base_layer);
 
 	/* レイヤを設定する */
-	layer = chpos_to_eye_layer(chpos);
-	set_layer_file_name(layer, eye_fname);
-	set_layer_image(layer, eye_img);
-	set_layer_position(layer, x, y);
-	set_layer_alpha(layer, 0);
-	set_layer_scale(layer, 1.0f, 1.0f);
+	set_layer_file_name(eye_layer, eye_fname);
+	set_layer_image(eye_layer, eye_img);
+	set_layer_position(eye_layer, x, y);
+	set_layer_alpha(eye_layer, 0);
+	set_layer_scale(eye_layer, 1.0f, 1.0f);
 
 	/* 目パチのアニメを開始する */
-	frame_count = get_layer_image(chpos_to_eye_layer(chpos))->width / get_layer_image(chpos_to_layer(chpos))->width;
+	frame_count = get_layer_image(eye_layer)->width / get_layer_image(base_layer)->width;
 	base_time = conf_character_eyeblink_interval + conf_character_eyeblink_interval * 0.3f * (2.0f * (float)rand() / (float)RAND_MAX - 1.0f);
-	clear_anime_sequence(layer);
-	new_anime_sequence(layer);
+	clear_layer_anime_sequence(eye_layer);
+	new_anime_sequence(eye_layer);
 	add_anime_sequence_property_f("start",	0);
 	add_anime_sequence_property_f("end",	base_time);
 	add_anime_sequence_property_i("from-x",	x);
@@ -872,7 +901,7 @@ bool load_eye_image_if_exists(int chpos, const char *fname)
 	add_anime_sequence_property_i("to-x",	x);
 	add_anime_sequence_property_i("to-y",	y);
 	for (i = 0; i < frame_count; i++) {
-		new_anime_sequence(layer);
+		new_anime_sequence(eye_layer);
 		add_anime_sequence_property_f("start",	base_time + (conf_character_eyeblink_frame * (float)i));
 		add_anime_sequence_property_f("end",	base_time + (conf_character_eyeblink_frame * (float)(i + 1)));
 		add_anime_sequence_property_i("from-x",	x);
@@ -886,7 +915,7 @@ bool load_eye_image_if_exists(int chpos, const char *fname)
 	add_anime_sequence_property_i("loop", 0);
 
 	/* アニメを開始する */
-	start_layer_anime(layer);
+	start_layer_anime(eye_layer);
 
 	return true;
 }
