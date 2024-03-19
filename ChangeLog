@@ -5,12 +5,17 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/17.5 2024/3/19
+  <ul>
+    <li>特定レイヤのアニメ終了がすべてのレイヤのアニメ終了になっていたバグを修正 (Thanks to ソロー-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
 <li>Suika2/17.4 2024/3/19
   <ul>
     <li>目パチ画像のサンプルを修正 (Thanks to ソロー-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
 <li>Suika2/17.3 2024/3/18
   <ul>
     <li>GUIに時間制限を加えるtimed:プロパティをglobalセクションに追加 (Thanks to あさつき-san and 三力滴-san!)</li>
@@ -1741,12 +1746,17 @@ This file is referred by some automatic release scripts.
 [Release History (English)]
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/17.5 2024/3/19
+  <ul>
+    <li>Fixed a bug where the layer-specific anime stop is accidentally implemented as all-layer anime stop (Thanks to SOrow-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
 <li>Suika2/17.4 2024/3/19
   <ul>
     <li>Fixed the eye-blink sample (Thanks to SOrow-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
 <li>Suika2/17.3 2024/3/18
   <ul>
     <li>Added a timed global property of GUI to limit time (Thanks to Asatsuki-san and Miryoku-Shizuk-san!)</li>
