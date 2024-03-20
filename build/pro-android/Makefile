@@ -54,6 +54,7 @@ setup:
 	@cp ../../src/anime.c app/src/main/cpp/
 	@cp ../../src/conf.c app/src/main/cpp/
 	@cp ../../src/conf.h app/src/main/cpp/
+	@cp ../../src/ciel.c app/src/main/cpp/
 	@cp ../../src/event.c app/src/main/cpp/
 	@cp ../../src/event.h app/src/main/cpp/
 	@cp ../../src/file.h app/src/main/cpp/
