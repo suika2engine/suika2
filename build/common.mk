@@ -31,6 +31,7 @@ HDRS_MAIN = \
 SRCS_MAIN = \
 	../../src/anime.c \
 	../../src/conf.c \
+	../../src/ciel.c \
 	../../src/event.c \
 	../../src/file.c \
 	../../src/glyph.c \

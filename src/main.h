@@ -113,6 +113,7 @@ bool anime_command(void);
 bool pencil_command(void);
 bool setconfig_command(void);
 bool layer_command(void);
+bool ciel_command(bool *cont);
 
 /*
  * 複数のイテレーションに渡るコマンドの実行中であるかの設定

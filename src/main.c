@@ -631,6 +631,10 @@ static bool dispatch_command(bool *cont)
 			return false;
 		*cont = true;
 		break;
+	case COMMAND_CIEL:
+		if (!ciel_command(cont))
+			return false;
+		break;
 	case COMMAND_NULL:
 		if (!move_to_next_command())
 			return false;

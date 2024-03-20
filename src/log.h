@@ -107,6 +107,7 @@ void log_anime_parse_footer(const char *file, int line);
 void log_anime_unknown_key(const char *key);
 void log_anime_long_sequence(void);
 void log_invalid_layer_name(const char *name);
+void log_cl_invalid_action(const char *action);
 
 #ifdef USE_EDITOR
 void log_inform_translated_commands(void);

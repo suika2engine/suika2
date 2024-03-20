@@ -110,6 +110,7 @@
 #define LIGHT_LABEL			0x00ff0000
 #define LIGHT_ERROR			0x000000ff
 #define LIGHT_COMMAND_NAME	0x00ff0000
+#define LIGHT_CIEL_COMMAND	0x00cba55d
 #define LIGHT_PARAM_NAME	0x00c0f0c0
 #define LIGHT_NEXT_EXEC		0x00ffc0c0
 #define LIGHT_CURRENT_EXEC	0x00c0c0ff
@@ -120,6 +121,7 @@
 #define DARK_LABEL			0x006200ee
 #define DARK_ERROR			0x000000ff
 #define DARK_COMMAND_NAME	0x0060a0a0
+#define DARK_CIEL_COMMAND	0x00ecd790
 #define DARK_PARAM_NAME		0x00e0acac
 #define DARK_NEXT_EXEC		0x00a0e070
 #define DARK_CURRENT_EXEC	0x00b0b0e0
@@ -229,6 +231,7 @@ static DWORD dwColorComment = LIGHT_COMMENT;
 static DWORD dwColorLabel = LIGHT_LABEL;
 static DWORD dwColorError = LIGHT_ERROR;
 static DWORD dwColorCommandName = LIGHT_COMMAND_NAME;
+static DWORD dwColorCielCommand = LIGHT_CIEL_COMMAND;
 static DWORD dwColorParamName = LIGHT_PARAM_NAME;
 static DWORD dwColorNextExec = LIGHT_NEXT_EXEC;
 static DWORD dwColorCurrentExec = LIGHT_CURRENT_EXEC;
@@ -3383,7 +3386,7 @@ static VOID RichEdit_SetTextColorForLine(const wchar_t *pText, int nLineStartCR,
 		/* コマンド名部分を抽出する */
 		pCommandSpaceStop = wcswcs(pText + nLineStartCRLF, L" ");
 		pCommandCRStop = wcswcs(pText + nLineStartCRLF, L"\r\n");
-		if (pCommandSpaceStop == NULL && pCommandCRStop == NULL)
+		if (pCommandSpaceStop == NULL || pCommandCRStop == NULL)
 			nParamLen = nLineLen; /* EOF */
 		else if (pCommandSpaceStop < pCommandCRStop)
 			nParamLen = (int)(pCommandSpaceStop - (pText + nLineStartCRLF));
@@ -3400,7 +3403,10 @@ static VOID RichEdit_SetTextColorForLine(const wchar_t *pText, int nLineStartCR,
 		{
 			/* コマンド名のテキストに色を付ける */
 			RichEdit_SetSelectedRange(nLineStartCR, nParamLen);
-			RichEdit_SetTextColorForSelectedRange(dwColorCommandName);
+			if (nCommandType != COMMAND_CIEL)
+				RichEdit_SetTextColorForSelectedRange(dwColorCommandName);
+			else
+				RichEdit_SetTextColorForSelectedRange(dwColorCielCommand);
 
 			if (nCommandType != COMMAND_SET &&
 				nCommandType != COMMAND_IF &&
@@ -4100,6 +4106,7 @@ static void ReadProjectFile(void)
 	dwColorLabel = LIGHT_LABEL;
 	dwColorError = LIGHT_ERROR;
 	dwColorCommandName = LIGHT_COMMAND_NAME;
+	dwColorCielCommand = LIGHT_CIEL_COMMAND;
 	dwColorParamName = LIGHT_PARAM_NAME;
 	dwColorNextExec = LIGHT_NEXT_EXEC;
 	dwColorCurrentExec = LIGHT_CURRENT_EXEC;
@@ -4138,6 +4145,7 @@ static void ReadProjectFile(void)
 			dwColorLabel = DARK_LABEL;
 			dwColorError = DARK_ERROR;
 			dwColorCommandName = DARK_COMMAND_NAME;
+			dwColorCielCommand = DARK_CIEL_COMMAND;
 			dwColorParamName = DARK_PARAM_NAME;
 			dwColorNextExec = DARK_NEXT_EXEC;
 			dwColorCurrentExec = DARK_CURRENT_EXEC;

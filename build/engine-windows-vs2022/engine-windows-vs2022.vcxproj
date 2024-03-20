@@ -8,6 +8,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\anime.c" />
+    <ClCompile Include="..\..\src\ciel.c" />
     <ClCompile Include="..\..\src\cmd_anime.c" />
     <ClCompile Include="..\..\src\cmd_bg.c" />
     <ClCompile Include="..\..\src\cmd_bgm.c" />

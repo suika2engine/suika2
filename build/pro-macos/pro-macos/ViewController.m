@@ -1410,13 +1410,16 @@ static ViewController *theViewController;
 
             // コマンド名のテキストに色を付ける
             NSRange commandRange = NSMakeRange(startPos, commandNameLen);
+            int commandType = get_command_type_from_name([[lineText substringToIndex:commandNameLen] UTF8String]);
+            NSColor *commandColor = commandType != COMMAND_CIEL ?
+                                    [NSColor colorWithRed:0 green:0 blue:1.0f alpha:1.0f] :
+                                    [NSColor colorWithRed:0.36 green:0.65 blue:0.80f alpha:1.0f];
             [self.textViewScript.textStorage
                 addAttribute:NSForegroundColorAttributeName
-                       value:[NSColor colorWithRed:0 green:0 blue:1.0f alpha:1.0f]
+                       value:commandColor
                        range:commandRange];
 
             // 引数に色を付ける
-            int commandType = get_command_type_from_name([[lineText substringToIndex:commandNameLen] UTF8String]);
             if (commandType != COMMAND_SET && commandType != COMMAND_IF &&
                 commandType != COMMAND_UNLESS && commandType != COMMAND_PENCIL &&
                 [lineText length] != commandNameLen) {

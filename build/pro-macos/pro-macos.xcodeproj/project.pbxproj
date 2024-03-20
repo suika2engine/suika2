@@ -80,6 +80,7 @@
 		2669F7D82B284675001AEF17 /* GameView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2669F7CF2B284675001AEF17 /* GameView.m */; };
 		2669F7D92B284675001AEF17 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2669F7D02B284675001AEF17 /* main.m */; };
 		2669F7DC2B284675001AEF17 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2669F7D62B284675001AEF17 /* ViewController.m */; };
+		267E34142BAB7D0A007AE3BE /* ciel.c in Sources */ = {isa = PBXBuildFile; fileRef = 267E34132BAB7D0A007AE3BE /* ciel.c */; };
 		269D04722B28891C00934EE2 /* ScriptTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 269D04712B28891C00934EE2 /* ScriptTextView.m */; };
 		26A1BAE32B2AD78800761444 /* ios-src in Resources */ = {isa = PBXBuildFile; fileRef = 26A1BAE22B2AD78700761444 /* ios-src */; };
 		26A1BAE72B2AD79E00761444 /* android-src in Resources */ = {isa = PBXBuildFile; fileRef = 26A1BAE62B2AD79E00761444 /* android-src */; };
@@ -208,6 +209,7 @@
 		2669F7D42B284675001AEF17 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2669F7D52B284675001AEF17 /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		2669F7D62B284675001AEF17 /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		267E34132BAB7D0A007AE3BE /* ciel.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ciel.c; path = ../../src/ciel.c; sourceTree = "<group>"; };
 		269D04702B28891C00934EE2 /* ScriptTextView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ScriptTextView.h; sourceTree = "<group>"; };
 		269D04712B28891C00934EE2 /* ScriptTextView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ScriptTextView.m; sourceTree = "<group>"; };
 		26A1BAE22B2AD78700761444 /* ios-src */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "ios-src"; path = "../../engine-ios/ios-src"; sourceTree = "<group>"; };
@@ -241,6 +243,7 @@
 				26495D092B2A7BF20050EDDF /* apple */,
 				2610CC8D2B287ACC00300004 /* anime.c */,
 				2610CC9E2B287ACC00300004 /* anime.h */,
+				267E34132BAB7D0A007AE3BE /* ciel.c */,
 				2610CCAF2B287ACC00300004 /* cmd_anime.c */,
 				2610CCB82B287ACC00300004 /* cmd_bg.c */,
 				2610CC902B287ACC00300004 /* cmd_bgm.c */,
@@ -441,7 +444,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastUpgradeCheck = 1500;
+				LastUpgradeCheck = 1520;
 				TargetAttributes = {
 					2669F7072B283866001AEF17 = {
 						CreatedOnToolsVersion = 15.0.1;
@@ -519,6 +522,7 @@
 				2610CD012B287ACD00300004 /* save.c in Sources */,
 				2610CD032B287ACD00300004 /* image.c in Sources */,
 				2610CD182B287ACD00300004 /* cmd_cha.c in Sources */,
+				267E34142BAB7D0A007AE3BE /* ciel.c in Sources */,
 				2669F7DC2B284675001AEF17 /* ViewController.m in Sources */,
 				2669F7D82B284675001AEF17 /* GameView.m in Sources */,
 				2610CD1A2B287ACD00300004 /* log.c in Sources */,
@@ -589,6 +593,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -651,6 +656,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";

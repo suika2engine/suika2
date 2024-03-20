@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2603ED012BAB8C0B006539B0 /* ciel.c in Sources */ = {isa = PBXBuildFile; fileRef = 2603ED002BAB8BF9006539B0 /* ciel.c */; };
 		2662CFD92B2A7BC800CB3DBE /* aunit.c in Sources */ = {isa = PBXBuildFile; fileRef = 2662CFD22B2A7BC800CB3DBE /* aunit.c */; };
 		2662CFDA2B2A7BC800CB3DBE /* GameShaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 2662CFD32B2A7BC800CB3DBE /* GameShaders.metal */; };
 		2662CFDB2B2A7BC800CB3DBE /* GameRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 2662CFD52B2A7BC800CB3DBE /* GameRenderer.m */; };
@@ -76,6 +77,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2603ED002BAB8BF9006539B0 /* ciel.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ciel.c; path = ../../src/ciel.c; sourceTree = "<group>"; };
 		2662CFD22B2A7BC800CB3DBE /* aunit.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = aunit.c; path = ../../src/apple/aunit.c; sourceTree = "<group>"; };
 		2662CFD32B2A7BC800CB3DBE /* GameShaders.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; name = GameShaders.metal; path = ../../src/apple/GameShaders.metal; sourceTree = "<group>"; };
 		2662CFD42B2A7BC800CB3DBE /* GameViewControllerProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GameViewControllerProtocol.h; path = ../../src/apple/GameViewControllerProtocol.h; sourceTree = "<group>"; };
@@ -258,6 +260,7 @@
 				268EAEAE2B23C12800CF559E /* hal.h */,
 				26EAF27E2B202CEC003530F4 /* anime.c */,
 				26EAF27F2B202CEC003530F4 /* anime.h */,
+				2603ED002BAB8BF9006539B0 /* ciel.c */,
 				26EAF27A2B202CEC003530F4 /* cmd_anime.c */,
 				26EAF2792B202CEC003530F4 /* cmd_bg.c */,
 				26EAF2922B202CEC003530F4 /* cmd_bgm.c */,
@@ -378,7 +381,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastUpgradeCheck = 1500;
+				LastUpgradeCheck = 1520;
 				TargetAttributes = {
 					26EAF2562B1F9B1F003530F4 = {
 						CreatedOnToolsVersion = 15.0.1;
@@ -474,6 +477,7 @@
 				26EAF29D2B202CEC003530F4 /* cmd_bg.c in Sources */,
 				26EAF2A32B202CEC003530F4 /* cmd_wait.c in Sources */,
 				26EAF2A42B202CEC003530F4 /* cmd_ch.c in Sources */,
+				2603ED012BAB8C0B006539B0 /* ciel.c in Sources */,
 				26EAF3012B202D87003530F4 /* wms_core.c in Sources */,
 				26EAF2B02B202CEC003530F4 /* cmd_set.c in Sources */,
 				26EAF2F62B202D87003530F4 /* wms_impl.c in Sources */,

@@ -395,8 +395,13 @@ bool start_fade_for_ch(int chpos, const char *fname, struct image *img,
 		       int x, int y, int alpha, int method,
 		       struct image *rule_img);
 
-/* chs用のフェードモードを開始する */
+/* all用のフェードモードを開始する */
 bool start_fade_for_chs(const bool *stay, const char **fname,
+			struct image **img, const int *x, const int *y,
+			const int *alpha, int method, struct image *rule_img);
+
+/* Ciel用のフェードモードを開始する(allに加えてfaceがある) */
+bool start_fade_for_ciel(const bool *stay, const char **fname,
 			struct image **img, const int *x, const int *y,
 			const int *alpha, int method, struct image *rule_img);
 

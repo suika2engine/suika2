@@ -650,6 +650,22 @@ struct param_item {
 	{COMMAND_CHSX, CHSX_PARAM_SPAN, "t="},
 	{COMMAND_CHSX, CHSX_PARAM_SPAN, "duration="},
 	{COMMAND_CHSX, CHSX_PARAM_SPAN, U8("秒=")},
+
+	/* Ciel */
+	{COMMAND_CIEL, CIEL_PARAM_NAME, "name="},
+	{COMMAND_CIEL, CIEL_PARAM_FILE, "file="},
+	{COMMAND_CIEL, CIEL_PARAM_ALIGN, "align="},
+	{COMMAND_CIEL, CIEL_PARAM_VALIGN, "valign="},
+	{COMMAND_CIEL, CIEL_PARAM_XEQUAL, "x="},
+	{COMMAND_CIEL, CIEL_PARAM_XPLUS, "x+="},
+	{COMMAND_CIEL, CIEL_PARAM_XMINUS, "x-="},
+	{COMMAND_CIEL, CIEL_PARAM_YEQUAL, "y="},
+	{COMMAND_CIEL, CIEL_PARAM_YPLUS, "y+="},
+	{COMMAND_CIEL, CIEL_PARAM_YMINUS, "y-="},
+	{COMMAND_CIEL, CIEL_PARAM_ALPHA, "a="},
+	{COMMAND_CIEL, CIEL_PARAM_TIME, "t="},
+	{COMMAND_CIEL, CIEL_PARAM_EFFECT, "effect="},
+	{COMMAND_CIEL, CIEL_PARAM_DIM, "dim="},
 };
 
 #define PARAM_TBL_SIZE	(sizeof(param_tbl) / sizeof(struct param_item))
@@ -1645,7 +1661,7 @@ static bool parse_insn(const char *raw, const char *buf, int locale_offset,
 			}
 
 			/* 格納先引数インデックスを求める */
-			if (c->type == COMMAND_CHSX)
+			if (c->type == COMMAND_CHSX || c->type == COMMAND_CIEL)
 				param_index = param_tbl[j].param_index;
 			else
 				param_index = i;
@@ -1755,8 +1771,8 @@ static char *strtok_escape(char *buf, bool *escaped)
 static bool check_param_name_order(int command_type, int param_index,
 				   int param_name_index)
 {
-	/* @chsxコマンドでは引数名の順番は変更可能 */
-	if (command_type == COMMAND_CHSX)
+	/* @chsxコマンドと@cl.*では引数名の順番は変更可能 */
+	if (command_type == COMMAND_CHSX || command_type == COMMAND_CIEL)
 		return true;
 
 	/* その他のコマンドでは引数の順番を変更できない */
@@ -3494,6 +3510,9 @@ bool save_script(void)
 int get_command_type_from_name(const char *name)
 {
 	int i;
+
+	if (strncmp(name, "@cl.", 4) == 0)
+		return COMMAND_CIEL;
 
 	for (i = 0; i < (int)INSN_TBL_SIZE; i++)
 		if (strcmp(name, insn_tbl[i].str) == 0)
