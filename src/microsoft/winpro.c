@@ -633,9 +633,6 @@ static BOOL InitMainWindow(HINSTANCE hInstance, int *pnRenderWidth, int *pnRende
 	/* Center the window if not multi-display environment. */
 	if (nMonitors == 1)
 	{
-		log_info("nVirtualScreenWidth = %d", nVirtualScreenWidth);
-		log_info("nWinWidth = %d", nWinWidth);
-
 		nPosX = (nVirtualScreenWidth - nWinWidth) / 2;
 		nPosY = (nVirtualScreenHeight - nWinHeight) / 2;
 	}
