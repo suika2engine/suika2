@@ -7,6 +7,7 @@ SRC = \
 	../../src/khronos/glrender.c \
 	../../src/anime.c \
 	../../src/conf.c \
+	../../src/ciel.c \
 	../../src/event.c \
 	../../src/glyph.c \
 	../../src/gui.c \

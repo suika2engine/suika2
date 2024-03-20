@@ -26,8 +26,6 @@ SRC="\
 	linux/asound.c \
 	suika.h \
 	pro.h \
-	anime.h \
-	anime.c \
 	cmd_anime.c \
 	cmd_bg.c \
 	cmd_bgm.c \
@@ -56,8 +54,11 @@ SRC="\
 	cmd_vol.c \
 	cmd_wait.c \
 	cmd_wms.c \
+	anime.h \
+	anime.c \
 	conf.h \
 	conf.c \
+	ciel.c \
 	event.h \
 	event.c \
 	file.h \

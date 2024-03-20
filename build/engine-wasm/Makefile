@@ -4,7 +4,6 @@ SRC = \
 	../../src/wasm/emmain.c \
 	../../src/wasm/alsound.c \
 	../../src/khronos/glrender.c \
-	../../src/anime.c \
 	../../src/cmd_anime.c \
 	../../src/cmd_bg.c \
 	../../src/cmd_bgm.c \
@@ -33,6 +32,8 @@ SRC = \
 	../../src/cmd_vol.c \
 	../../src/cmd_wait.c \
 	../../src/cmd_wms.c \
+	../../src/anime.c \
+	../../src/ciel.c \
 	../../src/conf.c \
 	../../src/event.c \
 	../../src/file.c \
