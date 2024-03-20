@@ -30,6 +30,7 @@ set(PROJECT_SOURCES
   anime.c
   conf.h
   conf.c
+  ciel.c
   event.h
   event.c
   file.h

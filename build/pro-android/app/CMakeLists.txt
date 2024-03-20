@@ -20,6 +20,7 @@ add_library(
   # platform-independent
   src/main/cpp/anime.c
   src/main/cpp/conf.c
+  src/main/cpp/ciel.c
   src/main/cpp/event.c
   src/main/cpp/file.c
   src/main/cpp/glyph.c
