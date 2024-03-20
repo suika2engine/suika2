@@ -483,6 +483,11 @@ gui.history.font.outline.color.b=128
 gui.history.quote.start=「
 gui.history.quote.end=」
 
+# [ヒストリーの最後の項目を表示しない調整を行う]
+#  - 0: 調整を行わない
+#  - 1: 調整を行う (最後の項目を表示しない)
+gui.history.ignore.last=0
+
 # [プレビューの縦書き] (省略可)
 #  - 0: 横書き
 #  - 1: 縦書き

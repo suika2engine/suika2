@@ -1208,7 +1208,7 @@ static void process_main_input(void)
 	/* ヒストリ画面への遷移を確認する */
 	if (is_up_pressed &&
 	    !conf_msgbox_history_disable &&
-	    get_history_count() != 0) {
+	    get_history_count() > 0) {
 		play_se(conf_msgbox_history_se);
 		need_history_mode = true;
 		return;

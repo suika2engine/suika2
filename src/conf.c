@@ -341,6 +341,7 @@ int conf_gui_history_oneline;
 char *conf_gui_history_quote_prefix;
 char *conf_gui_history_quote_start;
 char *conf_gui_history_quote_end;
+int conf_gui_history_ignore_last;
 int conf_gui_preview_tategaki;
 
 /*
@@ -814,6 +815,7 @@ static struct rule {
 	{"gui.history.quote.prefix", 's', &conf_gui_history_quote_prefix, OPTIONAL, SAVE},
 	{"gui.history.quote.start", 's', &conf_gui_history_quote_start, OPTIONAL, SAVE},
 	{"gui.history.quote.end", 's', &conf_gui_history_quote_end, OPTIONAL, SAVE},
+	{"gui.history.ignore.last", 'i', &conf_gui_history_ignore_last, OPTIONAL, SAVE},
 	{"gui.preview.tategaki", 'i', &conf_gui_preview_tategaki, OPTIONAL, SAVE},
 	/* 下記は初期音量なのでセーブしない */
 	{"sound.vol.bgm", 'f', &conf_sound_vol_bgm, MUST, NOSAVE},

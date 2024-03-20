@@ -2163,10 +2163,12 @@ static void action_skip(void)
 /* ヒストリ画面への遷移を処理する */
 static void action_history(void)
 {
-	/* ボイスを停止する */
-	set_mixer_input(VOICE_STREAM, NULL);
+	if (get_history_count() > 0) {
+		/* ボイスを停止する */
+		set_mixer_input(VOICE_STREAM, NULL);
 
-	need_history_mode = true;
+		need_history_mode = true;
+	}
 }
 
 /* コンフィグ画面への遷移を処理する */

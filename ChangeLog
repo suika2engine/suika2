@@ -5,12 +5,17 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/17.6 2024/3/19
+  <ul>
+    <li>縦書きとの相性を考えてヒストリーの最後の項目を表示しないコンフィグgui.history.ignore.last=1を追加 (Thanks to あさつき-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
 <li>Suika2/17.5 2024/3/19
   <ul>
     <li>特定レイヤのアニメ終了がすべてのレイヤのアニメ終了になっていたバグを修正 (Thanks to ソロー-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
 <li>Suika2/17.4 2024/3/19
   <ul>
     <li>目パチ画像のサンプルを修正 (Thanks to ソロー-san!)</li>
@@ -1746,12 +1751,17 @@ This file is referred by some automatic release scripts.
 [Release History (English)]
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/17.6 2024/3/19
+  <ul>
+    <li>Added a config gui.history.ignore.last=1 for the Japanese vertical writing system (Thanks to Asatsuki-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
 <li>Suika2/17.5 2024/3/19
   <ul>
     <li>Fixed a bug where the layer-specific anime stop is accidentally implemented as all-layer anime stop (Thanks to SOrow-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
 <li>Suika2/17.4 2024/3/19
   <ul>
     <li>Fixed the eye-blink sample (Thanks to SOrow-san!)</li>

@@ -278,6 +278,9 @@ void clear_history(void)
  */
 int get_history_count(void)
 {
+	if (conf_gui_history_ignore_last)
+		return history_count == 0 ? 0 : history_count - 1;
+
 	return history_count;
 }
 
@@ -290,6 +293,9 @@ const char *get_history_message(int offset)
 
 	assert(offset >= 0);
 	assert(offset < history_count);
+
+	if (conf_gui_history_ignore_last)
+		offset++;
 
 	if (history_index - offset - 1 < 0)
 		index = HISTORY_SIZE + (history_index - offset - 1);

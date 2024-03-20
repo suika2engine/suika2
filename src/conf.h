@@ -357,6 +357,7 @@ extern int conf_gui_history_oneline;
 extern char *conf_gui_history_quote_prefix;
 extern char *conf_gui_history_quote_start;
 extern char *conf_gui_history_quote_end;
+extern int conf_gui_history_ignore_last;
 extern int conf_gui_preview_tategaki;
 
 /*
