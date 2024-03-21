@@ -646,6 +646,7 @@ static void render(void)
 static void render_fade_frame(void)
 {
 	float lap;
+	bool is_finished;
 
 	/* 経過時間を取得する */
 	lap = (float)get_lap_timer_millisec(&sw) / 1000.0f;
@@ -653,6 +654,7 @@ static void render_fade_frame(void)
 		lap = ts.time;
 
 	/* 入力に反応する */
+	is_finished = false;
 	if (is_auto_mode() &&
 	    (is_control_pressed || is_return_pressed ||
 	     is_left_clicked || is_down_pressed)) {
@@ -664,7 +666,7 @@ static void render_fade_frame(void)
 		stop_command_repetition();
 
 		/* フェードを終了する */
-		finish_fade();
+		is_finished = true;
 	} else if (is_skip_mode() &&
 		   (is_control_pressed || is_return_pressed ||
 		    is_left_clicked || is_down_pressed)) {
@@ -676,7 +678,7 @@ static void render_fade_frame(void)
 		stop_command_repetition();
 
 		/* フェードを終了する */
-		finish_fade();
+		is_finished = true;
 	} else if ((lap >= ts.time)
 		   ||
 		   is_skip_mode()
@@ -694,7 +696,7 @@ static void render_fade_frame(void)
 		stop_command_repetition();
 
 		/* フェードを終了する */
-		finish_fade();
+		is_finished = true;
 
 		/* 入力ならスキップモードとオートモードを終了する */
 		if (is_control_pressed || is_return_pressed ||
@@ -714,10 +716,9 @@ static void render_fade_frame(void)
 	}
 
 	/* ステージを描画する */
-	if (is_in_command_repetition())
-		render_fade();
-	else
-		render_stage();
+	render_fade();
+	if (is_finished)
+		finish_fade();
 
 	/* 折りたたみシステムメニューを描画する */
 	if (conf_sysmenu_transition && !is_non_interruptible())
