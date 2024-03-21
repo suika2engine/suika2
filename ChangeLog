@@ -5,12 +5,17 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
-<li>Suika2/17.12 2024/3/21
+<li>Suika2/17.13 2024/3/21
   <ul>
     <li>Cielのバグ修正(メッセージボックスの残り) (Thanks to あさつき-san!)</li>
   </ul>
 </li>
 <!-- END-LATEST-JP -->
+<li>Suika2/17.12 2024/3/21
+  <ul>
+    <li>Cielのバグ修正(メッセージボックスの残り) (Thanks to あさつき-san!)</li>
+  </ul>
+</li>
 <li>Suika2/17.11 2024/3/21
   <ul>
     <li>目パチ画像の追加 (Thanks to SOrow-san!)</li>
@@ -1783,12 +1788,17 @@ This file is referred by some automatic release scripts.
 [Release History (English)]
 
 <!-- BEGIN-LATEST-EN -->
-<li>Suika2/17.12 2024/3/21
+<li>Suika2/17.13 2024/3/21
   <ul>
     <li>Fixed a bug of Ciel (Thanks to Asatsuki-san!)</li>
   </ul>
 </li>
 <!-- END-LATEST-EN -->
+<li>Suika2/17.12 2024/3/21
+  <ul>
+    <li>Fixed a bug of Ciel (Thanks to Asatsuki-san!)</li>
+  </ul>
+</li>
 <li>Suika2/17.11 2024/3/21
   <ul>
     <li>Added two eye-blinking images of Midori (Thanks to SOrow-san!)</li>

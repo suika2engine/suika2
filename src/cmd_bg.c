@@ -113,13 +113,6 @@ static bool init(void)
 		return false;
 	}
 
-	/* メッセージボックスを消す (msgbox.show.on.bg=2, 瞬間消去) */
-	if (conf_msgbox_show_on_bg == 2) {
-		show_namebox(false);
-		show_msgbox(false);
-	}
-	show_click(false);
-
 	/* 発話中のキャラをなしにする */
 	set_ch_talking(-1);
 
