@@ -5,12 +5,17 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/17.10 2024/3/21
+  <ul>
+    <li>Ciel演出システムのバグ修正</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
 <li>Suika2/17.9 2024/3/21
   <ul>
     <li>Ciel演出システムの実装を改善 (Thanks to あさつき-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
 <li>Suika2/17.8 2024/3/21
   <ul>
     <li>Ciel演出システムを実装 (Thanks to あさつき-san!)</li>
@@ -1766,12 +1771,17 @@ This file is referred by some automatic release scripts.
 [Release History (English)]
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/17.10 2024/3/21
+  <ul>
+    <li>Fixed a bug of Ciel</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
 <li>Suika2/17.9 2024/3/21
   <ul>
     <li>Improved the Ciel Direction System (Thanks to Asatsuki-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
 <li>Suika2/17.8 2024/3/21
   <ul>
     <li>Implemented the Ciel Direction System (Thanks to Asatsuki-san!)</li>

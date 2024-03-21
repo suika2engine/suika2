@@ -533,6 +533,18 @@ static bool init_cl_run_fade(void)
 	if (!start_fade_for_chs(stay, fname, ts.img, ts.x, ts.y, ts.a, ts.effect, ts.rule_img))	
 		return false;
 
+	ts.is_modified = false;
+	for (i = 0; i < CL_LAYERS; i++) {
+		if (ts.file[i] != NULL) {
+			free(ts.file[i]);
+			ts.file[i] = NULL;
+		}
+		ts.is_file_changed[i] = false;
+		ts.img[i] = NULL;
+	}
+	ts.rule_img = NULL;
+	ts.use_anime = false;
+
 	return true;
 }
 
@@ -578,6 +590,17 @@ static bool init_cl_run_anime(void)
 	}
 
 	start_command_repetition();
+
+	ts.is_modified = false;
+	for (i = 0; i < CL_LAYERS; i++) {
+		if (ts.file[i] != NULL) {
+			free(ts.file[i]);
+			ts.file[i] = NULL;
+		}
+		ts.is_file_changed[i] = false;
+		ts.img[i] = NULL;
+	}
+	ts.rule_img = NULL;
 
 	return true;
 }
@@ -726,6 +749,7 @@ static void process_anime_finish(void)
 	if (!has_running_anime) {
 		/* 繰り返し動作を終了する */
 		stop_command_repetition();
+		ts.use_anime = false;
 		return;
 	}
 
@@ -758,6 +782,7 @@ static void process_anime_finish(void)
 
 			/* 繰り返し動作を終了する */
 			stop_command_repetition();
+			ts.use_anime = false;
 		}
 	}
 
@@ -773,6 +798,7 @@ static void process_anime_finish(void)
 
 		/* 繰り返し動作を終了する */
 		stop_command_repetition();
+		ts.use_anime = false;
 		return;
 	}
 }
