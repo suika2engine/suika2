@@ -261,6 +261,7 @@ static bool init_cl_file(bool *cont)
 		return false;
 	}
 
+	ts.is_modified = true;
 	ts.is_file_changed[index] = true;
 	if (ts.file[index] != NULL) {
 		free(ts.file[index]);
@@ -276,6 +277,7 @@ static bool init_cl_file(bool *cont)
 		if (ts.img[index] == NULL)
 			return false;
 	}
+	ts.a[index] = 255;
 
 	*cont = true;
 
@@ -527,6 +529,9 @@ static bool init_cl_run_fade(void)
 		}
 	}
 
+	if (ts.effect == FADE_METHOD_INVALID)
+		ts.effect = FADE_METHOD_NORMAL;
+
 	reset_lap_timer(&sw);
 	start_command_repetition();
 
@@ -585,6 +590,9 @@ static bool init_cl_run_anime(void)
 		}
 
 		ts.anime_seq_count[i] = 0;
+		ts.x[i] = prev_x;
+		ts.y[i] = prev_y;
+		ts.a[i] = prev_a;
 
 		start_layer_anime(stage_layer);
 	}
