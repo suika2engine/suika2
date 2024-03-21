@@ -1276,6 +1276,7 @@ static void init_msgbox(void)
 		false,	/* ignore_position */
 		false,	/* ignore_ruby */
 		false,	/* ignore_wait */
+		conf_msgbox_fill,
 		inline_wait_hook,
 		conf_msgbox_tategaki);
 
@@ -1515,6 +1516,7 @@ static void blit_namebox(void)
 		false,			/* ignore_position */
 		false,			/* ignore_ruby */
 		true,			/* ignore_wait */
+		false,			/* fill_bg */
 		NULL,			/* inline_wait_hook */
 		conf_msgbox_tategaki);	/* use_tategaki */
 
@@ -3083,6 +3085,7 @@ static void blit_dimming(void)
 		false,	/* ignore_position */
 		false,	/* ignore_ruby */
 		true,	/* ignore_wait */
+		conf_msgbox_fill,
 		NULL,	/* inline_wait_hook */
 		conf_msgbox_tategaki);
 	draw_msg_common(&context, total_chars);

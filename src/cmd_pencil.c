@@ -83,6 +83,7 @@ bool pencil_command(void)
 		false,	/* ignore_position */
 		false,	/* ignore_ruby */
 		true,	/* ignore_wait */
+		false,	/* fill_bg */
 		NULL,	/* inline_wait_hook */
 		false);	/* use_tategaki */
 	total_chars = count_chars_common(&context);

@@ -297,6 +297,15 @@ msgbox.dim.color.outline.r=40
 msgbox.dim.color.outline.g=40
 msgbox.dim.color.outline.b=40
 
+# [文字の背景塗りつぶし]
+#  - fill=0: 無効(通常)
+#  - fill=1: 有効(塗りつぶし)
+msgbox.fill=0
+msgbox.fill.color.r=255
+msgbox.fill.color.g=255
+msgbox.fill.color.b=255
+msgbox.fill.color.a=255
+
 ###
 ### クリックアニメーションの設定
 ###

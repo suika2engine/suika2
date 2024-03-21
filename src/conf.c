@@ -171,6 +171,11 @@ int conf_msgbox_seen_outline_color_b;
 int conf_msgbox_tategaki;
 int conf_msgbox_nowait;
 char *conf_msgbox_history_control;
+int conf_msgbox_fill;
+int conf_msgbox_fill_color_a;
+int conf_msgbox_fill_color_r;
+int conf_msgbox_fill_color_g;
+int conf_msgbox_fill_color_b;
 
 /*
  * クリックアニメーションの設定
@@ -628,6 +633,11 @@ static struct rule {
 	{"msgbox.tategaki", 'i', &conf_msgbox_tategaki, OPTIONAL, SAVE},
 	{"msgbox.nowait", 'i', &conf_msgbox_nowait, OPTIONAL, SAVE},
 	{"msgbox.history.control", 's', &conf_msgbox_history_control, OPTIONAL, SAVE},
+	{"msgbox.fill", 'i', &conf_msgbox_fill, OPTIONAL, SAVE},
+	{"msgbox.fill.color.a", 'i', &conf_msgbox_fill_color_a, OPTIONAL, SAVE},
+	{"msgbox.fill.color.r", 'i', &conf_msgbox_fill_color_r, OPTIONAL, SAVE},
+	{"msgbox.fill.color.g", 'i', &conf_msgbox_fill_color_g, OPTIONAL, SAVE},
+	{"msgbox.fill.color.b", 'i', &conf_msgbox_fill_color_b, OPTIONAL, SAVE},
 	{"click.x", 'i', &conf_click_x, MUST, SAVE},
 	{"click.y", 'i', &conf_click_y, MUST, SAVE},
 	{"click.move", 'i', &conf_click_move, OPTIONAL, SAVE},

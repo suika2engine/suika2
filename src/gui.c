@@ -2584,6 +2584,7 @@ static int draw_save_text_item(int button_index, int x, int y,
 		true,		/* ignore_position */
 		!conf_gui_ruby,
 		true,		/* ignore_wait */
+		false,		/* fill_bg */
 		NULL,		/* inline_wait_hook */
 		conf_gui_save_tategaki);
 	set_alternative_target_image(&context, b->rt.img);
@@ -2942,6 +2943,7 @@ static void draw_history_text_item(int button_index)
 		true,		/* ignore_position */
 		!conf_gui_ruby,
 		true,		/* ignore_wait */
+		false,		/* fill_bg */
 		NULL,		/* inline_wait_hook */
 		conf_gui_history_tategaki);
 	set_alternative_target_image(&context, b->rt.img);
@@ -3175,6 +3177,7 @@ static void reset_preview_button(int index)
 		false,		/* ignore_position */
 		false,		/* ignore_ruby */
 		true,		/* ignore_wait */
+		false,		/* fill_bg */
 		NULL,		/* inline_wait_hook */
 		conf_gui_preview_tategaki);
 	set_alternative_target_image(&b->rt.msg_context, b->rt.img);
@@ -3397,6 +3400,7 @@ static void draw_name(int index)
 		false,		/* ignore_position */
 		false,		/* ignore_ruby */
 		true,		/* ignore_wait */
+		false,		/* fill_bg */
 		NULL,		/* inline_wait_hook */
 		false);		/* use_tategaki */
 	set_alternative_target_image(&context, b->rt.img);

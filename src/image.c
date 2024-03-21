@@ -36,7 +36,6 @@
  * 前方参照
  */
 
-static void clear_image_color_rect(struct image *img, int x, int y, int w, int h, pixel_t color);
 static bool check_draw_image(struct image *dst_image, int *dst_left, int *dst_top,
 			     struct image *src_image, int *width, int *height,
 			     int *src_left, int *src_top, int alpha);
@@ -198,7 +197,7 @@ void clear_image_color(struct image *img, pixel_t color)
 /*
  * イメージの矩形を色でクリアする
  */
-static void clear_image_color_rect(struct image *img, int x, int y, int w, int h, pixel_t color)
+void clear_image_color_rect(struct image *img, int x, int y, int w, int h, pixel_t color)
 {
 	pixel_t *pixels;
 	int i, j, sx, sy;

@@ -1153,6 +1153,7 @@ static void draw_text(struct image *target, const char *text, int w, int h, bool
 		false,			/* ignore_position */
 		false,			/* ignore_ruby */
 		true,			/* ignore_wait */
+		false,			/* fill_bg */
 		NULL,			/* inline_wait_hook */
 		conf_msgbox_tategaki);	/* use_tategaki */
 	set_alternative_target_image(&context, target);

@@ -114,6 +114,7 @@ struct draw_msg_context {
 	bool ignore_position;
 	bool ignore_ruby;
 	bool ignore_wait;
+	bool fill_bg;
 	void (*inline_wait_hook)(float);
 	bool use_tategaki;
 
@@ -164,6 +165,7 @@ void construct_draw_msg_context(
 	bool ignore_position,
 	bool ignore_ruby,
 	bool ignore_wait,
+	bool fill_bg,
 	void (*inline_wait_hook)(float),
 	bool use_tategaki);
 

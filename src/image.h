@@ -134,6 +134,7 @@ void clear_image_white(struct image *img);
 
 /* イメージを色でクリアする */
 void clear_image_color(struct image *img, pixel_t color);
+void clear_image_color_rect(struct image *img, int x, int y, int w, int h, pixel_t color);
 
 /* イメージを描画する(コピー) */
 void draw_image_copy(struct image *dst_image,

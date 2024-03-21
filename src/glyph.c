@@ -1003,6 +1003,7 @@ void construct_draw_msg_context(
 	bool ignore_position,
 	bool ignore_ruby,
 	bool ignore_wait,
+	bool fill_bg,
 	void (*inline_wait_hook)(float),
 	bool use_tategaki)
 {
@@ -1035,6 +1036,7 @@ void construct_draw_msg_context(
 	context->ignore_position = ignore_position;
 	context->ignore_ruby = ignore_ruby;
 	context->ignore_wait = ignore_wait;
+	context->fill_bg = fill_bg;
 	context->inline_wait_hook = inline_wait_hook;
 	context->use_tategaki = use_tategaki;
 
@@ -1211,6 +1213,19 @@ draw_msg_common(
 		} else {
 			ofs_x = 0;
 			ofs_y = 0;
+		}
+
+		/* 背景を塗り潰す */
+		if (context->fill_bg) {
+			clear_image_color_rect(context->layer_image,
+					       context->pen_x,
+					       context->pen_y,
+					       context->font_size,
+					       context->line_margin,
+					       make_pixel((uint32_t)conf_msgbox_fill_color_a,
+							  (uint32_t)conf_msgbox_fill_color_r,
+							  (uint32_t)conf_msgbox_fill_color_g,
+							  (uint32_t)conf_msgbox_fill_color_b));
 		}
 
 		/* 描画する */
