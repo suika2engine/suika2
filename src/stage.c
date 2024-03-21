@@ -2247,46 +2247,6 @@ bool start_fade_for_chs(const bool *stay, const char **fname,
 }
 
 /*
- * Ciel用のフェードモードを開始する
- */
-bool start_fade_for_ciel(const bool *stay, const char **fname,
-			 struct image **img, const int *x, const int *y,
-			 const int *alpha, int method, struct image *rule_img)
-{
-	int i, layer;
-	const int BG_INDEX = CH_ALL_LAYERS;
-
-	assert(stage_mode == STAGE_MODE_IDLE);
-
-	/* このフェードではSTAGE_MODE_CIEL_FADEを利用する */
-	stage_mode = STAGE_MODE_CIEL_FADE;
-	fade_method = method;
-
-	/* キャラフェードアウトレイヤにステージを描画する */
-	draw_fo_common();
-
-	/* 画像を入れ替える */
-	for (i = 0; i <= BG_INDEX; i++) {
-		layer = i == BG_INDEX ? LAYER_BG : chpos_to_layer(i);
-		if (!stay[i]) {
-			if (!set_layer_file_name(layer, fname[i]))
-				return false;
-			set_layer_image(layer, img[i]);
-		}
-		set_layer_position(layer, x[i], y[i]);
-		set_layer_alpha(layer, alpha[i]);
-	}
-
-	/* キャラフェードインレイヤにステージを描画する */
-	draw_fi_common(conf_msgbox_show_on_ch);
-
-	/* ルールイメージを保持する */
-	fade_rule_img = rule_img;
-
-	return true;
-}
-
-/*
  * shake用のフェードモードを開始する
  */
 void start_fade_for_shake(void)

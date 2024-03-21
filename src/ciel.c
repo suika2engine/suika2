@@ -14,23 +14,22 @@
 
 #include "suika.h"
 
-/* False Assertion */
-#define NOT_IMPLEMENTED	0
+/* False Assertions */
+#define NOT_IMPLEMENTED		0
+#define NEVER_COME_HERE		0
 
 /* Parameter Check */
 #define IS_EMPTY(s)	(strlen((s)) == 0)
 
 /* Layers */
-#define CL_CH(n)	(n)
 #define CL_CH0		CH_BACK
 #define CL_CH1		CH_LEFT
 #define CL_CH2		CH_LEFT_CENTER
 #define CL_CH3		CH_RIGHT
 #define CL_CH4		CH_RIGHT_CENTER
 #define CL_CH5		CH_CENTER
-#define CL_CHF		CH_FACE
-#define CL_CHARACTERS	CH_FACE
-#define CL_BG		(CH_FACE + 1)
+#define CL_CHARACTERS	CH_CENTER
+#define CL_BG		(CL_CHARACTERS + 1)
 #define CL_LAYERS	(CL_BG + 1)
 
 /* Anime Sequece Size */
@@ -129,6 +128,7 @@ static uint64_t sw;
 static bool init(bool *cont);
 static bool init_cl_run_fade(void);
 static bool init_cl_run_anime(void);
+static int cl_layer_to_stage_layer(int cl_layer);
 static void render(void);
 static void render_fade_frame(void);
 static void render_anime_frame(void);
@@ -272,7 +272,7 @@ static bool init_cl_file(bool *cont)
 		return false;
 	}
 	if (strcmp(file, "none") != 0) {
-		ts.img[index] = create_image_from_file(CH_DIR, file);
+		ts.img[index] = create_image_from_file(index != CL_BG ? CH_DIR : BG_DIR, file);
 		if (ts.img[index] == NULL)
 			return false;
 	}
@@ -426,7 +426,7 @@ static bool init_cl_move(bool *cont)
 	if (index == -1)
 		return false;
 	time = get_string_param(CIEL_PARAM_TIME);
-	if (time == 0) {
+	if (IS_EMPTY(time)) {
 		log_error("time= not specified.");
 		log_script_exec_footer();
 		return false;
@@ -438,6 +438,8 @@ static bool init_cl_move(bool *cont)
 	yplus = get_string_param(CIEL_PARAM_YPLUS);
 	yminus = get_string_param(CIEL_PARAM_YMINUS);
 	alpha = get_string_param(CIEL_PARAM_ALPHA);
+	if (IS_EMPTY(alpha))
+		alpha = "255";
 
 	seq = ts.anime_seq_count[index];
 	if (seq >= CL_SEQ_SIZE) {
@@ -450,6 +452,13 @@ static bool init_cl_move(bool *cont)
 		ts.anime_x_orig[index] = ts.x[index];
 		ts.anime_y_orig[index] = ts.y[index];
 		ts.anime_a_orig[index] = ts.a[index];
+		ts.anime_x[index][seq] = ts.x[index];
+		ts.anime_y[index][seq] = ts.y[index];
+		ts.anime_a[index][seq] = ts.a[index];
+	} else {
+		ts.anime_x[index][seq] = ts.anime_x[index][seq - 1];
+		ts.anime_y[index][seq] = ts.anime_y[index][seq - 1];
+		ts.anime_a[index][seq] = ts.anime_a[index][seq - 1];
 	}
 
 	ts.use_anime = true;
@@ -499,6 +508,7 @@ static bool init_cl_run(bool *cont)
 static bool init_cl_run_fade(void)
 {
 	bool stay[CL_LAYERS];
+	const char *fname[CL_LAYERS];
 	int i;
 
 	if (!ts.is_modified) {
@@ -508,16 +518,19 @@ static bool init_cl_run_fade(void)
 	}
 
 	for (i = 0; i < CL_LAYERS; i++) {
-		if (ts.is_file_changed[i])
+		if (ts.is_file_changed[i]) {
 			stay[i] = false;
-		else
+			fname[i] = ts.file[i];	
+		} else {
 			stay[i] = true;
+			fname[i] = NULL;
+		}
 	}
 
 	reset_lap_timer(&sw);
 	start_command_repetition();
 
-	if (!start_fade_for_ciel(stay, (const char **)ts.file, ts.img, ts.x, ts.y, ts.a, ts.effect, ts.rule_img))
+	if (!start_fade_for_chs(stay, fname, ts.img, ts.x, ts.y, ts.a, ts.effect, ts.rule_img))	
 		return false;
 
 	return true;
@@ -527,12 +540,15 @@ static bool init_cl_run_anime(void)
 {
 	float t;
 	int i, j, prev_x, prev_y, prev_a;
+	int stage_layer;
 
 	for (i = 0; i < CL_LAYERS; i++) {
 		if (ts.anime_seq_count[i] == 0)
 			continue;
 
-		clear_layer_anime_sequence(i);
+		stage_layer = cl_layer_to_stage_layer(i);
+
+		clear_layer_anime_sequence(stage_layer);
 
 		t = 0;
 		prev_x = ts.anime_x_orig[i];
@@ -540,9 +556,9 @@ static bool init_cl_run_anime(void)
 		prev_a = ts.anime_a_orig[i];
 
 		for (j = 0; j < ts.anime_seq_count[i]; j++) {
-			new_anime_sequence(i);
+			new_anime_sequence(stage_layer);
 			add_anime_sequence_property_f("start", t);
-			add_anime_sequence_property_f("end", ts.anime_time[i][j]);
+			add_anime_sequence_property_f("end", t + ts.anime_time[i][j]);
 			add_anime_sequence_property_i("from-x", prev_x);
 			add_anime_sequence_property_i("from-y", prev_y);
 			add_anime_sequence_property_i("from-a", prev_a);
@@ -550,17 +566,42 @@ static bool init_cl_run_anime(void)
 			add_anime_sequence_property_i("to-y", ts.anime_y[i][j]);
 			add_anime_sequence_property_i("to-a", ts.anime_a[i][j]);
 
+			t += ts.anime_time[i][j];
 			prev_x = ts.anime_x[i][j];
 			prev_y = ts.anime_y[i][j];
 			prev_a = ts.anime_a[i][j];
 		}
 
-		start_layer_anime(i);
+		ts.anime_seq_count[i] = 0;
+
+		start_layer_anime(stage_layer);
 	}
 
 	start_command_repetition();
 
 	return true;
+}
+
+static int cl_layer_to_stage_layer(int cl_layer)
+{
+	switch (cl_layer) {
+	case CL_CH0:
+		return LAYER_CHB;
+	case CL_CH1:
+		return LAYER_CHL;
+	case CL_CH2:
+		return LAYER_CHLC;
+	case CL_CH3:
+		return LAYER_CHR;
+	case CL_CH4:
+		return LAYER_CHRC;
+	case CL_CH5:
+		return LAYER_CHC;
+	default:
+		assert(NEVER_COME_HERE);
+		break;
+	}
+	return -1;
 }
 
 static void render(void)
@@ -679,9 +720,8 @@ static void process_anime_finish(void)
 	for (i = 0; i < CL_LAYERS; i++) {
 		if (ts.anime_seq_count[i] == 0)
 			continue;
-		if (!is_anime_finished_for_layer(i))
+		if (!is_anime_finished_for_layer(cl_layer_to_stage_layer(i)))
 			has_running_anime = true;
-		return;
 	}
 	if (!has_running_anime) {
 		/* 繰り返し動作を終了する */
