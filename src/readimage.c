@@ -89,6 +89,7 @@ struct image *create_image_from_file(const char *dir, const char *file)
 				break;
 			}
 
+#if !defined(NO_WEBP)
 			/* 自動拡張子付与(.webp)でチェックする */
 			snprintf(fname, sizeof(fname), "%s.webp", file);
 			if (check_file_exist(dir, fname)) {
@@ -106,6 +107,7 @@ struct image *create_image_from_file(const char *dir, const char *file)
 					return NULL;
 				break;
 			}
+#endif
 
 			/* その他の場合はPNGとして開いてみる */
 			img = create_image_from_file_png(dir, file);
