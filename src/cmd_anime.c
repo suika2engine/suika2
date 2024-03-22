@@ -2,7 +2,7 @@
 
 /*
  * Suika2
- * Copyright (C) 2001-2023, Keiichi Tabata. All rights reserved.
+ * Copyright (C) 2001-2024, Keiichi Tabata. All rights reserved.
  */
 
 /*
@@ -41,9 +41,9 @@ struct option_table {
 	{"layer-bg", &opt_layer_tbl[LAYER_BG]},
 	{"layer-bg2", &opt_layer_tbl[LAYER_BG2]},
 	{"layer-effect5", &opt_layer_tbl[LAYER_EFFECT5]},
-	{"layer-effect6", &opt_layer_tbl[LAYER_EFFECT5]},
-	{"layer-effect7", &opt_layer_tbl[LAYER_EFFECT5]},
-	{"layer-effect8", &opt_layer_tbl[LAYER_EFFECT5]},
+	{"layer-effect6", &opt_layer_tbl[LAYER_EFFECT6]},
+	{"layer-effect7", &opt_layer_tbl[LAYER_EFFECT7]},
+	{"layer-effect8", &opt_layer_tbl[LAYER_EFFECT8]},
 	{"layer-chb", &opt_layer_tbl[LAYER_CHB]},
 	{"layer-chb-eye", &opt_layer_tbl[LAYER_CHB_EYE]},
 	{"layer-chl", &opt_layer_tbl[LAYER_CHL]},
