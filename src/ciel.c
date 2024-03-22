@@ -260,6 +260,7 @@ static bool init_cl_file(bool *cont)
 		log_script_exec_footer();
 		return false;
 	}
+	file = expand_variable(file);
 
 	ts.is_modified = true;
 	ts.is_file_changed[index] = true;
@@ -535,18 +536,13 @@ static bool init_cl_run_fade(void)
 	reset_lap_timer(&sw);
 	start_command_repetition();
 
-	/* メッセージボックスを消す (msgbox.show.on.bg=2, 瞬間消去) */
-	if (conf_msgbox_show_on_bg == 2) {
-		show_namebox(false);
-		show_msgbox(false);
-	}
 	show_click(false);
 
 	if (!start_fade_for_chs(stay, fname, ts.img, ts.x, ts.y, ts.a, ts.effect, ts.rule_img))	
 		return false;
 
 	/* メッセージボックスを消す (msgbox.show.on.bg=0, フェードアウト) */
-	if (conf_msgbox_show_on_bg == 0) {
+	if (ts.is_file_changed[CL_BG] && conf_msgbox_show_on_bg == 0) {
 		show_namebox(false);
 		show_msgbox(false);
 	}

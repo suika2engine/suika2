@@ -5,12 +5,17 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/17.16 2024/3/22
+  <ul>
+    <li>YU-RIS風のマクロ引数、変数展開、拡張子省略の対応 (Thanks to あさつき-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
 <li>Suika2/17.15 2024/3/22
   <ul>
     <li>マスターボリュームを追加、GUIボタンにmastervolボタンを追加 (Thanks to ソロー-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
 <li>Suika2/17.14 2024/3/22
   <ul>
     <li>Windows版Proのダークカラースキームを改善 (Thanks to ソロー-san!)</li>
@@ -1798,12 +1803,17 @@ This file is referred by some automatic release scripts.
 [Release History (English)]
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/17.16 2024/3/22
+  <ul>
+    <li>Added a YU-RIS like macro arguments, expansion of variables and arguments, and abbreviated image extensions (Thanks to Asatsuki-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
 <li>Suika2/17.15 2024/3/22
   <ul>
     <li>Added the master volume and a GUI button type mastervol (Thanks to SOrow-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
 <li>Suika2/17.14 2024/3/22
   <ul>
     <li>Improved the dark color scheme of the Windows version of Pro (Thanks to SOrow-san!)</li>

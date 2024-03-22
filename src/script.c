@@ -43,7 +43,8 @@
  *  - 2023-09-14 Added @pencil
  *  - 2023-10-21 Supported dynamic update of script model
  *  - 2024-03-09 Added @all
- *  - 2024-03-18 Added Ciel
+ *  - 2024-03-18 Added the Ciel Direction System
+ *  - 2024-03-22 Added a new gosub syntax (&)
  */
 
 #include "suika.h"
@@ -303,7 +304,7 @@ struct insn_item {
 	{U8("@レイヤ"), COMMAND_LAYER, 2, 5},
 
 	/* マクロ */
-	{"@gosub", COMMAND_GOSUB, 1, 1},
+	{"@gosub", COMMAND_GOSUB, 1, 10},
 	{"@return", COMMAND_RETURN, 0, 0},
 
 	/* コンフィグ変更 */
@@ -733,6 +734,7 @@ static bool parse_insn(const char *raw, const char *buf, int locale_offset, int 
 static bool parse_serif(const char *raw, const char *buf, int locale_offset, int index);
 static bool parse_message(const char *raw, const char *buf, int locale_offset, int index);
 static bool parse_label(const char *raw, const char *buf, int locale_offset, int index);
+static bool parse_call(const char *raw, const char *buf, int locale_offset, int index);
 
 /* The structured mode reparser. */
 static bool reparse_smode(int index, int *end_index);
@@ -1515,6 +1517,13 @@ static bool process_normal_line(const char *raw, const char *buf)
 			ret = false;
 		INC_OUTPUT_LINE();
 		break;
+	case '&':
+		/* マクロ呼出行をパースする */
+		CONSUME_INPUT_LINE();
+		if (!parse_call(raw, buf, top, -1))
+			ret = false;
+		INC_OUTPUT_LINE();
+		break;
 	default:
 		/* メッセージ行をパースする */
 		CONSUME_INPUT_LINE();
@@ -1980,6 +1989,84 @@ static bool parse_label(const char *raw, const char *buf, int locale_offset,
 	if (c->param[0] == NULL) {
 		log_memory();
 		return false;
+	}
+
+	if (index == -1)
+		COMMIT_CMD();
+
+	/* 成功 */
+	return true;
+}
+
+/* 呼出行をパースする */
+static bool parse_call(const char *raw, const char *buf, int locale_offset, int index)
+{
+	struct command *c;
+	char *tp;
+	int i;
+	bool escaped;
+
+	assert(buf[locale_offset] == '&');
+
+	if (index == -1) {
+		c = &cmd[cmd_size];
+	} else {
+		assert(index >= 0 && index < cmd_size);
+		c = &cmd[index];
+		if (cmd[index].text != NULL) {
+			free(cmd[index].text);
+			cmd[index].text = NULL;
+		}
+		if (cmd[index].param[0] != NULL) {
+			free(cmd[index].param[0]);
+			cmd[index].param[0] = NULL;
+			for (i = 1; i < PARAM_SIZE; i++)
+				cmd[index].param[i] = NULL;
+		}
+	}
+
+	/* 行番号とオリジナルの行を保存しておく */
+	c->type = COMMAND_GOSUB;
+	if (index == -1) {
+		c->file = cur_parse_file;
+		c->line = cur_parse_line;
+		c->expanded_line = cur_expanded_line;
+	}
+	c->text = strdup(raw);
+	if (c->text == NULL) {
+		log_memory();
+		return false;
+	}
+
+	/* トークン化する文字列を複製する */
+	c->param[0] = strdup(buf + locale_offset);
+	if (c->param[0] == NULL) {
+		log_memory();
+		return false;
+	}
+
+	/* 最初のトークンを切り出す */
+	strtok_escape(c->param[0], &escaped);
+
+	/* 行き先ラベルを保存する */
+	c->param[1] = &c->param[0][1];
+	
+	/* 2番目以降のトークンを取得する */
+	i = 2;
+	escaped = false;
+	while ((tp = strtok_escape(NULL, &escaped)) != NULL &&
+	       i < PARAM_SIZE) {
+		if (strcmp(tp, "") == 0) {
+			log_script_empty_string();
+			show_parse_error_footer(index, raw);
+			return false;
+		}
+
+		/* 引数を格納する */
+		c->param[i] = tp;
+		i++;
+		if (i == CALL_ARGS + 2)
+			break;
 	}
 
 	if (index == -1)
@@ -2755,6 +2842,11 @@ static bool reparse_normal_line(int index, int spaces)
 	case ':':
 		/* ラベル行をパースする */
 		if (!parse_label(raw_copy, raw_copy + spaces, top, index))
+			ret = false;
+		break;
+	case '&':
+		/* 呼出行をパースする */
+		if (!parse_call(raw_copy, raw_copy + spaces, top, index))
 			ret = false;
 		break;
 	default:

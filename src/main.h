@@ -173,6 +173,15 @@ int get_pen_position_x(void);
 int get_pen_position_y(void);
 
 /*
+ * マクロ引数
+ */
+
+#define CALL_ARGS 9
+
+bool set_call_argument(int index, const char *val);
+const char *get_call_argument(int index);
+
+/*
  * Debugging Support For Suika2 Pro
  */
 #ifdef USE_EDITOR

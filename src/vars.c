@@ -276,7 +276,7 @@ const char *expand_variable_with_increment(const char *msg, int inc)
 	char var[16];
 	char *d;
 	size_t buf_size;
-	int i, index, name_index, value;
+	int i, index, name_index, arg_index, value;
 
 	d = expand_variable_buf;
 	buf_size = sizeof(expand_variable_buf);
@@ -342,6 +342,17 @@ const char *expand_variable_with_increment(const char *msg, int inc)
 				      (size_t)(d - expand_variable_buf),
 				      "%s",
 				      get_name_variable(name_index));
+			msg += 2;
+		} else if (*msg == '&' &&
+			   (*(msg + 1) >= '1' && *(msg + 1) <= '9')) {
+			/* 呼出引数参照の場合 */
+			arg_index = *(msg + 1) - '1';
+			assert(arg_index >= 0 && arg_index < CALL_ARGS);
+			d += snprintf(d,
+				      buf_size -
+				      (size_t)(d - expand_variable_buf),
+				      "%s",
+				      get_call_argument(arg_index));
 			msg += 2;
 		} else {
 			/* 変数参照でない場合 */

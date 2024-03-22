@@ -404,6 +404,15 @@ enum mchoose_command_param {
 /* gosubコマンドのパラメータ */
 enum gosub_command_param {
 	GOSUB_PARAM_LABEL = 1,
+	GOSUB_PARAM_ARG1,
+	GOSUB_PARAM_ARG2,
+	GOSUB_PARAM_ARG3,
+	GOSUB_PARAM_ARG4,
+	GOSUB_PARAM_ARG5,
+	GOSUB_PARAM_ARG6,
+	GOSUB_PARAM_ARG7,
+	GOSUB_PARAM_ARG8,
+	GOSUB_PARAM_ARG9,
 };
 
 /* chaコマンドのパラメータ */

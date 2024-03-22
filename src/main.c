@@ -80,6 +80,9 @@ static bool flag_non_interruptible;
 static int saved_pen_x;
 static int saved_pen_y;
 
+/* 呼出引数 */
+static char *call_arg[CALL_ARGS];
+
 /* 前方参照 */
 static void post_process(void);
 static bool dispatch_command(bool *cont);
@@ -839,6 +842,36 @@ int get_pen_position_x(void)
 int get_pen_position_y(void)
 {
 	return saved_pen_y;
+}
+
+/*
+ * 呼出引数を設定する
+ */
+bool set_call_argument(int index, const char *val)
+{
+	assert(index < CALL_ARGS);
+
+	if (call_arg[index] != NULL)
+		free(call_arg[index]);
+	call_arg[index] = strdup(val);
+	if (call_arg[index] == NULL) {
+		log_memory();
+		return false;
+	}
+	return true;
+}
+
+/*
+ * 呼出引数を取得する
+ */
+const char *get_call_argument(int index)
+{
+	assert(index < CALL_ARGS);
+
+	if (call_arg[index] == NULL)
+		return "";
+
+	return call_arg[index];
 }
 
 /*
