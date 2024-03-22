@@ -7,7 +7,7 @@ This file is referred by some automatic release scripts.
 <!-- BEGIN-LATEST-JP -->
 <li>Suika2/17.15 2024/3/22
   <ul>
-    <li>GUIにmastervolボタンを追加 (Thanks to ソロー-san!)</li>
+    <li>マスターボリュームを追加、GUIボタンにmastervolボタンを追加 (Thanks to ソロー-san!)</li>
   </ul>
 </li>
 <!-- END-LATEST-JP -->
@@ -1800,7 +1800,7 @@ This file is referred by some automatic release scripts.
 <!-- BEGIN-LATEST-EN -->
 <li>Suika2/17.15 2024/3/22
   <ul>
-    <li>Added a GUI button type mastervol (Thanks to SOrow-san!)</li>
+    <li>Added the master volume and a GUI button type mastervol (Thanks to SOrow-san!)</li>
   </ul>
 </li>
 <!-- END-LATEST-EN -->
