@@ -58,6 +58,12 @@ void set_mixer_volume(int n, float vol, float span);
 /* ボリュームを取得する */
 float get_mixer_volume(int n);
 
+/* マスターボリュームを設定する */
+void set_master_volume(float vol);
+
+/* マスターボリュームを取得する */
+float get_master_volume(void);
+
 /* グローバルボリュームを設定する */
 void set_mixer_global_volume(int n, float vol);
 

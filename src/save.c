@@ -28,7 +28,7 @@
 #endif
 
 /* セーブデータの互換性バージョン(12.42で導入) */
-#define SAVE_VER	(0xabcd1563)
+#define SAVE_VER	(0xabcd1715)
 
 #ifdef SUIKA_TARGET_WASM
 #include <emscripten/emscripten.h>
@@ -708,6 +708,10 @@ static bool serialize_volumes(struct wfile *wf)
 	float vol;
 	int n;
 
+	vol = get_master_volume();
+	if (write_wfile(wf, &vol, sizeof(vol)) < sizeof(vol))
+		return false;
+
 	for (n = 0; n < MIXER_STREAMS; n++) {
 		vol = get_mixer_volume(n);
 		if (write_wfile(wf, &vol, sizeof(vol)) < sizeof(vol))
@@ -1247,6 +1251,10 @@ static bool deserialize_volumes(struct rfile *rf)
 {
 	float vol;
 	int n;
+
+	if (read_rfile(rf, &vol, sizeof(vol)) < sizeof(vol))
+		return false;
+	set_master_volume(vol);
 
 	for (n = 0; n < MIXER_STREAMS; n++) {
 		if (read_rfile(rf, &vol, sizeof(vol)) < sizeof(vol))

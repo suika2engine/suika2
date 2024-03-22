@@ -31,6 +31,7 @@ enum {
 	TYPE_GALLERY,
 
 	/* ボリュームを設定するボタン */
+	TYPE_MASTERVOL,
 	TYPE_BGMVOL,
 	TYPE_VOICEVOL,
 	TYPE_SEVOL,
@@ -137,7 +138,7 @@ static struct gui_button {
 	/* TYPE_CHAR */
 	int max;
 
-	/* TYPE_VOLUME以外 */
+	/* TYPE_*VOL以外 */
 	char *clickse;
 
 	/* すべて */
@@ -859,6 +860,7 @@ static int get_type_for_name(const char *name)
 	} type_array[] = {
 		{"goto", TYPE_GOTO},
 		{"gallery", TYPE_GALLERY},
+		{"mastervol", TYPE_MASTERVOL},
 		{"bgmvol", TYPE_BGMVOL},
 		{"voicevol", TYPE_VOICEVOL},
 		{"sevol", TYPE_SEVOL},
@@ -915,21 +917,20 @@ static void update_runtime_props(bool is_first_time)
 
 	for (i = 0; i < BUTTON_COUNT; i++) {
 		switch (button[i].type) {
+		case TYPE_MASTERVOL:
+			button[i].rt.slider = get_master_volume();
+			break;
 		case TYPE_BGMVOL:
-			button[i].rt.slider =
-				get_mixer_global_volume(BGM_STREAM);
+			button[i].rt.slider = get_mixer_global_volume(BGM_STREAM);
 			break;
 		case TYPE_VOICEVOL:
-			button[i].rt.slider =
-				get_mixer_global_volume(VOICE_STREAM);
+			button[i].rt.slider = get_mixer_global_volume(VOICE_STREAM);
 			break;
 		case TYPE_SEVOL:
-			button[i].rt.slider =
-				get_mixer_global_volume(SE_STREAM);
+			button[i].rt.slider = get_mixer_global_volume(SE_STREAM);
 			break;
 		case TYPE_CHARACTERVOL:
-			button[i].rt.slider =
-				get_character_volume(button[i].index);
+			button[i].rt.slider = get_character_volume(button[i].index);
 			break;
 		case TYPE_TEXTSPEED:
 			button[i].rt.slider = transient_text_speed;
@@ -1671,6 +1672,8 @@ static void process_button_drag(int index)
 		dragging_index = index;
 		b->rt.is_dragging = true;
 		b->rt.slider = calc_slider_value(index);
+		if (b->type == TYPE_MASTERVOL)
+			set_master_volume(b->rt.slider);
 		if (b->type == TYPE_BGMVOL)
 			set_mixer_global_volume(BGM_STREAM, b->rt.slider);
 		return;
@@ -1683,6 +1686,9 @@ static void process_button_drag(int index)
 	/* スライダの量を設定に反映する */
 	b->rt.slider = calc_slider_value(index);
 	switch (b->type) {
+	case TYPE_MASTERVOL:
+		set_master_volume(b->rt.slider);
+		break;
 	case TYPE_BGMVOL:
 		set_mixer_global_volume(BGM_STREAM, b->rt.slider);
 		break;
@@ -1717,6 +1723,8 @@ static void process_button_drag(int index)
 
 		/* 調節完了後のアクションを実行する */
 		switch (b->type) {
+		case TYPE_MASTERVOL:
+			break;
 		case TYPE_BGMVOL:
 			break;
 		case TYPE_VOICEVOL:

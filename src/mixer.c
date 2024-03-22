@@ -37,6 +37,9 @@ static uint64_t sw[MIXER_STREAMS];
 /* ローカルセーブデータに書き込まれるべきボリュームの値 */
 static float vol_local[MIXER_STREAMS];
 
+/* マスターボリューム */
+static float vol_master;
+
 /* グローバルボリューム */
 static float vol_global[MIXER_STREAMS];
 
@@ -59,13 +62,14 @@ void init_mixer(void)
 {
 	int n;
 
+	vol_master = 1.0f;
 	for (n = 0; n < MIXER_STREAMS; n++) {
 		vol_cur[n] = 1.0f;
 		vol_local[n] = 1.0f;
 
 		/* vol_global[n] はセーブデータからロード済み */
 
-		set_sound_volume(n, vol_global[n]);
+		set_sound_volume(n, vol_global[n] * vol_master);
 
 		/* Androidでは再利用されるので初期化する */
 		is_fading[n] = false;
@@ -196,7 +200,7 @@ void set_mixer_volume(int n, float vol, float span)
 		is_fading[n] = false;
 		vol_cur[n] = vol;
 		vol_local[n] = vol;
-		set_sound_volume(n, vol_global[n] * vol);
+		set_sound_volume(n, vol_global[n] * vol * vol_master);
 	}
 
 	/* TODO: completely separate SE/SYS */
@@ -216,6 +220,24 @@ float get_mixer_volume(int n)
 }
 
 /*
+ * マスターボリュームを設定する
+ */
+void set_master_volume(float vol)
+{
+	assert(vol >= 0 && vol <= 1.0f);
+
+	vol_master = vol;
+}
+
+/*
+ * マスターボリュームを取得する
+ */
+float get_master_volume(void)
+{
+	return vol_master;
+}
+
+/*
  * グローバルボリュームを設定する
  */
 void set_mixer_global_volume(int n, float vol)
@@ -225,7 +247,7 @@ void set_mixer_global_volume(int n, float vol)
 
 	vol_global[n] = vol;
 
-	set_sound_volume(n, vol_global[n] * vol_cur[n]);
+	set_sound_volume(n, vol_global[n] * vol_cur[n] * vol_master);
 
 	/* TODO: completely separate SE/SYS */
 	if (n == SE_STREAM)
@@ -275,7 +297,7 @@ void apply_character_volume(int index)
 	ch_vol_index = index;
 
 	vol = vol_global[VOICE_STREAM] * vol_local[VOICE_STREAM] *
-	      vol_character[ch_vol_index];
+	      vol_character[ch_vol_index] * vol_master;
 
 	set_sound_volume(VOICE_STREAM, vol);
 }
@@ -321,6 +343,6 @@ void process_sound_fading(void)
 
 		/* ボリュームを設定する */
 		vol_cur[n] = vol;
-		set_sound_volume(n, vol_global[n] * vol_cur[n]);
+		set_sound_volume(n, vol_global[n] * vol_cur[n] * vol_master);
 	}
 }

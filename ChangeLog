@@ -5,12 +5,17 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/17.15 2024/3/22
+  <ul>
+    <li>GUIにmastervolボタンを追加 (Thanks to ソロー-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
 <li>Suika2/17.14 2024/3/22
   <ul>
     <li>Windows版Proのダークカラースキームを改善 (Thanks to ソロー-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
 <li>Suika2/17.13 2024/3/21
   <ul>
     <li>Cielのバグ修正(メッセージボックスの残り) (Thanks to あさつき-san!)</li>
@@ -1793,12 +1798,17 @@ This file is referred by some automatic release scripts.
 [Release History (English)]
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/17.15 2024/3/22
+  <ul>
+    <li>Added a GUI button type mastervol (Thanks to SOrow-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
 <li>Suika2/17.14 2024/3/22
   <ul>
     <li>Improved the dark color scheme of the Windows version of Pro (Thanks to SOrow-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
 <li>Suika2/17.13 2024/3/21
   <ul>
     <li>Fixed a bug of Ciel (Thanks to Asatsuki-san!)</li>
