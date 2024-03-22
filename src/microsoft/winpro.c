@@ -4903,9 +4903,6 @@ VOID OnExportIOS(void)
 		return;
 	}
 
-	/* movをコピーする */
-	CopyMovFiles(L".\\mov", L".\\ios-export\\engine-ios\\mov");
-
 	/* パッケージを移動する */
 	if (!MovePackageFile(L".\\data01.arc", L".\\ios-export\\engine-ios\\data01.arc"))
 	{

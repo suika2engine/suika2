@@ -5,12 +5,17 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/17.18 2024/3/22
+  <ul>
+    <li>macOSでのiOSエクスポートのバグ修正 (Thanks to 赤月-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
 <li>Suika2/17.17 2024/3/22
   <ul>
     <li>YU-RIS風のマクロ引数、変数展開、拡張子省略の対応 (Thanks to あさつき-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
 <li>Suika2/17.16 2024/3/22
   <ul>
     <li>YU-RIS風のマクロ引数、変数展開、拡張子省略の対応 (Thanks to あさつき-san!)</li>
@@ -1808,12 +1813,17 @@ This file is referred by some automatic release scripts.
 [Release History (English)]
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/17.18 2024/3/22
+  <ul>
+    <li>Fixed a bug of iOS export on macOS (Thanks to Akatsuki-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
 <li>Suika2/17.17 2024/3/22
   <ul>
     <li>Added a YU-RIS like macro arguments, expansion of variables and arguments, and abbreviated image extensions (Thanks to Asatsuki-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
 <li>Suika2/17.16 2024/3/22
   <ul>
     <li>Added a YU-RIS like macro arguments, expansion of variables and arguments, and abbreviated image extensions (Thanks to Asatsuki-san!)</li>

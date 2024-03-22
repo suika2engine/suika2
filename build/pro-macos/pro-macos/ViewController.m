@@ -1185,7 +1185,7 @@ static ViewController *theViewController;
         return;
     }
 
-    NSArray *appArray = @[@"libroot", @"engine-ios", @"engine-ios.xcodeproj"];
+    NSArray *appArray = @[@"libroot-device", @"libroot-sim", @"engine-ios", @"engine-ios.xcodeproj"];
     for (NSString *sub in appArray) {
         if (![fileManager copyItemAtPath:[NSString stringWithFormat:@"%@/Contents/Resources/ios-src/%@", [[NSBundle  mainBundle] bundlePath], sub]
                                   toPath:[NSString stringWithFormat:@"%@/export-ios/%@", [fileManager currentDirectoryPath], sub]
@@ -1203,7 +1203,7 @@ static ViewController *theViewController;
     }
 
     log_info(_isEnglish ? "Successflully exported" : "エクスポートに成功しました。");
-    
+
     [[NSWorkspace sharedWorkspace] openURL:[NSURL fileURLWithPath:[[fileManager currentDirectoryPath] stringByAppendingString:@"/export-ios"]]];
 }
 

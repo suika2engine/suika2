@@ -2,7 +2,7 @@
 
 /*
  * Suika2
- * Copyright (C) 2001-2023, Keiichi Tabata. All rights reserved.
+ * Copyright (C) 2001-2024, Keiichi Tabata. All rights reserved.
  */
 
 /*
@@ -15,6 +15,7 @@
  *  - 2021/06/15 setsaveに対応
  *  - 2022/05/11 動画再生に対応
  *  - 2022/06/06 デバッガに対応
+ *  - 2024/03/22 コール引数に対応
  */
 
 #ifndef SUIKA_MAIN_H
@@ -173,10 +174,8 @@ int get_pen_position_x(void);
 int get_pen_position_y(void);
 
 /*
- * マクロ引数
+ * マクロ/WMS/アニメ引数
  */
-
-#define CALL_ARGS 9
 
 bool set_call_argument(int index, const char *val);
 const char *get_call_argument(int index);

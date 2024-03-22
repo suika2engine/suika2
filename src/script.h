@@ -43,7 +43,7 @@
  *  - 2023-09-14 Added @pencil
  *  - 2023-10-21 Supported dynamic update of script model
  *  - 2024-03-09 Added @all
- *  - 2024-03-28 Added @cl.*
+ *  - 2024-03-12 Added @cl.*
  */
 
 #ifndef SUIKA_SCRIPT_H
@@ -114,6 +114,9 @@ enum command_type {
 	/* Invalid Value. */
 	COMMAND_MAX,
 };
+
+/* gosub/anime/wmsのコール引数の数 */
+#define CALL_ARGS 9
 
 /* labelコマンドのパラメータ */
 enum label_command_param {
@@ -474,12 +477,30 @@ enum gui_command_param {
 /* wmsコマンドのパラメータ */
 enum wms_command_param {
 	WMS_PARAM_FILE = 1,
+	WMS_PARAM_ARG1,
+	WMS_PARAM_ARG2,
+	WMS_PARAM_ARG3,
+	WMS_PARAM_ARG4,
+	WMS_PARAM_ARG5,
+	WMS_PARAM_ARG6,
+	WMS_PARAM_ARG7,
+	WMS_PARAM_ARG8,
+	WMS_PARAM_ARG9,
 };
 
 /* animeコマンドのパラメータ */
 enum anime_command_param {
 	ANIME_PARAM_FILE = 1,
 	ANIME_PARAM_SPEC,
+	ANIME_PARAM_ARG1,
+	ANIME_PARAM_ARG2,
+	ANIME_PARAM_ARG3,
+	ANIME_PARAM_ARG4,
+	ANIME_PARAM_ARG5,
+	ANIME_PARAM_ARG6,
+	ANIME_PARAM_ARG7,
+	ANIME_PARAM_ARG8,
+	ANIME_PARAM_ARG9,
 };
 
 /* unlessコマンドのパラメータ */
@@ -560,7 +581,7 @@ enum layer_command_param {
 
 /* cielコマンドのパラメータ */
 enum ciel_command_param {
-	CIEL_PARAM_ACTION,	/* start from 0 */
+	CIEL_PARAM_ACTION,	/* start from 0, e.g., "@cl.file" is stored at index 0 */
 	CIEL_PARAM_NAME,
 	CIEL_PARAM_FILE,
 	CIEL_PARAM_ALIGN,
