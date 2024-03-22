@@ -8,6 +8,8 @@
 #include "suika.h"
 #include "wms.h"
 
+#include <time.h>
+
 /*
  * Stage save area
  *  - FIXME: memory leaks when the app successfully exits.
@@ -26,6 +28,13 @@ static int saved_layer_alpha[LAYER_EFFECT4 + 1];
 static bool s2_get_variable(struct wms_runtime *rt);
 static bool s2_set_variable(struct wms_runtime *rt);
 static bool s2_get_name_variable(struct wms_runtime *rt);
+static bool s2_get_year(struct wms_runtime *rt);
+static bool s2_get_month(struct wms_runtime *rt);
+static bool s2_get_day(struct wms_runtime *rt);
+static bool s2_get_hour(struct wms_runtime *rt);
+static bool s2_get_minute(struct wms_runtime *rt);
+static bool s2_get_second(struct wms_runtime *rt);
+static bool s2_get_wday(struct wms_runtime *rt);
 static bool s2_set_name_variable(struct wms_runtime *rt);
 static bool s2_random(struct wms_runtime *rt);
 static bool s2_round(struct wms_runtime *rt);
@@ -57,6 +66,13 @@ struct wms_ffi_func_tbl ffi_func_tbl[] = {
 	{s2_get_variable, "s2_get_variable", {"index", NULL}},
 	{s2_set_variable, "s2_set_variable", {"index", "value", NULL}},
 	{s2_get_name_variable, "s2_get_name_variable", {"index", NULL}},
+	{s2_get_year,"s2_get_year",{NULL}},
+	{s2_get_month,"s2_get_month",{NULL}},
+	{s2_get_day,"s2_get_day",{NULL}},
+	{s2_get_hour,"s2_get_hour",{NULL}},
+	{s2_get_minute,"s2_get_minute",{NULL}},
+	{s2_get_second,"s2_get_second",{NULL}},
+	{s2_get_wday,"s2_get_wday",{NULL}},
 	{s2_set_name_variable, "s2_set_name_variable", {"index", "value", NULL}},
 	{s2_random, "s2_random", {NULL}},
 	{s2_round,"s2_round", {"value",NULL}},
@@ -200,6 +216,161 @@ static bool s2_set_name_variable(struct wms_runtime *rt)
 
 	return true;
 }
+
+static bool s2_get_year(struct wms_runtime *rt)
+{
+	int now_year;
+	time_t now_unixtime;
+	struct tm *local;
+
+	assert(rt != NULL);
+
+	now_unixtime = time(NULL);
+
+	local = localtime(&now_unixtime);
+
+	now_year = local -> tm_year + 1900;
+
+	/* Set the return value. */
+	if(!wms_make_int_var(rt, "__return" , now_year, NULL))
+		return false;
+	
+	return true;
+}
+
+/* Returns now month*/
+static bool s2_get_month(struct wms_runtime *rt)
+{
+	int now_month;
+	time_t now_unixtime;
+	struct tm *local;
+
+	assert(rt != NULL);
+
+	now_unixtime = time(NULL);
+
+	local = localtime(&now_unixtime);
+
+	now_month = local -> tm_mon + 1;
+
+	/* Set the return value. */
+	if(!wms_make_int_var(rt, "__return" , now_month, NULL))
+		return false;
+	
+	return true;
+}
+
+/* Returns now day*/
+static bool s2_get_day(struct wms_runtime *rt)
+{
+	int now_day;
+	time_t now_unixtime;
+	struct tm *local;
+
+	assert(rt != NULL);
+
+	now_unixtime = time(NULL);
+
+	local = localtime(&now_unixtime);
+
+	now_day = local -> tm_mday;
+
+	/* Set the return value. */
+	if(!wms_make_int_var(rt, "__return" , now_day, NULL))
+		return false;
+	
+	return true;
+}
+
+/* Returns now hour*/
+static bool s2_get_hour(struct wms_runtime *rt)
+{
+	int now_hour;
+	time_t now_unixtime;
+	struct tm *local;
+
+	assert(rt != NULL);
+
+	now_unixtime = time(NULL);
+
+	local = localtime(&now_unixtime);
+
+	now_hour = local -> tm_hour;
+
+	/* Set the return value. */
+	if(!wms_make_int_var(rt, "__return" , now_hour, NULL))
+		return false;
+	
+	return true;
+}
+
+/* Returns now minute*/
+static bool s2_get_minute(struct wms_runtime *rt)
+{
+	int now_minute;
+	time_t now_unixtime;
+	struct tm *local;
+
+	assert(rt != NULL);
+
+	now_unixtime = time(NULL);
+
+	local = localtime(&now_unixtime);
+
+	now_minute = local -> tm_min;
+
+	/* Set the return value. */
+	if(!wms_make_int_var(rt, "__return" , now_minute, NULL))
+		return false;
+	
+	return true;
+}
+
+/* Returns now second*/
+static bool s2_get_second(struct wms_runtime *rt)
+{
+	int now_second;
+	time_t now_unixtime;
+	struct tm *local;
+
+	assert(rt != NULL);
+
+	now_unixtime = time(NULL);
+
+	local = localtime(&now_unixtime);
+
+	now_second = local -> tm_sec;
+
+	/* Set the return value. */
+	if(!wms_make_int_var(rt, "__return" , now_second, NULL))
+		return false;
+	
+	return true;
+}
+
+/* Returns day of week*/
+/* Sunday= 0*/
+static bool s2_get_wday(struct wms_runtime *rt)
+{
+	int now_wday;
+	time_t now_unixtime;
+	struct tm *local;
+
+	assert(rt != NULL);
+
+	now_unixtime = time(NULL);
+
+	local = localtime(&now_unixtime);
+
+	now_wday = local -> tm_wday;
+
+	/* Set the return value. */
+	if(!wms_make_int_var(rt, "__return" , now_wday, NULL))
+		return false;
+	
+	return true;
+}
+
 
 /* Returns a random number that ranges from 0 to 99999. */
 static bool s2_random(struct wms_runtime *rt)
