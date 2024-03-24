@@ -67,6 +67,7 @@ build/engine-macos/build
 build/engine-wasm/html
 build/engine-wasm/emsdk
 build/engine-wasm/data01.arc
+build/engine-wasm/libwebp-1.3.2
 
 # iOS
 build/engine-ios/libroot

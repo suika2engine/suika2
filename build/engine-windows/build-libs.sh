@@ -95,6 +95,6 @@ make install | tee
 cd ..
 
 cd ..
-rm -rf tmp
+#rm -rf tmp
 
 echo 'Finished.'

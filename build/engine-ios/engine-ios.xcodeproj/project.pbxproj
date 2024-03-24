@@ -74,6 +74,7 @@
 		26BF135C2B29E2EB006A0F6E /* cmd_set.c in Sources */ = {isa = PBXBuildFile; fileRef = 26BF131E2B29E2EB006A0F6E /* cmd_set.c */; };
 		26BF135D2B29E2EB006A0F6E /* wms_lexer.yy.c in Sources */ = {isa = PBXBuildFile; fileRef = 26BF131F2B29E2EB006A0F6E /* wms_lexer.yy.c */; };
 		26BF135E2B29E2EB006A0F6E /* cmd_message.c in Sources */ = {isa = PBXBuildFile; fileRef = 26BF13202B29E2EB006A0F6E /* cmd_message.c */; };
+		26C2315A2BB06321003DC0D6 /* ciel.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C231592BB0630F003DC0D6 /* ciel.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -180,6 +181,7 @@
 		26BF13212B29E2EB006A0F6E /* mixer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mixer.h; path = ../../src/mixer.h; sourceTree = "<group>"; };
 		26BF13222B29E2EB006A0F6E /* stage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stage.h; path = ../../src/stage.h; sourceTree = "<group>"; };
 		26BF13232B29E2EB006A0F6E /* wms_core.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wms_core.h; path = ../../src/wms_core.h; sourceTree = "<group>"; };
+		26C231592BB0630F003DC0D6 /* ciel.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ciel.c; path = ../../src/ciel.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -249,8 +251,6 @@
 			isa = PBXGroup;
 			children = (
 				260EDAE12B2A7C21006C214F /* apple */,
-				26BF13122B29E2EB006A0F6E /* anime.c */,
-				26BF12EB2B29E2EA006A0F6E /* anime.h */,
 				26BF12FE2B29E2EA006A0F6E /* cmd_anime.c */,
 				26BF12FB2B29E2EA006A0F6E /* cmd_bg.c */,
 				26BF12CD2B29E2EA006A0F6E /* cmd_bgm.c */,
@@ -279,6 +279,9 @@
 				26BF13162B29E2EB006A0F6E /* cmd_vol.c */,
 				26BF12E32B29E2EA006A0F6E /* cmd_wait.c */,
 				26BF12EE2B29E2EA006A0F6E /* cmd_wms.c */,
+				26BF13122B29E2EB006A0F6E /* anime.c */,
+				26BF12EB2B29E2EA006A0F6E /* anime.h */,
+				26C231592BB0630F003DC0D6 /* ciel.c */,
 				26BF13132B29E2EB006A0F6E /* conf.c */,
 				26BF13182B29E2EB006A0F6E /* conf.h */,
 				26BF13012B29E2EA006A0F6E /* event.c */,
@@ -457,6 +460,7 @@
 				26BF13592B29E2EB006A0F6E /* cmd_setconfig.c in Sources */,
 				26A5000A2B29E4BA00C1ED7D /* SceneDelegate.m in Sources */,
 				26BF132C2B29E2EB006A0F6E /* readimage.c in Sources */,
+				26C2315A2BB06321003DC0D6 /* ciel.c in Sources */,
 				26BF13492B29E2EB006A0F6E /* cmd_return.c in Sources */,
 				26BF13262B29E2EB006A0F6E /* cmd_shake.c in Sources */,
 				26BF134A2B29E2EB006A0F6E /* cmd_chapter.c in Sources */,

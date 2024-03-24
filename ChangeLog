@@ -5,12 +5,17 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/17.21 2024/3/24
+  <ul>
+    <li>iOSエクスポートのXcodeでのビルドエラーを修正 (Thanks to 赤月-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
 <li>Suika2/17.20 2024/3/22
   <ul>
     <li>Web版でのWebP画像対応を追加 (Thanks to Ayumi-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
 <li>Suika2/17.19 2024/3/22
   <ul>
     <li>anime resetコマンドのバグ修正 (Thanks to 赤月-san!)</li>
@@ -1823,12 +1828,17 @@ This file is referred by some automatic release scripts.
 [Release History (English)]
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/17.21 2024/3/24
+  <ul>
+    <li>Fixed a build error of iOS export (Thanks to Akatsuki-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
 <li>Suika2/17.20 2024/3/22
   <ul>
     <li>Added a support for WebP image format on Web exports (Thanks to Ayumi-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
 <li>Suika2/17.19 2024/3/22
   <ul>
     <li>Fixed a bug of anime reset command (Thanks to Akatsuki-san!)</li>
