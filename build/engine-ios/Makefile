@@ -46,6 +46,7 @@ src:
 	@cp ../../src/apple/aunit.h ios-src/engine-ios/apple/
 	@cp ../../src/anime.c ios-src/engine-ios/
 	@cp ../../src/anime.h ios-src/engine-ios/
+	@cp ../../src/ciel.c ios-src/engine-ios/
 	@cp ../../src/conf.c ios-src/engine-ios/
 	@cp ../../src/conf.h ios-src/engine-ios/
 	@cp ../../src/event.c ios-src/engine-ios/
