@@ -229,6 +229,25 @@ void clear_image_color_rect(struct image *img, int x, int y, int w, int h, pixel
 }
 
 /*
+ * イメージのアルファチャンネルを255でクリアする
+ */
+void fill_image_alpha(struct image *img)
+{
+	pixel_t *p;
+	int y, x;
+
+	assert(img != NULL);
+
+	p = img->pixels;
+	for (y = 0; y < img->height; y++) {
+		for (x = 0; x < img->width; x++) {
+			*p = (*p) | 0xff000000;
+			p++;
+		}
+	}
+}
+
+/*
  * 描画
  */
 

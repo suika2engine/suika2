@@ -136,6 +136,9 @@ void clear_image_white(struct image *img);
 void clear_image_color(struct image *img, pixel_t color);
 void clear_image_color_rect(struct image *img, int x, int y, int w, int h, pixel_t color);
 
+/* イメージのアルファチャンネルを255でクリアする */
+void fill_image_alpha(struct image *img);
+
 /* イメージを描画する(コピー) */
 void draw_image_copy(struct image *dst_image,
 		     int dst_left,

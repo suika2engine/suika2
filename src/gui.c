@@ -510,6 +510,10 @@ bool prepare_gui_mode(const char *file, bool sys)
 		return false;
 	}
 
+	/* GUIv1の場合にidleイメージのアルファ値を255にする */
+	if (!is_v2)
+		fill_image_alpha(idle_image);
+
 	/* TYPE_PREVIEWのボタンの初期化を行う */
 	if (!init_preview_buttons()) {
 		cleanup_gui();
