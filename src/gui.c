@@ -1752,7 +1752,7 @@ static void process_button_drag(int index)
 			break;
 		case TYPE_AUTOSPEED:
 			/* テキストを再表示する */
-			set_auto_speed(b->rt.slider);
+			set_auto_speed(1.0f - b->rt.slider);
 			reset_preview_buttons();
 			break;
 		case TYPE_HISTORYSCROLL:
