@@ -1344,66 +1344,6 @@ uint64_t get_lap_timer_millisec(uint64_t *origin)
 }
 
 /*
- * 終了ダイアログを表示する
- */
-bool exit_dialog(void)
-{
-	if (MessageBox(hWndMain,
-				   conv_utf8_to_utf16(get_ui_message(UIMSG_EXIT)),
-				   wszTitle, MB_OKCANCEL) == IDOK)
-		return true;
-	return false;
-}
-
-/*
- * タイトルに戻るダイアログを表示する
- */
-bool title_dialog(void)
-{
-	if (MessageBox(hWndMain,
-				   conv_utf8_to_utf16(get_ui_message(UIMSG_TITLE)),
-				   wszTitle, MB_OKCANCEL) == IDOK)
-		return true;
-	return false;
-}
-
-/*
- * 削除ダイアログを表示する
- */
-bool delete_dialog(void)
-{
-	if (MessageBox(hWndMain,
-				   conv_utf8_to_utf16(get_ui_message(UIMSG_DELETE)),
-				   wszTitle, MB_OKCANCEL) == IDOK)
-		return true;
-	return false;
-}
-
-/*
- * 上書きダイアログを表示する
- */
-bool overwrite_dialog(void)
-{
-	if (MessageBox(hWndMain,
-				   conv_utf8_to_utf16(get_ui_message(UIMSG_OVERWRITE)),
-				   wszTitle, MB_OKCANCEL) == IDOK)
-		return true;
-	return false;
-}
-
-/*
- * 初期設定ダイアログを表示する
- */
-bool default_dialog(void)
-{
-	if (MessageBox(hWndMain,
-				   conv_utf8_to_utf16(get_ui_message(UIMSG_DEFAULT)),
-				   wszTitle, MB_OKCANCEL) == IDOK)
-		return true;
-	return false;
-}
-
-/*
  * ビデオを再生する
  */
 bool play_video(const char *fname, bool is_skippable)

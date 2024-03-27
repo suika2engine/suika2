@@ -1861,14 +1861,12 @@ static void process_button_click(int index)
 		reset_preview_buttons();
 		break;
 	case TYPE_DEFAULT:
-		if (default_dialog()) {
-			play_sys_se(b->clickse);
-			set_text_speed(0.5f);
-			set_auto_speed(0.5f);
-			apply_initial_values();
-			update_runtime_props(true);
-			reset_preview_buttons();
-		}
+		play_sys_se(b->clickse);
+		set_text_speed(0.5f);
+		set_auto_speed(0.5f);
+		apply_initial_values();
+		update_runtime_props(true);
+		reset_preview_buttons();
 		break;
 	case TYPE_SAVEPAGE:
 		play_sys_se(b->clickse);
@@ -1892,8 +1890,7 @@ static void process_button_click(int index)
 		process_history_scroll_click(index);
 		break;
 	case TYPE_TITLE:
-		if (title_dialog())
-			result_index = index;
+		result_index = index;
 		break;
 	case TYPE_CHAR:
 		play_sys_se(b->clickse);
@@ -2614,11 +2611,8 @@ static void process_save(int button_index)
 
 	/* ボタン番号からセーブデータ番号に変換する */
 	data_index = save_page * save_slots + button[button_index].index;
-
-	/* プロンプトを表示する */
 	if (get_save_date(data_index) != 0)
-		if (!overwrite_dialog())
-			return;
+		return;
 
 	/* SEを再生する */
 	play_sys_se(button[button_index].clickse);

@@ -277,35 +277,6 @@ bool set_sound_volume(int stream, float vol);
  */
 bool is_sound_finished(int stream);
 
-/*******************************
- * Confirmation Prompt Dialogs *
- *******************************/
-
-/*
- * Shows a quit dialog.
- */
-bool exit_dialog(void);
-
-/*
- * Shows a go-back-to-title dialog.
- */
-bool title_dialog(void);
-
-/*
- * Shows a save data deletion dialog.
- */
-bool delete_dialog(void);
-
-/*
- * Shows a overwrite save data dialog.
- */
-bool overwrite_dialog(void);
-
-/*
- * Shows a reset settings dialog.
- */
-bool default_dialog(void);
-
 /******************
  * Video Playback *
  ******************/
