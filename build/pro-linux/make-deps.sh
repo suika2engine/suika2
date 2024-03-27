@@ -58,6 +58,7 @@ SRC="\
 	anime.c \
 	conf.h \
 	conf.c \
+	ciel.h \
 	ciel.c \
 	event.h \
 	event.c \

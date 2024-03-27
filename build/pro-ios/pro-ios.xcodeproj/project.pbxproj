@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		26715D512BB4B11A00F11697 /* ciel.c in Sources */ = {isa = PBXBuildFile; fileRef = 26715D502BB4B11A00F11697 /* ciel.c */; };
 		26E7F0882B2E979B0076C82C /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 26E7F0872B2E979B0076C82C /* AppDelegate.m */; };
 		26E7F08B2B2E979B0076C82C /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 26E7F08A2B2E979B0076C82C /* SceneDelegate.m */; };
 		26E7F08E2B2E979B0076C82C /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 26E7F08D2B2E979B0076C82C /* ViewController.m */; };
@@ -79,6 +80,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		26715D4F2BB4B11A00F11697 /* ciel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ciel.h; path = ../../src/ciel.h; sourceTree = "<group>"; };
+		26715D502BB4B11A00F11697 /* ciel.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ciel.c; path = ../../src/ciel.c; sourceTree = "<group>"; };
 		268AD8BC2B38CB1D00B48542 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Main.strings; sourceTree = "<group>"; };
 		26ADBD442B2F3C7E00566642 /* Suika2 Pro.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Suika2 Pro.entitlements"; sourceTree = "<group>"; };
 		26E7F0832B2E979B0076C82C /* Suika2 Pro Mobile.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Suika2 Pro Mobile.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -253,8 +256,6 @@
 				26E7F13C2B2EA67D0076C82C /* GameShaders.metal */,
 				26E7F1402B2EA67D0076C82C /* GameShaderTypes.h */,
 				26E7F13E2B2EA67D0076C82C /* GameViewControllerProtocol.h */,
-				26E7F0B22B2E9AF70076C82C /* anime.c */,
-				26E7F0AC2B2E9AF70076C82C /* anime.h */,
 				26E7F0F52B2E9AF80076C82C /* cmd_anime.c */,
 				26E7F0AE2B2E9AF70076C82C /* cmd_bg.c */,
 				26E7F0DC2B2E9AF70076C82C /* cmd_bgm.c */,
@@ -283,6 +284,10 @@
 				26E7F0F12B2E9AF70076C82C /* cmd_vol.c */,
 				26E7F0F32B2E9AF80076C82C /* cmd_wait.c */,
 				26E7F0B02B2E9AF70076C82C /* cmd_wms.c */,
+				26E7F0B22B2E9AF70076C82C /* anime.c */,
+				26E7F0AC2B2E9AF70076C82C /* anime.h */,
+				26715D502BB4B11A00F11697 /* ciel.c */,
+				26715D4F2BB4B11A00F11697 /* ciel.h */,
 				26E7F0B82B2E9AF70076C82C /* conf.c */,
 				26E7F0CF2B2E9AF70076C82C /* conf.h */,
 				26E7F0AD2B2E9AF70076C82C /* event.c */,
@@ -439,6 +444,7 @@
 				26E7F1432B2EA67D0076C82C /* aunit.c in Sources */,
 				26E7F1002B2E9AF80076C82C /* cmd_return.c in Sources */,
 				26E7F10B2B2E9AF80076C82C /* cmd_video.c in Sources */,
+				26715D512BB4B11A00F11697 /* ciel.c in Sources */,
 				26E7F1422B2EA67D0076C82C /* GameShaders.metal in Sources */,
 				26E7F1092B2E9AF80076C82C /* cmd_skip.c in Sources */,
 				26E7F1042B2E9AF80076C82C /* cmd_wms.c in Sources */,

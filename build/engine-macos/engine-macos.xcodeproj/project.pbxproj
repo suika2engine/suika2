@@ -78,6 +78,7 @@
 
 /* Begin PBXFileReference section */
 		2603ED002BAB8BF9006539B0 /* ciel.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ciel.c; path = ../../src/ciel.c; sourceTree = "<group>"; };
+		263BF5D22BB4B2B800D32888 /* ciel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ciel.h; path = ../../src/ciel.h; sourceTree = "<group>"; };
 		2662CFD22B2A7BC800CB3DBE /* aunit.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = aunit.c; path = ../../src/apple/aunit.c; sourceTree = "<group>"; };
 		2662CFD32B2A7BC800CB3DBE /* GameShaders.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; name = GameShaders.metal; path = ../../src/apple/GameShaders.metal; sourceTree = "<group>"; };
 		2662CFD42B2A7BC800CB3DBE /* GameViewControllerProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GameViewControllerProtocol.h; path = ../../src/apple/GameViewControllerProtocol.h; sourceTree = "<group>"; };
@@ -145,7 +146,6 @@
 		26EAF2C72B202D86003530F4 /* mixer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mixer.c; path = ../../src/mixer.c; sourceTree = "<group>"; };
 		26EAF2C82B202D86003530F4 /* scbuf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = scbuf.h; path = ../../src/scbuf.h; sourceTree = "<group>"; };
 		26EAF2C92B202D86003530F4 /* event.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = event.c; path = ../../src/event.c; sourceTree = "<group>"; };
-		26EAF2CA2B202D86003530F4 /* glrender.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glrender.h; path = ../../src/glrender.h; sourceTree = "<group>"; };
 		26EAF2CB2B202D86003530F4 /* image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = image.h; path = ../../src/image.h; sourceTree = "<group>"; };
 		26EAF2CC2B202D86003530F4 /* wms_impl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = wms_impl.c; path = ../../src/wms_impl.c; sourceTree = "<group>"; };
 		26EAF2CD2B202D86003530F4 /* log.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = log.c; path = ../../src/log.c; sourceTree = "<group>"; };
@@ -257,10 +257,6 @@
 			isa = PBXGroup;
 			children = (
 				2662CFD12B2A7BBA00CB3DBE /* apple */,
-				268EAEAE2B23C12800CF559E /* hal.h */,
-				26EAF27E2B202CEC003530F4 /* anime.c */,
-				26EAF27F2B202CEC003530F4 /* anime.h */,
-				2603ED002BAB8BF9006539B0 /* ciel.c */,
 				26EAF27A2B202CEC003530F4 /* cmd_anime.c */,
 				26EAF2792B202CEC003530F4 /* cmd_bg.c */,
 				26EAF2922B202CEC003530F4 /* cmd_bgm.c */,
@@ -289,13 +285,16 @@
 				26EAF2912B202CEC003530F4 /* cmd_vol.c */,
 				26EAF2812B202CEC003530F4 /* cmd_wait.c */,
 				26EAF2892B202CEC003530F4 /* cmd_wms.c */,
+				26EAF27E2B202CEC003530F4 /* anime.c */,
+				26EAF27F2B202CEC003530F4 /* anime.h */,
+				2603ED002BAB8BF9006539B0 /* ciel.c */,
+				263BF5D22BB4B2B800D32888 /* ciel.h */,
 				26EAF2772B202CEC003530F4 /* conf.c */,
 				26EAF28E2B202CEC003530F4 /* conf.h */,
 				26EAF2C92B202D86003530F4 /* event.c */,
 				26EAF2BC2B202D86003530F4 /* event.h */,
 				26EAF2BD2B202D86003530F4 /* file.c */,
 				26EAF2D12B202D86003530F4 /* file.h */,
-				26EAF2CA2B202D86003530F4 /* glrender.h */,
 				26EAF2B72B202D86003530F4 /* glyph.c */,
 				26EAF2E22B202D87003530F4 /* glyph.h */,
 				26EAF2B82B202D86003530F4 /* gui.c */,
@@ -307,6 +306,7 @@
 				26EAF2B92B202D86003530F4 /* key.h */,
 				26EAF2CD2B202D86003530F4 /* log.c */,
 				26EAF2BE2B202D86003530F4 /* log.h */,
+				268EAEAE2B23C12800CF559E /* hal.h */,
 				26EAF2E12B202D87003530F4 /* main.c */,
 				26EAF2DC2B202D86003530F4 /* main.h */,
 				26EAF2C72B202D86003530F4 /* mixer.c */,

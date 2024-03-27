@@ -76,6 +76,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\anime.h" />
+    <ClInclude Include="..\..\src\ciel.h" />
     <ClInclude Include="..\..\src\conf.h" />
     <ClInclude Include="..\..\src\event.h" />
     <ClInclude Include="..\..\src\file.h" />

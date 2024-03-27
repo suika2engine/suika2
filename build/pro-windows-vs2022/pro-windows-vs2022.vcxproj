@@ -80,6 +80,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\anime.h" />
+    <ClInclude Include="..\..\src\ciel.h" />
     <ClInclude Include="..\..\src\conf.h" />
     <ClInclude Include="..\..\src\microsoft\dx9render.h" />
     <ClInclude Include="..\..\src\microsoft\dsound.h" />

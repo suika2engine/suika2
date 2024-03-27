@@ -20,6 +20,7 @@ debug:
 	@cp ../../src/anime.c app/src/main/cpp/
 	@cp ../../src/conf.h app/src/main/cpp/
 	@cp ../../src/conf.c app/src/main/cpp/
+	@cp ../../src/ciel.h app/src/main/cpp/
 	@cp ../../src/ciel.c app/src/main/cpp/
 	@cp ../../src/event.h app/src/main/cpp/
 	@cp ../../src/event.c app/src/main/cpp/
@@ -159,6 +160,7 @@ src:
 	@cp ../../src/anime.c android-src/app/src/main/cpp/
 	@cp ../../src/conf.h android-src/app/src/main/cpp/
 	@cp ../../src/conf.c android-src/app/src/main/cpp/
+	@cp ../../src/ciel.h android-src/app/src/main/cpp/
 	@cp ../../src/ciel.c android-src/app/src/main/cpp/
 	@cp ../../src/event.h android-src/app/src/main/cpp/
 	@cp ../../src/event.c android-src/app/src/main/cpp/

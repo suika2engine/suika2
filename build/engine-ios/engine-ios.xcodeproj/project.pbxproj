@@ -182,6 +182,7 @@
 		26BF13222B29E2EB006A0F6E /* stage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stage.h; path = ../../src/stage.h; sourceTree = "<group>"; };
 		26BF13232B29E2EB006A0F6E /* wms_core.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wms_core.h; path = ../../src/wms_core.h; sourceTree = "<group>"; };
 		26C231592BB0630F003DC0D6 /* ciel.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ciel.c; path = ../../src/ciel.c; sourceTree = "<group>"; };
+		26FECC312BB4B263002CB40D /* ciel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ciel.h; path = ../../src/ciel.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -282,6 +283,7 @@
 				26BF13122B29E2EB006A0F6E /* anime.c */,
 				26BF12EB2B29E2EA006A0F6E /* anime.h */,
 				26C231592BB0630F003DC0D6 /* ciel.c */,
+				26FECC312BB4B263002CB40D /* ciel.h */,
 				26BF13132B29E2EB006A0F6E /* conf.c */,
 				26BF13182B29E2EB006A0F6E /* conf.h */,
 				26BF13012B29E2EA006A0F6E /* event.c */,
@@ -601,7 +603,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 7S742FWR63;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "engine-ios/Info.plist";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -648,7 +650,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 7S742FWR63;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "engine-ios/Info.plist";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
