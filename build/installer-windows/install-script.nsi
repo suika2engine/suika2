@@ -8,6 +8,7 @@ InstallDir "$APPDATA\Local\Suika2 Pro Desktop"
 
 RequestExecutionLevel user
 SetCompressor /SOLID /FINAL lzma
+SilentInstall normal
 
 !insertmacro MUI_PAGE_WELCOME
 Page directory
