@@ -28,7 +28,7 @@ Section "Install"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Suika2 Pro Desktop" "InstDir" '"$INSTDIR"'
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Suika2 Pro Desktop" "DisplayName" "Suika2 Pro Desktop"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Suika2 Pro Desktop" "DisplayIcon" '"$INSTDIR\icon.ico"'
-  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Suika2 Pro Desktop" "DisplayVersion" "15"
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Suika2 Pro Desktop" "DisplayVersion" "17"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Suika2 Pro Desktop" "Publisher" "Keiichi Tabata"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Suika2 Pro Desktop" "Contact" "tabata@luxion.jp"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Suika2 Pro Desktop" "UninstallString" '"$INSTDIR\Uninstall.exe"'
