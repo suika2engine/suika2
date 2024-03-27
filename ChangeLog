@@ -5,12 +5,17 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/17.26 2024/3/27
+  <ul>
+    <li>メッセージボックスが消えないバグを修正 (Thanks to 松野さん)</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
 <li>Suika2/17.25 2024/3/27
   <ul>
     <li>サイレントインストールを修正</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
 <li>Suika2/17.24 2024/3/27
   <ul>
     <li>オートモードスピードスライダーの左右を反転 (Thanks to ソローさん)</li>
@@ -1850,12 +1855,17 @@ This file is referred by some automatic release scripts.
 [Release History (English)]
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/17.26 2024/3/27
+  <ul>
+    <li>Fixed a bug where message box cannot be hidden (Thanks to MATSUNO-san)</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
 <li>Suika2/17.25 2024/3/27
   <ul>
     <li>Fixed the silent install mode (/S)</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
 <li>Suika2/17.24 2024/3/27
   <ul>
     <li>Inverted the right and left of the auto mode speed slider (Thanks to SOrow-san)</li>

@@ -116,6 +116,12 @@ static bool init(void)
 	/* 発話中のキャラをなしにする */
 	set_ch_talking(-1);
 
+	/* メッセージボックスを消す (msgbox.show.on.bg=1/2) */
+	if (conf_msgbox_show_on_bg != 0) {
+		show_namebox(false);
+		show_msgbox(false);
+	}
+
 	/* 背景フェードを開始する */
 	if (!start_fade_for_bg(fname, img, ofs_x, ofs_y, 255, fade_method,
 			       rule_img)) {
