@@ -5,12 +5,17 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/17.28 2024/3/27
+  <ul>
+    <li>Cielの機能改善(cl.leave name=allの対応,すでにいるキャラ名をenterしたときにエラー化)</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
 <li>Suika2/17.27 2024/3/27
   <ul>
     <li>セーブのバグを修正</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
 <li>Suika2/17.26 2024/3/27
   <ul>
     <li>メッセージボックスが消えないバグを修正 (Thanks to 松野さん)</li>
@@ -1860,12 +1865,17 @@ This file is referred by some automatic release scripts.
 [Release History (English)]
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/17.28 2024/3/27
+  <ul>
+    <li>Improvements on Ciel</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
 <li>Suika2/17.27 2024/3/27
   <ul>
     <li>Fixed a save bug</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
 <li>Suika2/17.26 2024/3/27
   <ul>
     <li>Fixed a bug where message box cannot be hidden (Thanks to MATSUNO-san)</li>

@@ -31,6 +31,7 @@
 #define CL_CHARACTERS	CH_CENTER
 #define CL_BG		(CL_CHARACTERS + 1)
 #define CL_LAYERS	(CL_BG + 1)
+#define CL_ALL		(-2)
 
 /* Anime Sequece Size */
 #define CL_SEQ_SIZE	32
@@ -134,7 +135,7 @@ static void render(void);
 static void render_fade_frame(void);
 static void render_anime_frame(void);
 static void process_anime_finish(void);
-static int get_index_for_name(bool allow_bg);
+static int get_index_for_name(bool allow_bg, bool allow_all);
 
 /*
  * The implementation of the @cl.* commands.
@@ -198,6 +199,12 @@ static bool init_cl_enter(bool *cont)
 		return false;
 	}
 
+	if (get_index_for_name(false, false) != -1) {
+		log_error("Character already exists.");
+		log_script_exec_footer();
+		return false;
+	}
+
 	index = ts.ch_count++;
 	ts.name[index] = strdup(name);
 	if (ts.name[index] == NULL) {
@@ -216,30 +223,35 @@ static bool init_cl_enter(bool *cont)
 
 static bool init_cl_leave(bool *cont)
 {
-	int index;
+	int i, index;
 
-	index = get_index_for_name(false);
+	index = get_index_for_name(false, true);
 	if (index == -1)
 		return false;
 
-	free(ts.name[index]);
-	ts.name[index] = NULL;
-	if (ts.file[index] != NULL) {
+	for (i = 0; i < CL_CHARACTERS; i++) {
+		if (index != CL_ALL && index != i)
+			continue;
+
 		free(ts.name[index]);
 		ts.name[index] = NULL;
-	}
-	if (ts.img[index] != NULL) {
-		destroy_image(ts.img[index]);
-		ts.img[index] = NULL;
-	}
-	ts.is_modified = true;
-	ts.is_file_changed[index] = true;
-	ts.x[index] = 0;
-	ts.y[index] = 0;
-	ts.a[index] = 0;
+		if (ts.file[index] != NULL) {
+			free(ts.name[index]);
+			ts.name[index] = NULL;
+		}
+		if (ts.img[index] != NULL) {
+			destroy_image(ts.img[index]);
+			ts.img[index] = NULL;
+		}
+		ts.is_modified = true;
+		ts.is_file_changed[index] = true;
+		ts.x[index] = 0;
+		ts.y[index] = 0;
+		ts.a[index] = 0;
 
-	ts.ch_count--;
-	assert(ts.ch_count >= 0);
+		ts.ch_count--;
+		assert(ts.ch_count >= 0);
+	}
 
 	*cont = true;
 
@@ -251,7 +263,7 @@ static bool init_cl_file(bool *cont)
 	const char *file;
 	int index;
 
-	index = get_index_for_name(true);
+	index = get_index_for_name(true, false);
 	if (index == -1)
 		return false;
 
@@ -291,7 +303,7 @@ static bool init_cl_pos(bool *cont)
 	const char *align, *valign, *xequal, *xplus, *xminus, *yequal, *yplus, *yminus;
 	int index;
 
-	index = get_index_for_name(true);
+	index = get_index_for_name(true, false);
 	if (index == -1)
 		return false;
 	align = get_string_param(CIEL_PARAM_ALIGN);
@@ -351,7 +363,7 @@ static bool init_cl_alpha(bool *cont)
 	const char *alpha;
 	int index;
 
-	index = get_index_for_name(true);
+	index = get_index_for_name(true, false);
 	if (index == -1)
 		return false;
 	alpha = get_string_param(CIEL_PARAM_ALPHA);
@@ -373,7 +385,7 @@ static bool init_cl_dim(bool *cont)
 	const char *dim;
 	int index;
 
-	index = get_index_for_name(false);
+	index = get_index_for_name(false, false);
 	if (index == -1)
 		return false;
 	dim = get_string_param(CIEL_PARAM_DIM);
@@ -426,7 +438,7 @@ static bool init_cl_move(bool *cont)
 	const char *time, *xequal, *xplus, *xminus, *yequal, *yplus, *yminus, *alpha;
 	int index, seq;
 
-	index = get_index_for_name(true);
+	index = get_index_for_name(true, false);
 	if (index == -1)
 		return false;
 	time = get_string_param(CIEL_PARAM_TIME);
@@ -822,7 +834,7 @@ static void process_anime_finish(void)
 	}
 }
 
-static int get_index_for_name(bool allow_bg)
+static int get_index_for_name(bool allow_bg, bool allow_all)
 {
 	const char *name;
 	int i;
@@ -838,6 +850,13 @@ static int get_index_for_name(bool allow_bg)
 		if (allow_bg)
 			return CL_BG;
 		log_error("name=bg is not allowed.");
+		return false;
+	}
+
+	if (strcmp(name, "all") == 0) {
+		if (allow_all)
+			return CL_ALL;
+		log_error("name=all is not allowed.");
 		return false;
 	}
 
