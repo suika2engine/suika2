@@ -5,12 +5,19 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/17.24 2024/3/27
+  <ul>
+    <li>オートモードスピードスライダーの左右を反転 (Thanks to ソローさん)</li>
+    <li>絵文字が改行されないバグを修正 (Thanks to Mirinさん)</li>
+    <li>確認ダイアログを削除 (Thanks to Mirinさん)</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
 <li>Suika2/17.23 2024/3/25
   <ul>
     <li>iOSエクスポートで足りないファイルを修正 (Thanks to 赤月-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
 <li>Suika2/17.22 2024/3/25
   <ul>
     <li>GUIv1でidle画像のアルファ値を強制的に255にするように修正 (Thanks to ソロー-san!)</li>
@@ -1838,12 +1845,19 @@ This file is referred by some automatic release scripts.
 [Release History (English)]
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/17.24 2024/3/27
+  <ul>
+    <li>Inverted the right and left of the auto mode speed slider (Thanks to SOrow-san)</li>
+    <li>Fixed a bug where emoticons cannot break lines (Thanks to Mirin-san)</li>
+    <li>Removed the confirmation dialogs (Thanks to Mirin-san)</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
 <li>Suika2/17.23 2024/3/25
   <ul>
     <li>Added a missing file on iOS exports (Thanks to Akatsuki-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
 <li>Suika2/17.22 2024/3/25
   <ul>
     <li>Changed to fill alpha values of idle images to 255 on GUIv1 (Thanks to SOrow-san!)</li>
