@@ -5,12 +5,18 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
-<li>Suika2/17.28 2024/3/27
+<li>Suika2/17.29 2024/3/27
   <ul>
-    <li>Cielの機能改善(cl.leave name=allの対応,すでにいるキャラ名をenterしたときにエラー化)</li>
+    <li>サンプル目パチの修正 (Thanks to もみじさん)</li>
   </ul>
 </li>
 <!-- END-LATEST-JP -->
+<li>Suika2/17.28 2024/3/27
+  <ul>
+    <li>サンプル目パチの修正 (Thanks to もみじさん)</li>
+    <li>Cielの機能改善(cl.leave name=allの対応,すでにいるキャラ名をenterしたときにエラー化)</li>
+  </ul>
+</li>
 <li>Suika2/17.27 2024/3/27
   <ul>
     <li>セーブのバグを修正</li>
@@ -1865,12 +1871,18 @@ This file is referred by some automatic release scripts.
 [Release History (English)]
 
 <!-- BEGIN-LATEST-EN -->
-<li>Suika2/17.28 2024/3/27
+<li>Suika2/17.29 2024/3/27
   <ul>
-    <li>Improvements on Ciel</li>
+    <li>Fixed the sample eye-blinking image (Thanks to Momiji-san)</li>
   </ul>
 </li>
 <!-- END-LATEST-EN -->
+<li>Suika2/17.28 2024/3/27
+  <ul>
+    <li>Fixed sample eye-blinking images (Thanks to Momiji-san)</li>
+    <li>Improvements on Ciel</li>
+  </ul>
+</li>
 <li>Suika2/17.27 2024/3/27
   <ul>
     <li>Fixed a save bug</li>
