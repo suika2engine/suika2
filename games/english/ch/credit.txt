@@ -7,9 +7,6 @@ Poniko (ぽにこ):
   001-normal.png
   001-sad.png
 
-猫柳れお (Reo Nekoyanagi):
-  002-normal.png
-
 Becta (Ｂecta) (copyright holder is ktabata):
   luxion.png
 

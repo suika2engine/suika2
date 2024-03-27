@@ -290,24 +290,22 @@ Suika2で制作されたゲームが続々とストア公開されています�
 # 全部のフラグがセットされているときはここに来る
 @章 タイトル=おまけ
 
-@ch right 002-normal.png 1.0
-りな「隠しキャラの\#{00ff00}りな\#{ffffff}です。全部読んでいただいてありがとうございました。」
-
 # 雨が降る
-@gosub start-rain
+&start-rain
 
-雨のエフェクトがあります。
+全部読んでいただいてありがとうございました。
+おまけとして雨エフェクトを披露します。
 
 # 雨がやむ
-@gosub stop-rain
+&stop-rain
 
 # 雪が降る
-@gosub start-snow
+&start-snow
 
 雪のエフェクトもあります。
 
 # 雪がやむ
-@gosub stop-snow
+&stop-snow
 
 @goto END
 

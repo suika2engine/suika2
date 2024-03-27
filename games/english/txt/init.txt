@@ -272,8 +272,8 @@ If there's anything you want to customize, but can't, please contact the Team.
 
 @chapter Bonus
 
-@ch right 002-normal.png 1.0
-*Rina*I'm \#{00ff00}Rina\#{ffffff}. Whoa, you got through all the questions, thank you!
+You got through all the questions, thank you!
+
 @goto END
 
 ###

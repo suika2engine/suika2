@@ -859,16 +859,29 @@ bool load_eye_image_if_exists(int chpos, const char *fname)
 	/* 目パチファイル名の文字列"filename_eye.ext"を作る */
 	strcpy(eye_fname, fname);
 	dot = strstr(eye_fname, ".");
-	if (dot != NULL)
+	if (dot != NULL) {
+		/* 拡張子ありの場合 */
 		strcpy(ext, dot);
-	else
-		strcpy(ext, "");
-	strcpy(dot, "_eye");
-	strcat(eye_fname, ext);
+		strcpy(dot, "_eye");
+		strcat(dot, ext);
 
-	/* ファイルがない場合 */
-	if (!check_file_exist(CH_DIR, eye_fname))
-		return true;
+		/* ファイルがない場合 */
+		if (!check_file_exist(CH_DIR, eye_fname))
+			return true;
+	} else {
+		/* 拡張子なしの場合 */
+		do {
+			strcat(eye_fname, "_eye.png");
+			if (check_file_exist(CH_DIR, eye_fname))
+				break;
+			strcat(eye_fname, "_eye.webp");
+			if (check_file_exist(CH_DIR, eye_fname))
+				break;
+
+			/* 目パチファイルがない */
+			return true;
+		} while (0);
+	}
 
 	/* イメージを読み込む */
 	eye_img = create_image_from_file(CH_DIR, eye_fname);
