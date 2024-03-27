@@ -82,6 +82,7 @@
 		2669F7DC2B284675001AEF17 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2669F7D62B284675001AEF17 /* ViewController.m */; };
 		267E34142BAB7D0A007AE3BE /* ciel.c in Sources */ = {isa = PBXBuildFile; fileRef = 267E34132BAB7D0A007AE3BE /* ciel.c */; };
 		269D04722B28891C00934EE2 /* ScriptTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 269D04712B28891C00934EE2 /* ScriptTextView.m */; };
+		269F25872BB4A49200ABD7CC /* dark in Resources */ = {isa = PBXBuildFile; fileRef = 269F25862BB4A49200ABD7CC /* dark */; };
 		26A1BAE32B2AD78800761444 /* ios-src in Resources */ = {isa = PBXBuildFile; fileRef = 26A1BAE22B2AD78700761444 /* ios-src */; };
 		26A1BAE72B2AD79E00761444 /* android-src in Resources */ = {isa = PBXBuildFile; fileRef = 26A1BAE62B2AD79E00761444 /* android-src */; };
 		26A1BAEC2B2AD7B200761444 /* japanese in Resources */ = {isa = PBXBuildFile; fileRef = 26A1BAE82B2AD7B200761444 /* japanese */; };
@@ -197,7 +198,6 @@
 		2662D0F72B5AC8710019B596 /* adv-en.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "adv-en.png"; sourceTree = "<group>"; };
 		2662D0F82B5AC8710019B596 /* nvl-en.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "nvl-en.png"; sourceTree = "<group>"; };
 		2662D0F92B5AC8710019B596 /* nvl-jp-vert.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "nvl-jp-vert.png"; sourceTree = "<group>"; };
-		2662D1002B5AD4A10019B596 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Main.strings; sourceTree = "<group>"; };
 		2669F7082B283866001AEF17 /* Suika2 Pro Desktop.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Suika2 Pro Desktop.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2669F7CA2B2843D5001AEF17 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		2669F7CD2B284675001AEF17 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -212,6 +212,8 @@
 		267E34132BAB7D0A007AE3BE /* ciel.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ciel.c; path = ../../src/ciel.c; sourceTree = "<group>"; };
 		269D04702B28891C00934EE2 /* ScriptTextView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ScriptTextView.h; sourceTree = "<group>"; };
 		269D04712B28891C00934EE2 /* ScriptTextView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ScriptTextView.m; sourceTree = "<group>"; };
+		269F25862BB4A49200ABD7CC /* dark */ = {isa = PBXFileReference; lastKnownFileType = folder; name = dark; path = ../../../games/dark; sourceTree = "<group>"; };
+		269F25892BB4A72800ABD7CC /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Main.strings; sourceTree = "<group>"; };
 		26A1BAE22B2AD78700761444 /* ios-src */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "ios-src"; path = "../../engine-ios/ios-src"; sourceTree = "<group>"; };
 		26A1BAE62B2AD79E00761444 /* android-src */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "android-src"; path = "../../engine-android/android-src"; sourceTree = "<group>"; };
 		26A1BAE82B2AD7B200761444 /* japanese */ = {isa = PBXFileReference; lastKnownFileType = folder; name = japanese; path = ../../../games/japanese; sourceTree = "<group>"; };
@@ -333,6 +335,7 @@
 		2610CD1B2B287C9100300004 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				269F25862BB4A49200ABD7CC /* dark */,
 				2662D0F72B5AC8710019B596 /* adv-en.png */,
 				2662D0F62B5AC8710019B596 /* adv-jp.png */,
 				2662D0F82B5AC8710019B596 /* nvl-en.png */,
@@ -481,6 +484,7 @@
 				2658796B2B4A7BBA00EC733D /* nvl-en in Resources */,
 				26A1BAEC2B2AD7B200761444 /* japanese in Resources */,
 				2662D0FD2B5AC8710019B596 /* nvl-en.png in Resources */,
+				269F25872BB4A49200ABD7CC /* dark in Resources */,
 				26A1BAE32B2AD78800761444 /* ios-src in Resources */,
 				2617DE232B3C5EB2006F4211 /* suika-mac.dmg in Resources */,
 				26A1BAED2B2AD7B200761444 /* nvl in Resources */,
@@ -580,7 +584,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				26F4E5B02B32CE61003E4B5A /* Base */,
-				2662D1002B5AD4A10019B596 /* ja */,
+				269F25892BB4A72800ABD7CC /* ja */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";

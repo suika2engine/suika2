@@ -1,3 +1,14 @@
+/* Class = "NSButtonCell"; alternateTitle = "Japanese ADV"; ObjectID = "4Ja-bP-HuC"; */
+"4Ja-bP-HuC.alternateTitle" = "日本語ADV";
+
+/* Class = "NSButtonCell"; title = "Japanese ADV Dark"; ObjectID = "4Ja-bP-HuC"; */
+"4Ja-bP-HuC.title" = "日本語ADV";
+
+/* Class = "NSButtonCell"; alternateTitle = "Japanese ADV"; ObjectID = "DEh-6A-3y0"; */
+"DEh-6A-3y0.alternateTitle" = "日本語ADV(ボイス)";
+
+/* Class = "NSButtonCell"; title = "Japanese ADV"; ObjectID = "DEh-6A-3y0"; */
+"DEh-6A-3y0.title" = "日本語ADV(ボイス)";
 
 /* Class = "NSMenuItem"; title = "Left"; ObjectID = "0CS-J2-e1h"; */
 "0CS-J2-e1h.title" = "左";
@@ -103,12 +114,6 @@
 
 /* Class = "NSMenuItem"; title = "Quit Suika2 Pro Desktop"; ObjectID = "Cys-Vz-Zwv"; */
 "Cys-Vz-Zwv.title" = "Suika2 Pro Desktop を終了";
-
-/* Class = "NSButtonCell"; alternateTitle = "Japanese ADV"; ObjectID = "DEh-6A-3y0"; */
-"DEh-6A-3y0.alternateTitle" = "日本語ADV";
-
-/* Class = "NSButtonCell"; title = "Japanese ADV"; ObjectID = "DEh-6A-3y0"; */
-"DEh-6A-3y0.title" = "日本語ADV";
 
 /* Class = "NSMenuItem"; title = "Wait For Click"; ObjectID = "DVv-Jf-Ko4"; */
 "DVv-Jf-Ko4.title" = "クリックを待つ";

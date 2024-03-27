@@ -6,17 +6,18 @@
 
 /* File Menu / Open Button*/
 #define ID_NEW_PROJECT_ADVJP		    150
-#define ID_NEW_PROJECT_NVLJP		    151
-#define ID_NEW_PROJECT_NVLJPV		    152
-#define ID_NEW_PROJECT_ADVEN		    153
-#define ID_NEW_PROJECT_NVLEN		    154
-#define ID_OPEN_PROJECT			    155
-#define ID_OPEN_GAME_FOLDER		    156
-#define ID_OPEN                             157
-#define ID_RELOAD                           158
-#define ID_SAVE                             159
-#define ID_DEBUG_LAYERS                     160
-#define ID_QUIT                             161
+#define ID_NEW_PROJECT_ADVJP_VOICE	    151
+#define ID_NEW_PROJECT_NVLJP		    152
+#define ID_NEW_PROJECT_NVLJPV		    153
+#define ID_NEW_PROJECT_ADVEN		    154
+#define ID_NEW_PROJECT_NVLEN		    155
+#define ID_OPEN_PROJECT			    156
+#define ID_OPEN_GAME_FOLDER		    157
+#define ID_OPEN                             158
+#define ID_RELOAD                           159
+#define ID_SAVE                             160
+#define ID_DEBUG_LAYERS                     161
+#define ID_QUIT                             162
 
 /* Run Menu / Buttons */
 #define ID_RESUME                           170

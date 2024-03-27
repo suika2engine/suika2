@@ -1,0 +1,311 @@
+###
+### コンフィグ画面のGUI定義
+###
+
+# このファイルの基本設定
+global {
+    # 下記の画像を使用する
+    base:   system/config/base.png;
+    idle:   system/config/idle.png;
+    hover:  system/config/hover.png;
+    active: system/config/active.png;
+
+    # 右クリックによるキャンセル時のSE
+    cancelse: click.ogg;
+
+    # フェードイン時間(秒)
+    fadein: 0.5;
+
+    # フェードアウト時間(秒)
+    fadeout: 0.5;
+
+    # 読み上げテキスト
+    alt: コンフィグ画面を表示しています。左右のキーを押してください。;
+}
+
+# 元の画面に戻るボタン
+BACK {
+    # 種類:タイトルへ戻る
+    type: cancel;
+
+    # 座標とサイズ
+    x: 1142;
+    y: 22;
+    width: 80;
+    height: 80;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+
+    # 読み上げテキスト
+    alt: このボタンを押すとゲームに戻ります。;
+}
+
+# テキストスピードスライダー
+TEXTSPEED {
+    # 種類:テキストスピード
+    type: textspeed;
+
+    # 座標とサイズ
+    x: 445;
+    y: 320;
+    width: 542;
+    height: 50;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # 読み上げテキスト
+    alt: このボタンはテキストのスピードを調整するものです。;
+}
+
+# オートモードスピードスライダー
+AUTOSPEED {
+    # 種類:オートモードスピード
+    type: autospeed;
+
+    # 座標とサイズ
+    x: 445;
+    y: 400;
+    width: 542;
+    height: 50;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # 読み上げテキスト
+    alt: このボタンはオートモードのスピードを調整するものです。;
+}
+
+# テキストスピードのプレビュー
+PREVIEW {
+    # 種類:プレビュー
+    type: preview;
+
+    # 表示するメッセージ
+    msg: "これはメッセージのプレビューです。スピードはよろしいですか？";
+
+    # 座標とサイズ
+    x: 322;
+    y: 472;
+    width: 600;
+    height: 120;
+
+    # 読み上げテキスト
+    alt: テキストスピードのプレビューを表示するものです。;
+}
+
+# BGMのボリュームスライダー
+#MASTER {
+#    # 種類:BGMボリューム
+#    type: mastervol;
+#
+#    # 座標とサイズ
+#    x: 445;
+#    y: 250;
+#    width: 542;
+#    height: 50;
+#
+#    # ポイントされたときの効果音
+#    pointse: btn-change.ogg;
+#
+#    # 読み上げテキスト
+#    alt: このボタンはBGMの音量を調整するものです。;
+#}
+
+# BGMのボリュームスライダー
+BGM {
+    # 種類:BGMボリューム
+    type: bgmvol;
+
+    # 座標とサイズ
+    x: 445;
+    y: 160;
+    width: 542;
+    height: 50;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # 読み上げテキスト
+    alt: このボタンはBGMの音量を調整するものです。;
+}
+
+# SEのボリュームスライダー
+SE {
+    # 種類:SEボリューム
+    type: sevol;
+
+    # スライダーが変更されたときに再生するSEファイル
+    file: click.ogg;
+
+    # 座標とサイズ
+    x: 445;
+    y: 240;
+    width: 542;
+    height: 50;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # 読み上げテキスト
+    alt: このボタンは効果音の音量を調整するものです。;
+}
+
+# ボイスのボリュームスライダー
+#VOICE {
+#    # Voice volume type
+#    type: voicevol;
+#
+#    # スライダーが変更されたときに再生するCVファイル
+#    file: 025.ogg;
+#
+#    # 座標とサイズ
+#    x: 445;
+#    y: 250;
+#    width: 542;
+#    height: 50;
+#
+#    # ポイントされたときの効果音
+#    pointse: btn-change.ogg;
+#
+#    # 読み上げテキスト
+#    alt: このボタンはボイスの音量を調整するものです。;
+#}
+
+# フォント選択ボタン1
+#FONT1 {
+#    # 種類:フォント
+#    type: font;
+#
+#    # 押されたときに変更するフォント
+#    file: 07LogoTypeGothic7.ttf;
+#
+#    # 座標とサイズ
+#    x: 700;
+#    y: 394;
+#    width: 210;
+#    height: 70;
+#
+#    # ポイントされたときの効果音
+#    pointse: btn-change.ogg;
+#
+#    # クリックされたときの効果音
+#    clickse: click.ogg;
+#
+#    # 読み上げテキスト
+#   alt: このボタンはフォント1を選択するものです。;
+#}
+
+# フォント選択ボタン1
+#FONT2 {
+#    # 種類:フォント
+#    type: font;
+#
+#    # 押されたときに変更するフォント
+#    file: yasashisa.ttf;
+#
+#    # 座標とサイズ
+#    x: 930;
+#    y: 394;
+#    width: 210;
+#    height: 70;
+#
+#    # ポイントされたときの効果音
+#    pointse: btn-change.ogg;
+#
+#    # クリックされたときの効果音
+#    clickse: click.ogg;
+#
+#    # 読み上げテキスト
+#    alt: このボタンはフォント2を選択するものです。;
+#}
+
+# フルスクリーンモードへの切り替えボタン
+FULLSCREEN {
+    # 種類:フルスクリーン
+    type: fullscreen;
+
+    # 座標とサイズ
+    x: 667;
+    y: 600;
+    width: 210;
+    height: 70;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+
+    # 読み上げテキスト
+    alt: このボタンはフルスクリーンモードに移行するものです。;
+}
+
+# ウィンドウモードへの切り替えボタン
+WINDOW {
+    # 種類:ウィンドウ
+    type: window;
+
+    # 座標とサイズ
+    x: 397;
+    y: 600;
+    width: 210;
+    height: 70;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+
+    # 読み上げテキスト
+    alt: このボタンはウィンドウモードに移行するものです。;
+}
+
+# すべて既定値に戻すボタン
+DEFAULT {
+    # 種類:既定値
+    type: default;
+    # 座標とサイズ
+    x: 572;
+    y: 30;
+    width: 210;
+    height: 70;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+
+    # 読み上げテキスト
+    alt: このボタンはすべての設定を既定値に戻すものです。;
+}
+
+# タイトルへ戻るボタン
+TITLE {
+    # 種類:タイトルへ戻る
+    type: title;
+
+    # 移動先のスクリプトファイル
+    file: init.txt;
+
+    # 座標とサイズ
+    x: 802;
+    y: 30;
+    width: 210;
+    height: 70;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+
+    # 読み上げテキスト
+    alt: このボタンはゲームのタイトル画面に戻るものです。;
+}

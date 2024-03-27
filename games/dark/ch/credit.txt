@@ -1,0 +1,24 @@
+***CREDIT***
+
+Poniko (ぽにこ):
+  001-angry.png
+  001-fun.png
+  001-happy.png
+  001-normal.png
+  001-sad.png
+
+レタッチ by Ronron:
+  001-happy_eye.png
+
+レタッチ by SOrow:
+  001-normal_eye.png
+  001-fun_eye.png
+
+猫柳れお (Reo Nekoyanagi):
+  002-normal.png
+
+Becta (Ｂecta) (copyright was yielded to ktabata):
+  luxion.png
+
+ktabata:
+  suika.png

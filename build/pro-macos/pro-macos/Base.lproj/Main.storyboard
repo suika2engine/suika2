@@ -77,11 +77,11 @@
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
                             <customView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="IWl-Ib-4ko">
-                                <rect key="frame" x="0.0" y="431" width="856" height="289"/>
+                                <rect key="frame" x="0.0" y="315" width="856" height="405"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <subviews>
                                     <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="4WV-uO-TSw">
-                                        <rect key="frame" x="18" y="253" width="371" height="16"/>
+                                        <rect key="frame" x="18" y="369" width="371" height="16"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <textFieldCell key="cell" lineBreakMode="clipping" title="New game from a template:" id="kw6-Qf-ReF">
                                             <font key="font" usesAppearanceFont="YES"/>
@@ -89,22 +89,22 @@
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
-                                    <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="pZP-WC-Nqz">
-                                        <rect key="frame" x="32" y="110" width="124" height="123"/>
+                                    <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="dk3-hT-IiK">
+                                        <rect key="frame" x="32" y="225" width="130" height="123"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                        <buttonCell key="cell" type="square" title="Japanese ADV" alternateTitle="Japanese ADV" bezelStyle="shadowlessSquare" imagePosition="above" alignment="center" borderStyle="border" imageScaling="proportionallyUpOrDown" inset="2" id="DEh-6A-3y0">
+                                        <buttonCell key="cell" type="square" title="Japanese ADV" alternateTitle="Japanese ADV" bezelStyle="shadowlessSquare" imagePosition="above" alignment="center" borderStyle="border" imageScaling="proportionallyUpOrDown" inset="2" id="4Ja-bP-HuC">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
                                             <connections>
-                                                <binding destination="rul-NS-Req" name="image" keyPath="values" id="zVL-83-a39"/>
+                                                <binding destination="rul-NS-Req" name="image" keyPath="values" id="QfI-Mb-j1F"/>
                                             </connections>
                                         </buttonCell>
                                         <connections>
-                                            <action selector="onCreateAdvJpGame:" target="rdk-rJ-M5M" id="y5j-cF-ALs"/>
+                                            <action selector="onCreateAdvJpGame:" target="rdk-rJ-M5M" id="1vx-9B-PTR"/>
                                         </connections>
                                     </button>
                                     <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="R9i-iZ-WL3">
-                                        <rect key="frame" x="199" y="109" width="124" height="124"/>
+                                        <rect key="frame" x="199" y="225" width="124" height="124"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <buttonCell key="cell" type="square" title="English ADV" alternateTitle="English ADV" bezelStyle="shadowlessSquare" imagePosition="above" alignment="center" borderStyle="border" imageScaling="proportionallyUpOrDown" inset="2" id="tml-Nr-ByC">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -115,7 +115,7 @@
                                         </connections>
                                     </button>
                                     <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="syw-nI-k6c">
-                                        <rect key="frame" x="366" y="109" width="124" height="124"/>
+                                        <rect key="frame" x="366" y="225" width="124" height="124"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <buttonCell key="cell" type="square" title="Japanese NVL" alternateTitle="Japanese NVL" bezelStyle="shadowlessSquare" imagePosition="above" alignment="center" borderStyle="border" imageScaling="proportionallyUpOrDown" inset="2" id="OfP-bA-gbH">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -126,7 +126,7 @@
                                         </connections>
                                     </button>
                                     <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="2IH-KC-u4x">
-                                        <rect key="frame" x="535" y="109" width="124" height="124"/>
+                                        <rect key="frame" x="535" y="225" width="124" height="124"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <buttonCell key="cell" type="square" title="Japanese Vertical" alternateTitle="Japanese Vertical" bezelStyle="shadowlessSquare" imagePosition="above" alignment="center" borderStyle="border" imageScaling="proportionallyUpOrDown" inset="2" id="ffh-TZ-lVw">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -137,7 +137,7 @@
                                         </connections>
                                     </button>
                                     <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="esJ-vp-RL5">
-                                        <rect key="frame" x="698" y="109" width="124" height="124"/>
+                                        <rect key="frame" x="698" y="225" width="124" height="124"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <buttonCell key="cell" type="square" title="English NVL" alternateTitle="English NVL" bezelStyle="shadowlessSquare" imagePosition="above" alignment="center" borderStyle="border" imageScaling="proportionallyUpOrDown" inset="2" id="q7o-ct-tkn">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -148,7 +148,7 @@
                                         </connections>
                                     </button>
                                     <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Ckm-rk-lL4">
-                                        <rect key="frame" x="350" y="32" width="157" height="32"/>
+                                        <rect key="frame" x="350" y="23" width="157" height="32"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <buttonCell key="cell" type="push" title="Open Existing Game" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="4JV-pZ-yQu">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -158,10 +158,24 @@
                                             <action selector="onOpenGame:" target="rdk-rJ-M5M" id="qhj-gr-3qj"/>
                                         </connections>
                                     </button>
+                                    <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="pZP-WC-Nqz">
+                                        <rect key="frame" x="32" y="85" width="130" height="123"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <buttonCell key="cell" type="square" title="Japanese Voice" alternateTitle="Japanese ADV" bezelStyle="shadowlessSquare" imagePosition="above" alignment="center" borderStyle="border" imageScaling="proportionallyUpOrDown" inset="2" id="DEh-6A-3y0">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" metaFont="system"/>
+                                            <connections>
+                                                <binding destination="rul-NS-Req" name="image" keyPath="values" id="zVL-83-a39"/>
+                                            </connections>
+                                        </buttonCell>
+                                        <connections>
+                                            <action selector="onCreateAdvJpVoiceGame:" target="rdk-rJ-M5M" id="h1f-No-dU8"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                             </customView>
                             <customView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Z6f-Dy-hNJ" customClass="GameView">
-                                <rect key="frame" x="0.0" y="1" width="856" height="427"/>
+                                <rect key="frame" x="0.0" y="1" width="856" height="306"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             </customView>
                             <customView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ieW-9W-Lxm">
@@ -296,6 +310,7 @@
                         <outlet property="buttonEnglishAdv" destination="R9i-iZ-WL3" id="c1X-T8-gyj"/>
                         <outlet property="buttonEnglishNvl" destination="esJ-vp-RL5" id="gWW-o5-fwa"/>
                         <outlet property="buttonJapaneseAdv" destination="pZP-WC-Nqz" id="LdQ-fV-lpR"/>
+                        <outlet property="buttonJapaneseAdvDark" destination="dk3-hT-IiK" id="ufc-Mq-emE"/>
                         <outlet property="buttonJapaneseNvl" destination="syw-nI-k6c" id="gYW-Iq-Hh8"/>
                         <outlet property="buttonJapaneseVertical" destination="2IH-KC-u4x" id="63h-QB-3ho"/>
                         <outlet property="buttonMove" destination="eoX-Hr-RAE" id="5yN-kU-Bt5"/>

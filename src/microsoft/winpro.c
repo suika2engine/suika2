@@ -1015,6 +1015,12 @@ static VOID InitMenu(HWND hWnd)
 	mi.dwTypeData = bEnglish ? L"Japanese ADV" : L"日本語アドベンチャー";
 	InsertMenuItem(hMenuProject, nOrder++, TRUE, &mi);
 
+	/* 日本語アドベンチャー(フルボイス)を作成する */
+	mi.fMask = MIIM_TYPE | MIIM_ID;
+	mi.wID = ID_NEW_PROJECT_ADVJP_VOICE;
+	mi.dwTypeData = bEnglish ? L"Japanese Full Voice" : L"日本語アドベンチャー(フルボイス)";
+	InsertMenuItem(hMenuProject, nOrder++, TRUE, &mi);
+
 	/* 日本語ノベルを作成する */
 	mi.fMask = MIIM_TYPE | MIIM_ID;
 	mi.wID = ID_NEW_PROJECT_NVLJP;
@@ -1407,6 +1413,7 @@ static VOID StartGame(void)
 
 		/* Make menu items enabled/disabled. */
 		EnableMenuItem(hMenu, ID_NEW_PROJECT_ADVJP, MF_GRAYED);
+		EnableMenuItem(hMenu, ID_NEW_PROJECT_ADVJP_VOICE, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_NEW_PROJECT_NVLJP, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_NEW_PROJECT_NVLJPV, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_NEW_PROJECT_ADVEN, MF_GRAYED);
@@ -2031,6 +2038,9 @@ static void OnCommand(WPARAM wParam, LPARAM lParam)
 	{
 	/* ファイル */
 	case ID_NEW_PROJECT_ADVJP:
+		OnNewProject(L"games\\dark\\*");
+		break;
+	case ID_NEW_PROJECT_ADVJP_VOICE:
 		OnNewProject(L"games\\japanese\\*");
 		break;
 	case ID_NEW_PROJECT_NVLJP:

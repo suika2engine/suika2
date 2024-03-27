@@ -41,6 +41,7 @@ static ViewController *theViewController;
 // IBOutlet
 @property (weak) IBOutlet NSView *projectPanel;
 @property (weak) IBOutlet NSButton *buttonJapaneseAdv;
+@property (weak) IBOutlet NSButton *buttonJapaneseAdvDark;
 @property (weak) IBOutlet NSButton *buttonEnglishAdv;
 @property (weak) IBOutlet NSButton *buttonJapaneseNvl;
 @property (weak) IBOutlet NSButton *buttonJapaneseVertical;
@@ -108,6 +109,7 @@ static ViewController *theViewController;
 
     // Set button images.
     [self.buttonJapaneseAdv setImage:[NSImage imageNamed:@"adv-jp"]];
+    [self.buttonJapaneseAdvDark setImage:[NSImage imageNamed:@"adv-jp"]];
     [self.buttonEnglishAdv setImage:[NSImage imageNamed:@"adv-en"]];
     [self.buttonJapaneseNvl setImage:[NSImage imageNamed:@"nvl-jp"]];
     [self.buttonJapaneseVertical setImage:[NSImage imageNamed:@"nvl-jp-vert"]];
@@ -530,6 +532,11 @@ static ViewController *theViewController;
 }
 
 - (IBAction)onCreateAdvJpGame:(id)sender {
+    if ([self createProject:@"dark"])
+        [self setupView];
+}
+
+- (IBAction)onCreateAdvJpVoiceGame:(id)sender {
     if ([self createProject:@"japanese"])
         [self setupView];
 }
@@ -1181,6 +1188,7 @@ static ViewController *theViewController;
     NSString *exportPath = [NSString stringWithFormat:@"%@/export-ios", [fileManager currentDirectoryPath]];
     [fileManager removeItemAtURL:[NSURL fileURLWithPath:exportPath] error:nil];
     if (![fileManager createDirectoryAtURL:[NSURL fileURLWithPath:exportPath] withIntermediateDirectories:NO attributes:nil error:nil]) {
+        log_warn("mkdir error.");
         log_warn("mkdir error.");
         return;
     }

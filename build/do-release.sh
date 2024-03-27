@@ -172,6 +172,7 @@ cp -v pro-windows/suika-pro.exe installer-windows/suika-pro.exe
 rm -rf installer-windows/games
 find ../games -name '.*' | xargs rm
 mkdir installer-windows/games
+cp -R ../games/dark installer-windows/games/
 cp -R ../games/japanese installer-windows/games/
 cp -R ../games/english installer-windows/games/
 cp -R ../games/nvl installer-windows/games/
