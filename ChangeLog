@@ -5,12 +5,17 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/17.31 2024/3/27
+  <ul>
+    <li>WMSの関数追加 (Thanks to こつ子さん)</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
 <li>Suika2/17.30 2024/3/27
   <ul>
     <li>デフォルトデザインテンプレートゲームの追加 (Thanks to ソローさん)</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
 <li>Suika2/17.29 2024/3/27
   <ul>
     <li>サンプル目パチの修正 (Thanks to もみじさん)</li>
@@ -1876,12 +1881,22 @@ This file is referred by some automatic release scripts.
 [Release History (English)]
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/17.31 2024/3/27
+  <ul>
+    <li>Added some WMS functions (Thanks to Kotsuko-san)</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
 <li>Suika2/17.30 2024/3/27
   <ul>
     <li>Added a default design template game (Thanks to SOrow-san)</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
+<li>Suika2/17.30 2024/3/27
+  <ul>
+    <li>Added a default design template game (Thanks to SOrow-san)</li>
+  </ul>
+</li>
 <li>Suika2/17.29 2024/3/27
   <ul>
     <li>Fixed the sample eye-blinking image (Thanks to Momiji-san)</li>
