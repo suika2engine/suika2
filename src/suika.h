@@ -33,6 +33,7 @@
 
 /* Subsystems */
 #include "anime.h"	/* The animation subsystem */
+#include "ciel.h"	/* The Ciel direction subsystem */
 #include "conf.h"	/* The configuration subsystem */
 #include "event.h"	/* The event handling subsystem */
 #include "file.h"	/* The file subsystem */

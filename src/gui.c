@@ -2611,8 +2611,6 @@ static void process_save(int button_index)
 
 	/* ボタン番号からセーブデータ番号に変換する */
 	data_index = save_page * save_slots + button[button_index].index;
-	if (get_save_date(data_index) != 0)
-		return;
 
 	/* SEを再生する */
 	play_sys_se(button[button_index].clickse);

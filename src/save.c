@@ -28,7 +28,7 @@
 #endif
 
 /* セーブデータの互換性バージョン(12.42で導入) */
-#define SAVE_VER	(0xabcd1715)
+#define SAVE_VER	(0xabcd1727)
 
 #ifdef SUIKA_TARGET_WASM
 #include <emscripten/emscripten.h>
@@ -451,6 +451,10 @@ static bool serialize_all(const char *fname, uint64_t *timestamp, int index)
 
 		/* 名前変数のシリアライズを行う */
 		if (!serialize_name_vars(wf))
+			break;
+
+		/* Cielの仮ステージのシリアライズを行う */
+		if (!ciel_serialize_hook(wf))
 			break;
 
 		/* コンフィグのシリアライズを行う */
@@ -1024,6 +1028,10 @@ static bool deserialize_all(const char *fname)
 		
 		/* 名前変数のデシリアライズを行う */
 		if (!deserialize_name_vars(rf))
+			break;
+
+		/* Cielの仮ステージのデシリアライズを行う */
+		if (!ciel_deserialize_hook(rf))
 			break;
 
 		/* コンフィグのデシリアライズを行う */

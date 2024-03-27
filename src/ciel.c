@@ -98,6 +98,7 @@ struct temporary_stage {
 
 	/* Fading Effect */
 	int effect;
+	char *rule_file;
 	struct image *rule_img;
 
 	/* Duration */
@@ -849,4 +850,117 @@ static int get_index_for_name(bool allow_bg)
 	log_script_exec_footer();
 
 	return false;
+}
+
+/*
+ * Save / Load
+ */
+
+bool ciel_serialize_hook(struct wfile *wf)
+{
+	const char *name;
+	size_t len;
+	int i, val;
+
+	for (i = 0; i < CL_CHARACTERS; i++) {
+		name = ts.name[i];
+		if (name == NULL)
+			name = "";
+		len = strlen(name) + 1;
+		if (write_wfile(wf, name, len) < len)
+			return false;
+
+		val = ts.x[i];
+		if (write_wfile(wf, &val, sizeof(val)) < sizeof(val))
+			return false;
+
+		val = ts.y[i];
+		if (write_wfile(wf, &val, sizeof(val)) < sizeof(val))
+			return false;
+
+		val = ts.a[i];
+		if (write_wfile(wf, &val, sizeof(val)) < sizeof(val))
+			return false;
+
+		val = ts.dim[i] ? 1 : 0;
+		if (write_wfile(wf, &val, sizeof(val)) < sizeof(val))
+			return false;
+
+	}
+
+	val = ts.effect;
+	if (write_wfile(wf, &val, sizeof(val)) < sizeof(val))
+		return false;
+
+	name = ts.rule_file;
+	if (name == NULL)
+		name = "none";
+	len = strlen(name) + 1;
+	if (write_wfile(wf, name, len) < len)
+		return false;
+
+	return true;
+}
+
+bool ciel_deserialize_hook(struct rfile *rf)
+{
+	char name[1024];
+	int i, val;
+
+	ts.is_modified = false;
+
+	for (i = 0; i < CL_CHARACTERS; i++) {
+		ts.is_file_changed[i] = false;
+
+		if (ts.name[i] != NULL) {
+			free(ts.name[i]);
+			ts.name[i] = NULL;
+		}
+		if (gets_rfile(rf, name, sizeof(name)) != NULL) {
+			ts.name[i] = strdup(name);
+			if (ts.name[i] == NULL)
+				return false;
+		}
+
+		if (read_rfile(rf, &val, sizeof(val)) < sizeof(val))
+			return false;
+		ts.x[i] = val;
+
+		if (read_rfile(rf, &val, sizeof(val)) < sizeof(val))
+			return false;
+		ts.y[i] = val;
+
+		if (read_rfile(rf, &val, sizeof(val)) < sizeof(val))
+			return false;
+		ts.a[i] = val;
+
+		if (read_rfile(rf, &val, sizeof(val)) < sizeof(val))
+			return false;
+		ts.dim[i] = val ? true : false;
+	}
+
+	if (read_rfile(rf, &val, sizeof(val)) < sizeof(val))
+		return false;
+	ts.effect = val;
+
+	if (ts.rule_file != NULL) {
+		free(ts.rule_file);
+		ts.rule_file = NULL;
+	}
+	if (gets_rfile(rf, name, sizeof(name)) != NULL) {
+		ts.rule_file = strdup(name);
+		if (ts.rule_file == NULL)
+			return false;
+	}
+	if (ts.rule_img != NULL) {
+		destroy_image(ts.rule_img);
+		ts.rule_img = NULL;
+	}
+	if (strcmp(ts.rule_file, "none") != 0) {
+		ts.rule_img = create_image_from_file(RULE_DIR, ts.rule_file);
+		if (ts.rule_img == NULL)
+			return false;
+	}
+
+	return true;
 }
