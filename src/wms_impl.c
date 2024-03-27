@@ -66,13 +66,13 @@ struct wms_ffi_func_tbl ffi_func_tbl[] = {
 	{s2_get_variable, "s2_get_variable", {"index", NULL}},
 	{s2_set_variable, "s2_set_variable", {"index", "value", NULL}},
 	{s2_get_name_variable, "s2_get_name_variable", {"index", NULL}},
-	{s2_get_year,"s2_get_year",{NULL}},
-	{s2_get_month,"s2_get_month",{NULL}},
-	{s2_get_day,"s2_get_day",{NULL}},
-	{s2_get_hour,"s2_get_hour",{NULL}},
-	{s2_get_minute,"s2_get_minute",{NULL}},
-	{s2_get_second,"s2_get_second",{NULL}},
-	{s2_get_wday,"s2_get_wday",{NULL}},
+	{s2_get_year, "s2_get_year", {NULL}},
+	{s2_get_month, "s2_get_month", {NULL}},
+	{s2_get_day, "s2_get_day", {NULL}},
+	{s2_get_hour, "s2_get_hour", {NULL}},
+	{s2_get_minute, "s2_get_minute", {NULL}},
+	{s2_get_second, "s2_get_second", {NULL}},
+	{s2_get_wday, "s2_get_wday",{NULL}},
 	{s2_set_name_variable, "s2_set_name_variable", {"index", "value", NULL}},
 	{s2_random, "s2_random", {NULL}},
 	{s2_round,"s2_round", {"value",NULL}},
@@ -229,12 +229,12 @@ static bool s2_get_year(struct wms_runtime *rt)
 
 	local = localtime(&now_unixtime);
 
-	now_year = local -> tm_year + 1900;
+	now_year = local->tm_year + 1900;
 
 	/* Set the return value. */
-	if(!wms_make_int_var(rt, "__return" , now_year, NULL))
+	if (!wms_make_int_var(rt, "__return" , now_year, NULL))
 		return false;
-	
+
 	return true;
 }
 
@@ -251,12 +251,12 @@ static bool s2_get_month(struct wms_runtime *rt)
 
 	local = localtime(&now_unixtime);
 
-	now_month = local -> tm_mon + 1;
+	now_month = local->tm_mon + 1;
 
 	/* Set the return value. */
-	if(!wms_make_int_var(rt, "__return" , now_month, NULL))
+	if (!wms_make_int_var(rt, "__return", now_month, NULL))
 		return false;
-	
+
 	return true;
 }
 
@@ -273,12 +273,12 @@ static bool s2_get_day(struct wms_runtime *rt)
 
 	local = localtime(&now_unixtime);
 
-	now_day = local -> tm_mday;
+	now_day = local->tm_mday;
 
 	/* Set the return value. */
-	if(!wms_make_int_var(rt, "__return" , now_day, NULL))
+	if (!wms_make_int_var(rt, "__return", now_day, NULL))
 		return false;
-	
+
 	return true;
 }
 
@@ -295,12 +295,12 @@ static bool s2_get_hour(struct wms_runtime *rt)
 
 	local = localtime(&now_unixtime);
 
-	now_hour = local -> tm_hour;
+	now_hour = local->tm_hour;
 
 	/* Set the return value. */
-	if(!wms_make_int_var(rt, "__return" , now_hour, NULL))
+	if (!wms_make_int_var(rt, "__return", now_hour, NULL))
 		return false;
-	
+
 	return true;
 }
 
@@ -317,12 +317,12 @@ static bool s2_get_minute(struct wms_runtime *rt)
 
 	local = localtime(&now_unixtime);
 
-	now_minute = local -> tm_min;
+	now_minute = local->tm_min;
 
 	/* Set the return value. */
-	if(!wms_make_int_var(rt, "__return" , now_minute, NULL))
+	if (!wms_make_int_var(rt, "__return", now_minute, NULL))
 		return false;
-	
+
 	return true;
 }
 
@@ -339,17 +339,16 @@ static bool s2_get_second(struct wms_runtime *rt)
 
 	local = localtime(&now_unixtime);
 
-	now_second = local -> tm_sec;
+	now_second = local->tm_sec;
 
 	/* Set the return value. */
-	if(!wms_make_int_var(rt, "__return" , now_second, NULL))
+	if (!wms_make_int_var(rt, "__return", now_second, NULL))
 		return false;
-	
+
 	return true;
 }
 
-/* Returns day of week*/
-/* Sunday= 0*/
+/* Returns day of week (Sunday=0) */
 static bool s2_get_wday(struct wms_runtime *rt)
 {
 	int now_wday;
@@ -362,15 +361,14 @@ static bool s2_get_wday(struct wms_runtime *rt)
 
 	local = localtime(&now_unixtime);
 
-	now_wday = local -> tm_wday;
+	now_wday = local->tm_wday;
 
 	/* Set the return value. */
-	if(!wms_make_int_var(rt, "__return" , now_wday, NULL))
+	if (!wms_make_int_var(rt, "__return", now_wday, NULL))
 		return false;
-	
+
 	return true;
 }
-
 
 /* Returns a random number that ranges from 0 to 99999. */
 static bool s2_random(struct wms_runtime *rt)
@@ -388,7 +386,7 @@ static bool s2_random(struct wms_runtime *rt)
 	return true;
 }
 
-/*Returns a rounded value*/
+/* Returns a rounded value. */
 static bool s2_round(struct wms_runtime *rt)
 {
 	struct wms_value *value;
@@ -404,17 +402,17 @@ static bool s2_round(struct wms_runtime *rt)
 	if (!wms_get_float_value(rt, value , &value_i))
 		return false;
 
-	//round value
+	/* Round the value. */
 	value_round = round(value_i);
 
 	/* Set the return value. */
-	if (!wms_make_int_var(rt, "__return", (int) value_round, NULL))
+	if (!wms_make_int_var(rt, "__return", (int)value_round, NULL))
 		return false;
 
 	return true;
 }
 
-/*Returns a value rounded up*/
+/* Returns a value rounded up. */
 static bool s2_ceil(struct wms_runtime *rt)
 {
 	struct wms_value *value;
@@ -430,17 +428,17 @@ static bool s2_ceil(struct wms_runtime *rt)
 	if (!wms_get_float_value(rt, value , &value_i))
 		return false;
 
-	//round up value
+	/* Round the value up. */
 	value_round_up = ceil(value_i);
 
 	/* Set the return value. */
-	if (!wms_make_int_var(rt, "__return", (int) value_round_up, NULL))
+	if (!wms_make_int_var(rt, "__return", (int)value_round_up, NULL))
 		return false;
 
 	return true;
 }
 
-/*Returns a value rounded down*/
+/* Returns a value rounded down. */
 static bool s2_floor(struct wms_runtime *rt)
 {
 	struct wms_value *value;
@@ -456,11 +454,11 @@ static bool s2_floor(struct wms_runtime *rt)
 	if (!wms_get_float_value(rt, value , &value_i))
 		return false;
 
-	//round down value
+	/* Round the value down. */
 	value_round_down = floor(value_i);
 
 	/* Set the return value. */
-	if (!wms_make_int_var(rt, "__return", (int) value_round_down, NULL))
+	if (!wms_make_int_var(rt, "__return", (int)value_round_down, NULL))
 		return false;
 
 	return true;
@@ -590,6 +588,8 @@ static bool s2_push_stage(struct wms_runtime *rt)
 
 	UNUSED_PARAMETER(rt);
 
+	log_warn("s2_push_stage() is deprecated. Use GUIv2 instead.");
+
 	is_stage_pushed = true;
 
 	for (i = LAYER_BG; i <= LAYER_EFFECT4; i++) {
@@ -636,6 +636,8 @@ static bool s2_pop_stage(struct wms_runtime *rt)
 	int i;
 
 	UNUSED_PARAMETER(rt);
+
+	log_warn("s2_pop_stage() is deprecated. Use GUIv2 instead.");
 
 	if (!is_stage_pushed)
 		return true;
@@ -730,7 +732,7 @@ static bool s2_pop_stage(struct wms_runtime *rt)
 	return true;
 }
 
-/* Remove all local save data. */
+/* Removes all local save data. */
 static bool s2_remove_local_save(struct wms_runtime *rt)
 {
 	struct wms_value *index;
@@ -752,7 +754,7 @@ static bool s2_remove_local_save(struct wms_runtime *rt)
 	return true;
 }
 
-/* Remove a global save data. */
+/* Removes a global save data. */
 static bool s2_remove_global_save(struct wms_runtime *rt)
 {
 	UNUSED_PARAMETER(rt);
