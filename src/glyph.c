@@ -92,7 +92,7 @@ static void draw_glyph_dim_func(
 static bool isgraph_extended(const char **mbs, uint32_t *wc);
 static int translate_font_type(int font_ype);
 static bool apply_font_size(int font_type, int size);
-static void draw_emoticon(struct image *image, const char *name, int x, int y, int *w, int *h);
+static bool draw_emoticon(struct draw_msg_context *context, const char *name, int *w, int *h);
 
 /*
  * フォントレンダラの初期化処理を行う
@@ -2104,12 +2104,8 @@ static bool process_escape_sequence_emoticon(struct draw_msg_context *context)
 	/* 描画する */
 	ret_w = 0;
 	ret_h = 0;
-	draw_emoticon(context->layer_image,
-		      name,
-		      context->pen_x,
-		      context->pen_y,
-		      &ret_w,
-		      &ret_h);
+	if (!draw_emoticon(context, name, &ret_w, &ret_h))
+		return false;
 
 	if (!context->use_tategaki)
 		context->pen_x += ret_w;
@@ -2142,11 +2138,9 @@ void set_ignore_inline_wait(struct draw_msg_context *context)
  */
 
 /* Draw an emoticon. */
-static void
-draw_emoticon(struct image *image,
+static bool
+draw_emoticon(struct draw_msg_context *context,
 	      const char *name,
-	      int x,
-	      int y,
 	      int *w,
 	      int *h)
 {
@@ -2159,13 +2153,63 @@ draw_emoticon(struct image *image,
 			break;
 	}
 	if (i == EMOTICON_COUNT)
-		return;
+		return false;
 
 	if (emoticon_image[i] == NULL)
-		return;
+		return false;
 
 	*w = emoticon_image[i]->width;
 	*h = emoticon_image[i]->height;
 
-	draw_image_normal(image, x, y, emoticon_image[i], *w, *h, 0, 0, 255);
+	context->runtime_is_line_top = false;
+	if (!context->use_tategaki) {
+		int limit = context->area_width - context->right_margin;
+
+		/* 右側の幅が足りない場合 */
+		if (context->pen_x + *w + context->char_margin >= limit) {
+			/* LFを無視する場合 */
+			if (context->ignore_linefeed && context->line_margin == 0)
+				return false; /* 描画終了 */
+
+			/* 改行する */
+			context->pen_y += context->line_margin;
+			context->pen_x = context->left_margin;
+			context->runtime_is_line_top = true;
+			if (context->pen_y + context->line_margin >= context->area_height)
+				return false; /* 描画終了 */
+		}
+	} else {
+		int limit = context->area_height - context->bottom_margin;
+
+		/* 下側の幅が足りない場合 */
+		if (context->pen_y + *h + context->char_margin >= limit) {
+			/* LFを無視する場合 */
+			if (context->ignore_linefeed && context->line_margin == 0)
+				return false; /* 描画終了 */
+
+			/* 改行する */
+			context->pen_x -= context->line_margin;
+			context->pen_y = context->top_margin;
+			context->runtime_is_line_top = true;
+			if (context->pen_x + context->line_margin < 0)
+				return false; /* 描画終了 */
+		}
+	}
+
+	draw_image_normal(context->layer_image,
+			  context->pen_x,
+			  context->pen_y,
+			  emoticon_image[i],
+			  *w,
+			  *h,
+			  0,
+			  0,
+			  255);
+
+	if (!context->use_tategaki)
+		*w += context->char_margin;
+	else
+		*h += context->char_margin;
+
+	return true;
 }
